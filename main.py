@@ -29,8 +29,14 @@ if __name__ == "__main__":
    #result.plot()
    #plt.show()
 
-   for idserie in np.arange(5): #numseries):
-      fsarimax = s.sarima(df[df.columns[idserie]],indices,autoArima=True)
-      print(f"idserie={idserie} - forecast {fsarimax[2]}")
+   fout = open('results.csv', 'w')
 
+   for idserie in np.arange(numseries):
+      fsarimax = s.sarima(df[df.columns[idserie]],indices,autoArima=True)
+      if isinstance(fsarimax,pd.Series):
+         fsarimax = fsarimax.values
+      print(f"idserie={idserie} - forecast {fsarimax[2]}")
+      fout.write(f"sarimax,idserie,{idserie},forecast,{fsarimax[2]}\n")
+
+   fout.close()
    pass
