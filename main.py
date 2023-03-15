@@ -16,7 +16,7 @@ def writeseries(df):
 
 if __name__ == "__main__":
    os.chdir(os.path.dirname(os.path.abspath(__file__)))
-   df = pd.read_csv("../serie_nocovid_new.csv")
+   #df = pd.read_csv("../serie_nocovid_new.csv")
    #writeseries(df)
    indices = pd.read_csv("indices.csv",header=None).values[0,:]
 
@@ -29,7 +29,8 @@ if __name__ == "__main__":
    #result.plot()
    #plt.show()
 
-   idserie = 0
-   s.sarima(df[df.columns[idserie]],indices,autoArima=False)
+   for idserie in np.arange(5): #numseries):
+      fsarimax = s.sarima(df[df.columns[idserie]],indices,autoArima=True)
+      print(f"idserie={idserie} - forecast {fsarimax[2]}")
 
    pass
