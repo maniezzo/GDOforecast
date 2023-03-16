@@ -1,7 +1,7 @@
 import os
 import numpy as np, pandas as pd
 import run_sarimax as s
-
+import run_MLP as mlp
 def writeseries(df):
    numrows = 48
    cols = df.loc[df["idserie"]==0]["val"].iloc[0:numrows].to_numpy().reshape(numrows,1)
@@ -29,8 +29,17 @@ if __name__ == "__main__":
    #result.plot()
    #plt.show()
 
-   for idserie in np.arange(5): #numseries):
-      fsarimax = s.sarima(df[df.columns[idserie]],indices,autoArima=True)
-      print(f"idserie={idserie} - forecast {fsarimax[2]}")
+   goSarimax = False
+   if goSarimax:
+      for idserie in np.arange(5): #numseries):
+         fsarimax = s.sarima(df[df.columns[idserie]],indices,autoArima=True)
+         print(f"idserie={idserie} - forecast {fsarimax[2]}")
+
+   goMLP = True
+   if goMLP:
+      idserie = 0
+      for idserie in np.arange(5): #numseries):
+         fmlp =  mlp.go_MLP(df[df.columns[idserie]],indices,look_back=3)
+         print(f"idserie={idserie} - forecast {fmlp[2]}")
 
    pass
