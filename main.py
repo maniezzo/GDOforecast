@@ -29,6 +29,7 @@ if __name__ == "__main__":
    #result.plot()
    #plt.show()
 
+<<<<<<< HEAD
    goSarimax = False
    if goSarimax:
       for idserie in np.arange(5): #numseries):
@@ -41,5 +42,16 @@ if __name__ == "__main__":
       for idserie in np.arange(5): #numseries):
          fmlp =  mlp.go_MLP(df[df.columns[idserie]],indices,look_back=3)
          print(f"idserie={idserie} - forecast {fmlp[2]}")
+=======
+   fout = open('results.csv', 'w')
 
+   for idserie in np.arange(numseries):
+      fsarimax = s.sarima(df[df.columns[idserie]],indices,autoArima=True)
+      if isinstance(fsarimax,pd.Series):
+         fsarimax = fsarimax.values
+      print(f"idserie={idserie} - forecast {fsarimax[2]}")
+      fout.write(f"sarimax,idserie,{idserie},forecast,{fsarimax[2]}\n")
+>>>>>>> 853a1fbac8745e752d68be31245f4952dc8951da
+
+   fout.close()
    pass
