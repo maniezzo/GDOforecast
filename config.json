@@ -1,7 +1,10 @@
 {
   "jNumSeries": 3,
   "jgoSarima": false,
-  "jgoMLP": true,
+  "jgoMLP": false,
   "jMLPlr": 0.005,
-  "jMLPniter": 2000
+  "jMLPniter": 2000,
+  "jgoLSTM": true,
+  "jLSTMlr": 0.005,
+  "jLSTMniter": 25
 }
