@@ -10,7 +10,7 @@ import math
 def go_lstm(ds,indices,look_back = 12, lr=0.05, niter=1000):
    np.random.seed(550)  # for reproducibility
    datas = ds.values  # time series values, 2D for compatibility
-   datas = datas.astype('float32')  # needed for MLP input
+   datas = datas.astype('float32')  # needed for nn input
    externals = np.array([indices[i % 12] for i in np.arange(len(ds))]).reshape(-1, 1)
    numExternals = 1
 
@@ -21,16 +21,18 @@ def go_lstm(ds,indices,look_back = 12, lr=0.05, niter=1000):
    from sklearn.preprocessing import MinMaxScaler
    scaler = MinMaxScaler()
    scaler.fit_transform(train.reshape(-1, 1))
-   scaled_train_data = scaler.transform(train.reshape(-1, 1))
-   scaled_test_data  = scaler.transform(test.reshape(-1, 1))
+   scaled_train = scaler.transform(train.reshape(-1, 1))
+   scaled_test  = scaler.transform(test.reshape(-1, 1))
 
    from keras.preprocessing.sequence import TimeseriesGenerator
-   n_input = look_back; n_features = 1
-   generator = TimeseriesGenerator(scaled_train_data, scaled_train_data, length=n_input, batch_size=1)
+   n_input = look_back
+   n_features = 1
+   generator = TimeseriesGenerator(scaled_train, scaled_train, length=n_input, batch_size=1)
 
+   # external would be included after the LSTM layer and before the standard relu layer
    lstm_model = Sequential()
-   lstm_model.add(LSTM(20, activation='relu', return_sequences=True, input_shape=(n_input, n_features), dropout=0.05))
-   lstm_model.add(LSTM(15, activation='relu')) # stacked LSTM
+   lstm_model.add(LSTM(40, activation='relu',dropout=0.05))
+   lstm_model.add(Dense(20, activation='relu'))
    lstm_model.add(Dense(1))
    lstm_model.compile(optimizer='adam', loss='mse')
    lstm_model.fit(generator,epochs=niter,verbose=1)
@@ -44,21 +46,22 @@ def go_lstm(ds,indices,look_back = 12, lr=0.05, niter=1000):
 
    # rolling day prediction (validation)
    lstm_predictions_scaled = list()
-   batch = scaled_train_data[-n_input:]
-   curbatch = batch.reshape((1, n_input, n_features)) # 1 dim more
+   batch = scaled_train[-n_input:]
+   curbatch = batch.reshape((1, n_input, n_features)) # 3D, adding num of
    for i in range(len(test)):
-      lstm_pred = lstm_model.predict(curbatch)[0]
+      lstm_pred = lstm_model.predict(curbatch)[0] # one dim less to fit inverse scaling later
       lstm_predictions_scaled.append(lstm_pred)
-      curbatch = np.append(curbatch[:,1:,:],[[lstm_pred]],axis=1)
+      curbatch = np.append(curbatch[:,1:,:],[[lstm_pred]],axis=1) # mind the dimensions
 
    # rolling day forecast
    lstm_forecasts_scaled = list()
-   batch = scaled_train_data[-n_input:]
+   scaled_datas = scaler.transform(datas.reshape(-1, 1))
+   batch = scaled_datas[-n_input:]
    curbatch = batch.reshape((1, n_input, n_features)) # 1 dim more
    for i in range(len(test)):
-      lstm_pred = lstm_model.predict(curbatch)[0]
-      lstm_forecasts_scaled.append(lstm_pred)
-      curbatch = np.append(curbatch[:,1:,:],[[lstm_pred]],axis=1)
+      lstm_fore = lstm_model.predict(curbatch)[0]
+      lstm_forecasts_scaled.append(lstm_fore)
+      curbatch = np.append(curbatch[:,1:,:],[[lstm_fore]],axis=1)
 
    lstm_prediction = scaler.inverse_transform(lstm_predictions_scaled)
    lstm_forecast   = scaler.inverse_transform(lstm_forecasts_scaled)
@@ -66,7 +69,8 @@ def go_lstm(ds,indices,look_back = 12, lr=0.05, niter=1000):
 
    plt.plot(ds, label="ds")
    plt.plot(train,label='train')
-   plt.plot([None for x in train]+[x for x in yfore], label='yfore')
+   plt.plot([None for x in train]+[x for x in lstm_prediction], label='yfore')
+   plt.plot([None for x in ds]+[x for x in yfore], label='yfore')
    plt.ylim(15, 50)
    plt.legend()
    plt.show()
