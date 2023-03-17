@@ -1,4 +1,4 @@
-import os
+import os, json
 import numpy as np, pandas as pd
 import run_sarimax as s
 import run_MLP as mlp
@@ -16,6 +16,17 @@ def writeseries(df):
 
 if __name__ == "__main__":
    os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
+   # read configuration
+   fconf = open('config.json')
+   conf = json.load(fconf)
+   numSeries = conf["jNumSeries"]
+   fgoSarima = conf['jgoSarima']
+   fgoMLP = conf['jgoMLP']
+   lrMLP  = conf["jMLPlr"]
+   niterMLP = conf["jMLPniter"]
+   fconf.close()
+
    #df = pd.read_csv("../serie_nocovid_new.csv")
    #writeseries(df)
    indices = pd.read_csv("indices.csv",header=None).values[0,:]
@@ -30,7 +41,7 @@ if __name__ == "__main__":
    #plt.show()
    fout = open('results.csv', 'w')
 
-   goSarimax = False
+   goSarimax = fgoSarima
    if goSarimax:
       for idserie in np.arange(numseries):
          fsarimax = s.sarima(df[df.columns[idserie]], indices, autoArima=True)
@@ -39,11 +50,11 @@ if __name__ == "__main__":
          print(f"idserie={idserie} - forecast {fsarimax[2]}")
          fout.write(f"sarimax,idserie,{idserie},forecast,{fsarimax[2]}\n")
 
-   goMLP = True
+   goMLP = fgoMLP
    if goMLP:
       idserie = 0
-      for idserie in np.arange(5): #numseries):
-         fmlp =  mlp.go_MLP(df[df.columns[idserie]],indices,look_back=3)
+      for idserie in np.arange(numSeries):
+         fmlp =  mlp.go_MLP(df[df.columns[idserie]],indices,look_back=3,lr=lrMLP,niter=niterMLP)
          print(f"idserie={idserie} - forecast {fmlp[2]}")
          fout.write(f"mlp,idserie,{idserie},forecast,{fmlp[2]}\n")
 

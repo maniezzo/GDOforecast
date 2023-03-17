@@ -1,0 +1,7 @@
+{
+  "jNumSeries": 3,
+  "jgoSarima": false,
+  "jgoMLP": true,
+  "jMLPlr": 0.005,
+  "jMLPniter": 2000
+}
