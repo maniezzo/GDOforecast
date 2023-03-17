@@ -65,11 +65,12 @@ def go_lstm(ds,indices,look_back = 12, lr=0.05, niter=1000):
 
    lstm_prediction = scaler.inverse_transform(lstm_predictions_scaled)
    lstm_forecast   = scaler.inverse_transform(lstm_forecasts_scaled)
+   ypred = np.transpose(lstm_prediction).squeeze()
    yfore = np.transpose(lstm_forecast).squeeze()
 
    plt.plot(ds, label="ds")
    plt.plot(train,label='train')
-   plt.plot([None for x in train]+[x for x in lstm_prediction], label='yfore')
+   plt.plot([None for x in train]+[x for x in ypred], label='predict')
    plt.plot([None for x in ds]+[x for x in yfore], label='yfore')
    plt.ylim(15, 50)
    plt.legend()

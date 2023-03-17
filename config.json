@@ -1,10 +1,13 @@
 {
-  "jNumSeries": 3,
+  "jNumSeries": 1,
   "jgoSarima": false,
   "jgoMLP": false,
   "jMLPlr": 0.005,
   "jMLPniter": 2000,
-  "jgoLSTM": true,
+  "jgoLSTM": false,
   "jLSTMlr": 0.005,
-  "jLSTMniter": 25
+  "jLSTMniter": 25,
+  "jgoSVM": true,
+  "jgoXGboost": false,
+  "jgoRF": false
 }

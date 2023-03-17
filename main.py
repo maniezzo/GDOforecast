@@ -3,6 +3,7 @@ import numpy as np, pandas as pd
 import run_sarimax as s
 import run_MLP as mlp
 import run_lstm as lstm
+import run_SVM as svm
 
 def writeseries(df):
    numrows = 48
@@ -30,6 +31,9 @@ if __name__ == "__main__":
    fgoLSTM   = conf['jgoLSTM']
    lrLSTM    = conf["jLSTMlr"]
    niterLSTM = conf["jLSTMniter"]
+   fgoSVM    = conf['jgoSVM']
+   fgoXGboost= conf['jgoXGboost']
+   fgoRF     = conf['jgoRF']
    fconf.close()
 
    #df = pd.read_csv("../serie_nocovid_new.csv")
@@ -67,6 +71,13 @@ if __name__ == "__main__":
          flstm =  lstm.go_lstm(df[df.columns[idserie]],indices,look_back=3,lr=lrLSTM,niter=niterLSTM)
          print(f"idserie={idserie} - forecast {flstm[2]}")
          fout.write(f"lstm,idserie,{idserie},forecast,{flstm[2]}\n")
+
+   if fgoSVM:
+      idserie = 0
+      for idserie in np.arange(numSeries):
+         fsvm =  svm.go_svm(df[df.columns[idserie]],indices)
+         print(f"idserie={idserie} - forecast {fsvm[2]}")
+         fout.write(f"svm,idserie,{idserie},forecast,{fsvm[2]}\n")
 
    fout.close()
    pass
