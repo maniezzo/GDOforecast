@@ -77,7 +77,7 @@ if __name__ == "__main__":
    if fgoSVM:
       idserie = 0
       for idserie in np.arange(numSeries):
-         fsvm =  svm.go_svm(df[df.columns[idserie]],indices)
+         fsvm =  svm.go_svm(df[df.columns[idserie]],indices,look_back=3)
          print(f"idserie={idserie} - forecast {fsvm[2]}")
          fout.write(f"svm,idserie,{idserie},forecast,{fsvm[2]}\n")
 
@@ -88,10 +88,10 @@ if __name__ == "__main__":
          print(f"idserie={idserie} - forecast {fxgboost[2]}")
          fout.write(f"xgboost,idserie,{idserie},forecast,{fxgboost[2]}\n")
 
-   if fgoSVM:
+   if fgoRF:
       idserie = 0
       for idserie in np.arange(numSeries):
-         frf = rf.go_rf(df[df.columns[idserie]],indices)
+         frf = rf.go_rf(df[df.columns[idserie]],indices,look_back=3)
          print(f"idserie={idserie} - forecast {frf[2]}")
          fout.write(f"rndfrst,idserie,{idserie},forecast,{frf[2]}\n")
 

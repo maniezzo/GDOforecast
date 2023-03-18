@@ -19,10 +19,10 @@ def go_svm(ds,indices):
    #X_grid = X_grid.reshape((len(X_grid), 1))
 
    ypred = regressor.predict(X)
-   yfore = sc_y.inverse_transform([ypred])
+   yfore = sc_y.inverse_transform([ypred])[0]
 
-   plt.scatter(X, y.flatten(), color='red')
-   plt.plot(X_grid, regressor.predict(X_grid), color='blue')
+   plt.plot(ds.values, color='red', linewidth=3)
+   plt.plot(yfore, color='blue')
    plt.xlabel('X')
    plt.ylabel('Y')
    plt.title("SVR")

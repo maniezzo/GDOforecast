@@ -1,30 +1,37 @@
-from sklearn.datasets import make_regression
+import numpy as np
 from sklearn.ensemble import RandomForestRegressor
+import sklearn as sk
 import matplotlib.pyplot as plt
 
-def go_rf(ds):
-   # define dataset
-   X, y = make_regression(n_samples=1000, n_features=20, n_informative=15, noise=0.1, random_state=2)
-   # define the model
-   model = RandomForestRegressor()
-   # fit the model on the whole dataset
-   model.fit(X, y)
-   # make a single prediction
-   row = [[-0.89483109,-1.0670149,-0.25448694,-0.53850126,0.21082105,1.37435592,0.71203659,0.73093031,-1.25878104,-2.01656886,0.51906798,0.62767387,0.96250155,1.31410617,-1.25527295,-0.85079036,0.24129757,-0.17571721,-1.11454339,0.36268268]]
-   yhat = model.predict(row)
-   print('Prediction: %d' % yhat[0])
-
-   # forecast, train / test split
-   x = ds.iloc[:, 1:]
-   y = ds.iloc[:, 0]
-   x_train, x_valid = x[:-12], x[-12:]
-   y_train, y_valid = y[:-12], y[-12:]
-   mdl = rf = RandomForestRegressor(n_estimators=500)
-   mdl.fit(x_train, y_train)
-   pred = mdl.predict(x_valid)
-   mse = mean_absolute_error(y_valid, pred)
+def go_rf(ds,indices,look_back=3):
+   x = np.arange(len(ds))
+   y = ds.values
+   x_train, x_test = x[:-look_back], x[-look_back:]
+   y_train, y_test = y[:-look_back], y[-look_back:]
+   x_train = np.vstack(x_train)
+   y_train = np.vstack(y_train)
+   x_test = np.vstack(x_test)
+   y_test = np.vstack(y_test)
+   model = rf = RandomForestRegressor(n_estimators=500)
+   model.fit(x_train, y_train)
+   pred = model.predict(x_test)
+   mse = sk.metrics.mean_absolute_error(y_test, pred)
    print("MSE={}".format(mse))
+   ypred = model.predict(x_train)
+   yfore = np.zeros(look_back)
+   # rollong forecast
+   for i in np.arange(look_back):
+      yfore[i] = model.predict(x_test)[0]
+      x_test[0,0] = x_test[1,0]
+      x_test[1,0] = x_test[2,0]
+      x_test[2,0] = yfore[i]
+   plt.plot(ds.values)
+   plt.plot(ypred)
+   plt.plot([None for x in ypred]+[x for x in yfore])
+   plt.show()
+   return yfore
 
+   '''
    # Stats about the trees in random forest
    n_nodes = []
    max_depths = []
@@ -44,3 +51,4 @@ def go_rf(ds):
              filled=True, impurity=True,
              rounded=True)
    plt.show()
+   '''
