@@ -4,6 +4,8 @@ import run_sarimax as s
 import run_MLP as mlp
 import run_lstm as lstm
 import run_SVM as svm
+import run_xgboost as xgb
+import run_randomf as rf
 
 def writeseries(df):
    numrows = 48
@@ -78,6 +80,20 @@ if __name__ == "__main__":
          fsvm =  svm.go_svm(df[df.columns[idserie]],indices)
          print(f"idserie={idserie} - forecast {fsvm[2]}")
          fout.write(f"svm,idserie,{idserie},forecast,{fsvm[2]}\n")
+
+   if fgoXGboost:
+      idserie = 0
+      for idserie in np.arange(numSeries):
+         fxgboost = xgb.go_xgboost(df[df.columns[idserie]],indices)
+         print(f"idserie={idserie} - forecast {fxgboost[2]}")
+         fout.write(f"xgboost,idserie,{idserie},forecast,{fxgboost[2]}\n")
+
+   if fgoSVM:
+      idserie = 0
+      for idserie in np.arange(numSeries):
+         frf = rf.go_rf(df[df.columns[idserie]],indices)
+         print(f"idserie={idserie} - forecast {frf[2]}")
+         fout.write(f"rndfrst,idserie,{idserie},forecast,{frf[2]}\n")
 
    fout.close()
    pass
