@@ -355,7 +355,7 @@ def wilcoxon_holm(alpha=0.05, df_perf=None):
 if __name__ == '__main__':
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
     print("Wilcoxon signed-rank test with Bonferroni-Holm correction")
-    df_perf = pd.read_csv('example.csv',index_col=False)
+    df_perf = pd.read_csv('results.csv',index_col=False)
     algonames     = df_perf.columns[0]
     instancenames = df_perf.columns[1]
     obfuncname    = df_perf.columns[2]
