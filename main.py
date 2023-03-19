@@ -81,7 +81,7 @@ if __name__ == "__main__":
    if fgoSVM:
       idserie = 0
       for idserie in np.arange(numSeries):
-         fsvm =  svm.go_svm(df[df.columns[idserie]],indices,look_back=3)
+         fsvm =  svm.go_svm(df[df.columns[idserie]],indices)
          print(f"idserie={idserie} - forecast {fsvm[2]}")
          fout.write(f"svm,idserie,{idserie},forecast,{fsvm[2]}, error {ref[idserie]-fsvm[2]}\n")
 
