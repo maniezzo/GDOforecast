@@ -38,7 +38,7 @@ def go_MLP(ds,indices,look_back = 12, lr=0.05, niter=1000):
 
 	# Multilayer Perceptron model
 	loss_function = 'mean_squared_error'
-	from keras.optimizers import Adam
+	from tensorflow.keras.optimizers import Adam
 	optimizer = Adam(learning_rate=lr)
 	model = Sequential()
 	nhid1 = look_back+numExternals

@@ -1,9 +1,9 @@
 {
   "jNumSeries": 52,
-  "jgoSarima": true,
-  "jgoMLP": false,
+  "jgoSarima": false,
+  "jgoMLP": true,
   "jMLPlr": 0.005,
-  "jMLPniter": 2000,
+  "jMLPniter": 2500,
   "jgoLSTM": false,
   "jLSTMlr": 0.005,
   "jLSTMniter": 25,
