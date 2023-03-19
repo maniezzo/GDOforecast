@@ -45,6 +45,10 @@ if __name__ == "__main__":
    df = pd.read_csv("dataframe_nocovid.csv", usecols = [i for i in range(1,53)])
    (numt,numseries) = df.shape
 
+   df2 = pd.read_csv("dataframe_nocovid_full.csv", usecols = [i for i in range(1,53)])
+   ref = df2.iloc[len(df2)-1,:].values
+   del df2
+
    idserie = 0
    #from statsmodels.tsa.seasonal import seasonal_decompose
    #result = seasonal_decompose(df["cust0"], model='multiplicative', period=12)
@@ -58,7 +62,7 @@ if __name__ == "__main__":
          if isinstance(fsarimax, pd.Series):
             fsarimax = fsarimax.values
          print(f"idserie={idserie} - forecast {fsarimax[2]}")
-         fout.write(f"sarimax,idserie,{idserie},forecast,{fsarimax[2]}\n")
+         fout.write(f"sarimax,idserie,{idserie},forecast,{fsarimax[2]}, error {ref[idserie]-fsarimax[2]}\n")
 
    if fgoMLP:
       idserie = 0

@@ -1,3 +1,10 @@
-rndfrst,idserie,0,forecast,21.952
-rndfrst,idserie,1,forecast,21.626
-rndfrst,idserie,2,forecast,23.952
+sarimax,idserie,0,forecast,26.215794218337397, error -2.215794218337397
+sarimax,idserie,1,forecast,22.49599705769598, error 0.5040029423040195
+sarimax,idserie,2,forecast,27.965904569464836, error 2.0340954305351637
+sarimax,idserie,3,forecast,22.33581840153402, error -1.33581840153402
+sarimax,idserie,4,forecast,18.478646644079, error -0.4786466440789994
+sarimax,idserie,5,forecast,16.21062979671221, error 2.7893702032877883
+sarimax,idserie,6,forecast,18.42089481222799, error -1.4208948122279885
+sarimax,idserie,7,forecast,13.07717889408752, error 0.9228211059124796
+sarimax,idserie,8,forecast,27.931666508293787, error 0.06833349170621261
+sarimax,idserie,9,forecast,16.709207585000907, error 0.2907924149990926

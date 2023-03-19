@@ -1,6 +1,6 @@
 {
   "jNumSeries": 3,
-  "jgoSarima": false,
+  "jgoSarima": true,
   "jgoMLP": false,
   "jMLPlr": 0.005,
   "jMLPniter": 2000,
@@ -9,5 +9,5 @@
   "jLSTMniter": 25,
   "jgoSVM": false,
   "jgoXGboost": false,
-  "jgoRF": true
+  "jgoRF": false
 }
