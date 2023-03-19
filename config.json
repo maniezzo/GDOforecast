@@ -1,5 +1,5 @@
 {
-  "jNumSeries": 3,
+  "jNumSeries": 52,
   "jgoSarima": true,
   "jgoMLP": false,
   "jMLPlr": 0.005,
