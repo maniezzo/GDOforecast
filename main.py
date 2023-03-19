@@ -69,35 +69,35 @@ if __name__ == "__main__":
       for idserie in np.arange(numSeries):
          fmlp =  mlp.go_MLP(df[df.columns[idserie]],indices,look_back=3,lr=lrMLP,niter=niterMLP)
          print(f"idserie={idserie} - forecast {fmlp[2]}")
-         fout.write(f"mlp,idserie,{idserie},forecast,{fmlp[2]}\n")
+         fout.write(f"mlp,idserie,{idserie},forecast,{fmlp[2]}, error {ref[idserie]-fsarimax[2]}\n")
 
    if fgoLSTM:
       idserie = 0
       for idserie in np.arange(numSeries):
          flstm =  lstm.go_lstm(df[df.columns[idserie]],indices,look_back=3,lr=lrLSTM,niter=niterLSTM)
          print(f"idserie={idserie} - forecast {flstm[2]}")
-         fout.write(f"lstm,idserie,{idserie},forecast,{flstm[2]}\n")
+         fout.write(f"lstm,idserie,{idserie},forecast,{flstm[2]}, error {ref[idserie]-fsarimax[2]}\n")
 
    if fgoSVM:
       idserie = 0
       for idserie in np.arange(numSeries):
          fsvm =  svm.go_svm(df[df.columns[idserie]],indices,look_back=3)
          print(f"idserie={idserie} - forecast {fsvm[2]}")
-         fout.write(f"svm,idserie,{idserie},forecast,{fsvm[2]}\n")
+         fout.write(f"svm,idserie,{idserie},forecast,{fsvm[2]}, error {ref[idserie]-fsarimax[2]}\n")
 
    if fgoXGboost:
       idserie = 0
       for idserie in np.arange(numSeries):
          fxgboost = xgb.go_xgboost(df[df.columns[idserie]],indices)
          print(f"idserie={idserie} - forecast {fxgboost[2]}")
-         fout.write(f"xgboost,idserie,{idserie},forecast,{fxgboost[2]}\n")
+         fout.write(f"xgboost,idserie,{idserie},forecast,{fxgboost[2]}, error {ref[idserie]-fsarimax[2]}\n")
 
    if fgoRF:
       idserie = 0
       for idserie in np.arange(numSeries):
          frf = rf.go_rf(df[df.columns[idserie]],indices,look_back=3)
          print(f"idserie={idserie} - forecast {frf[2]}")
-         fout.write(f"rndfrst,idserie,{idserie},forecast,{frf[2]}\n")
+         fout.write(f"rndfrst,idserie,{idserie},forecast,{frf[2]}, error {ref[idserie]-fsarimax[2]}\n")
 
    fout.close()
    pass
