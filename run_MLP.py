@@ -48,7 +48,7 @@ def go_MLP(ds,indices,look_back = 12, lr=0.05, niter=1000):
 	model.add(Dense(nhid2, activation='relu'))
 	model.add(Dense(nout))
 	model.compile(loss=loss_function, optimizer=optimizer)
-	model.fit(trainX, trainY, epochs=niter, batch_size=10, verbose=1)
+	model.fit(trainX, trainY, epochs=niter, batch_size=10, verbose=0)
 
 	# Estimate model performance
 	trainScore = model.evaluate(trainX, trainY, verbose=0)
