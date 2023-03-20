@@ -252,9 +252,9 @@ def form_cliques(p_values, nnames):
     g = networkx.Graph(g_data)
     return networkx.find_cliques(g)
 
-def draw_cd_diagram(df_perf=None, alpha=0.05, title=None, labels=False):
+def draw_cd_diagram(df_perf=None, alpha=0.05, title=None, labels=False, fAscending = False):
     # Draws the critical difference diagram given the list of pairwise algorithms that are significant or not
-    p_values, average_ranks, _ = wilcoxon_holm(df_perf=df_perf, alpha=alpha)
+    p_values, average_ranks, _ = wilcoxon_holm(df_perf=df_perf, alpha=alpha, fAscending = fAscending)
 
     print(average_ranks)
 
@@ -262,7 +262,7 @@ def draw_cd_diagram(df_perf=None, alpha=0.05, title=None, labels=False):
         print(p)
 
     graph_ranks(average_ranks.values, average_ranks.keys(), p_values,
-                cd=None, reverse=True, width=9, textspace=1.5, labels=labels)
+                cd=None, reverse=not fAscending, width=9, textspace=1.5, labels=labels)
 
     font = {'family': 'sans-serif',
         'color':  'black',
@@ -274,7 +274,7 @@ def draw_cd_diagram(df_perf=None, alpha=0.05, title=None, labels=False):
     plt.savefig('cd-diagram.png',bbox_inches='tight')
     plt.show()
 
-def wilcoxon_holm(alpha=0.05, df_perf=None):
+def wilcoxon_holm(alpha=0.05, df_perf=None, fAscending = False):
     """
     Applies the wilcoxon signed rank test between each pair of algorithm and then use Holm
     to reject the null's hypothesis
@@ -344,11 +344,11 @@ def wilcoxon_holm(alpha=0.05, df_perf=None):
     np.unique(sorted_df_perf[instancenames]))
 
     # number of wins
-    dfff = df_ranks.rank(ascending=False)
+    dfff = df_ranks.rank(ascending=fAscending)
     print(dfff[dfff == 1.0].sum(axis=1))
 
     # average the ranks
-    average_ranks = df_ranks.rank(ascending=False).mean(axis=1).sort_values(ascending=False)
+    average_ranks = df_ranks.rank(ascending=fAscending).mean(axis=1).sort_values(ascending=fAscending)
     # return the p-values and the average ranks
     return p_values, average_ranks, max_nb_datasets
 
@@ -359,7 +359,9 @@ if __name__ == '__main__':
     algonames     = df_perf.columns[0]
     instancenames = df_perf.columns[1]
     obfuncname    = df_perf.columns[2]
-    draw_cd_diagram(df_perf=df_perf, title=obfuncname, labels=True)
+    # fAscending True:  minimize, lower values better
+    # fAscending False: maximize, higher values better
+    draw_cd_diagram(df_perf=df_perf, title=obfuncname, labels=True, fAscending = True)
     print("Diagram is written on file cd-diagram.png")
 
 
