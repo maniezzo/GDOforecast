@@ -9,5 +9,5 @@
   "jLSTMniter": 50,
   "jgoSVM": false,
   "jgoXGboost": false,
-  "jgoRF": true
+  "jgoRF": false
 }
