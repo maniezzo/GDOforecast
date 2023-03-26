@@ -46,9 +46,9 @@ def makeModel(requests, costs, cap, b):
          nrows += 1
 
    # save the model in a lp file
-   probl.writeLP("GDOmodel.lp")
+   # probl.writeLP("GDOmodel.lp")
    # view the model
-   print(probl)
+   # print(probl)
 
    # solve the model
    probl.solve()
@@ -83,7 +83,12 @@ def subProblem(requests, costs, cap, b, vlambda):
    # cost function
    c = np.zeros(ncol)
    c[0:nx] = [costs[i,j] for i in np.arange(nser) for j in np.arange(ncli)]
-   probl += sum(c[i] * X[i] for i in range(nx))
+   for i in np.arange(nser):
+      for j in np.arange(ncli):
+         c[nx+i*ncli+j] = vlambda[i]
+   add2 = 0
+   for i in np.arange(nser): add2 += vlambda[i]*cap[i]
+   probl += sum(c[i] * X[i] for i in range(ncol))
 
    nrows = 0
    # assignment constraints Sum qij = reqj
@@ -103,38 +108,68 @@ def subProblem(requests, costs, cap, b, vlambda):
          nrows += 1
 
    # save the model in a lp file
-   probl.writeLP("GDOmodel.lp")
+   # probl.writeLP("GDOmodel.lp")
    # view the model
-   print(probl)
+   # print(probl)
 
    # solve the model
-   probl.solve()
-   print("Status:", pulp.LpStatus[probl.status])
+   probl.solve(pulp.PULP_CBC_CMD(msg=0))
    cost = pulp.value(probl.objective)
-   print("Objective: ", cost)
-   sol = []
+   print(f"Subpr. status: {pulp.LpStatus[probl.status]} cost {cost}")
+   print(f"add2 = {add2}")
+   zlb = cost-add2
+   print(f"Subpr. objective: {cost} zlb {zlb}")
+   sol =np.zeros(ncol)
    for i in np.arange(ncol):
       v = probl.variables()[i]
-      if (v.varValue > 0):
-         sol.append({'i': i%ncli, 'ser': i//ncli})
+      sol[i]=v.varValue
+      #if (v.varValue > 0):
+      #   sol.append({'i': i%ncli, 'ser': i//ncli})
          #print(f"{v} = {v.varValue}  i: {i%ncli}, ser: {i//ncli}")
-   return (cost,sol)
+   return (zlb,sol)
 
-def checkFeas(sol):
-   return True
+def checkFeas(sol,cap):
+   isFeas = True
+   subgrad = np.zeros(nser)
+   nx = len(sol)//2
+   # assignment constraints Sum qij = reqj
+   for i in np.arange(nser):
+      sum = 0
+      for j in np.arange(ncli):
+         sum += sol[nx + i * ncli + j]
+      if sum > cap[i]:
+         subgrad[i] = sum-cap[i]
+         isFeas = False
+
+   return (isFeas, subgrad)
+
 def subgradient(requests,costs,cap,b):
+   alpha = 0.001
    vlambda = np.zeros(nser)
-   cont = 0
-   while(cont < 3):
-      (cost,sol) = subProblem(requests,costs,cap,b,vlambda)
-      checkFeas(sol)
-      cont += 1
+   iter = 0
+   zub=16000
+   while(iter < 20):
+      (zlb,sol) = subProblem(requests,costs,cap,b,vlambda)
+      (isFeas, subgrad) = checkFeas(sol,cap)
+      if(isFeas):
+         print(f"Trovato l'ottimo! zopt = zlb = {zlb}")
+         return
+      else:
+         print(f"subgr, iter {iter} zlb = {zlb}")
+         sub2 = 0
+         for i in np.arange(nser): sub2 += subgrad[i]
+         step = (zub - zlb)/sub2
+         for i in np.arange(nser):
+            if(subgrad[i]==0): vlambda[i]=0
+            else:
+               vlambda[i] += step*subgrad[i]
+      iter += 1
 
-   return (cost,sol)
+   return (zlb,sol)
 
 if __name__ == "__main__":
-   dfcosts=pd.read_csv("costs.csv")
-   dfreq  =pd.read_csv("requests.csv")
+   dfcosts = pd.read_csv("costs.csv")
+   dfreq   = pd.read_csv("requests.csv")
    ncli = 52
    nser = 4
    b = np.ones(ncli)
@@ -145,9 +180,9 @@ if __name__ == "__main__":
                            b)
    print(f"IP model, cost {cost}")
 
-   (cost,sol) =  subgradient(dfreq.iloc[0,0:ncli].values,
+   (zLR,sol) =  subgradient(dfreq.iloc[0,0:ncli].values,
                            dfcosts.iloc[0:nser,0:ncli].values,
                            dfreq.iloc[0:nser,ncli].values,
                            b)
-   print(f"lagrangian model, cost {cost}")
+   print(f"lagrangian model, cost {zLR}")
    pass
