@@ -10,7 +10,7 @@ def makeModel(requests, costs, cap, b):
                         lowBound=0,
                         upBound=1)
 
-   Q = pulp.LpVariable.dicts('Y%s', (range(nx,ncol)),
+   Q = pulp.LpVariable.dicts('Q%s', (range(nx,ncol)),
                         cat='Integer',
                         lowBound=0,
                         upBound=50)
@@ -72,7 +72,7 @@ def subProblem(requests, costs, cap, b, vlambda):
                         lowBound=0,
                         upBound=1)
 
-   Q = pulp.LpVariable.dicts('Y%s', (range(nx,ncol)),
+   Q = pulp.LpVariable.dicts('Q%s', (range(nx,ncol)),
                         cat='Integer',
                         lowBound=0,
                         upBound=50)
@@ -101,14 +101,20 @@ def subProblem(requests, costs, cap, b, vlambda):
       probl += sum(X[i*ncli+j] for i in np.arange(0,nser)) <= b[j], f"b{nrows}"
       nrows += 1
 
-   # x - q
+   # x - q, force x
    for i in np.arange(nser):
       for j in np.arange(ncli):
-         probl += X[nx+i*ncli+j] - requests[j]*X[i*ncli+j] <= 0, f"xq{nrows}"
+         probl += X[nx+i*ncli+j] - requests[j]*X[i*ncli+j] <= 0, f"qx{nrows}"
+         nrows += 1
+
+   # xij <= qij, force q
+   for i in np.arange(nser):
+      for j in np.arange(ncli):
+         probl += X[i*ncli+j] - X[nx+i*ncli+j] <= 0, f"xq{nrows}"
          nrows += 1
 
    # save the model in a lp file
-   # probl.writeLP("GDOmodel.lp")
+   probl.writeLP("GDOmodel.lp")
    # view the model
    # print(probl)
 
@@ -116,19 +122,23 @@ def subProblem(requests, costs, cap, b, vlambda):
    probl.solve(pulp.PULP_CBC_CMD(msg=0))
    cost = pulp.value(probl.objective)
    print(f"Subpr. status: {pulp.LpStatus[probl.status]} cost {cost}")
-   print(f"add2 = {add2}")
-   zlb = cost-add2
-   print(f"Subpr. objective: {cost} zlb {zlb}")
-   sol =np.zeros(ncol)
+   # determinnig cost components
+   qcost = 0
+   sol = np.zeros(ncol)
+   lstsol = []
    for i in np.arange(ncol):
       v = probl.variables()[i]
-      sol[i]=v.varValue
-      #if (v.varValue > 0):
-      #   sol.append({'i': i%ncli, 'ser': i//ncli})
-         #print(f"{v} = {v.varValue}  i: {i%ncli}, ser: {i//ncli}")
+      if (v.varValue > 0):
+         ii = int(v.name[1:])
+         sol[ii]=v.varValue
+         if ii>=nx: qcost += c[ii]
+         lstsol.append({'cli': i%ncli, 'ser': i//ncli})
+         print(f"{v} = {v.varValue}  i: {i}  cli {ii%ncli}, ser: {ii//ncli}")
+   zlb = cost-add2
+   print(f"Subpr. objective: {cost} zlb {zlb} qcost {qcost} add2 {add2}")
    return (zlb,sol)
 
-def checkFeas(sol,cap):
+def checkFeas(sol,cap, costs):
    isFeas = True
    subgrad = np.zeros(nser)
    nx = len(sol)//2
@@ -140,6 +150,13 @@ def checkFeas(sol,cap):
       if sum > cap[i]:
          subgrad[i] = sum-cap[i]
          isFeas = False
+   # check cost
+   z = 0
+   for i in np.arange(costs.size):
+      ii = i // ncli
+      jj = i % ncli
+      z += sol[i]*costs[ii,jj]
+   print(f"Checked cost: {z}")
 
    return (isFeas, subgrad)
 
@@ -150,10 +167,10 @@ def subgradient(requests,costs,cap,b):
    zub=16000
    while(iter < 20):
       (zlb,sol) = subProblem(requests,costs,cap,b,vlambda)
-      (isFeas, subgrad) = checkFeas(sol,cap)
+      (isFeas, subgrad) = checkFeas(sol,cap, costs)
       if(isFeas):
          print(f"Trovato l'ottimo! zopt = zlb = {zlb}")
-         return
+         return (zlb,sol)
       else:
          print(f"subgr, iter {iter} zlb = {zlb}")
          sub2 = 0
