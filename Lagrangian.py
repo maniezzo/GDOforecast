@@ -114,7 +114,7 @@ def subProblem(requests, costs, cap, b, vlambda):
          nrows += 1
 
    # save the model in a lp file
-   probl.writeLP("GDOmodel.lp")
+   # probl.writeLP("GDOmodel.lp")
    # view the model
    # print(probl)
 
@@ -131,9 +131,10 @@ def subProblem(requests, costs, cap, b, vlambda):
       if (v.varValue > 0):
          ii = int(v.name[1:])
          sol[ii]=v.varValue
-         if ii>=nx: qcost += c[ii]
-         lstsol.append({'cli': i%ncli, 'ser': i//ncli})
-         print(f"{v} = {v.varValue}  i: {i}  cli {ii%ncli}, ser: {ii//ncli}")
+         if ii>=nx:
+            qcost += c[ii]
+         lstsol.append({'cli': ii%ncli, 'ser': ii//ncli})
+         #print(f"{v} = {v.varValue}  i: {ii}  cli {ii%ncli}, ser: {ii//ncli}")
    zlb = cost-add2
    print(f"Subpr. objective: {cost} zlb {zlb} qcost {qcost} add2 {add2}")
    return (zlb,sol)
@@ -147,8 +148,8 @@ def checkFeas(sol,cap, costs):
       sum = 0
       for j in np.arange(ncli):
          sum += sol[nx + i * ncli + j]
+      subgrad[i] = sum - cap[i]
       if sum > cap[i]:
-         subgrad[i] = sum-cap[i]
          isFeas = False
    # check cost
    z = 0
@@ -161,11 +162,11 @@ def checkFeas(sol,cap, costs):
    return (isFeas, subgrad)
 
 def subgradient(requests,costs,cap,b):
-   alpha = 0.001
+   alpha = 0.00001
    vlambda = np.zeros(nser)
    iter = 0
    zub=16000
-   while(iter < 20):
+   while(iter < 15):
       (zlb,sol) = subProblem(requests,costs,cap,b,vlambda)
       (isFeas, subgrad) = checkFeas(sol,cap, costs)
       if(isFeas):
@@ -177,9 +178,8 @@ def subgradient(requests,costs,cap,b):
          for i in np.arange(nser): sub2 += subgrad[i]
          step = (zub - zlb)/sub2
          for i in np.arange(nser):
-            if(subgrad[i]==0): vlambda[i]=0
-            else:
-               vlambda[i] += step*subgrad[i]
+            vlambda[i] += step * subgrad[i]
+            if(vlambda[i]<=0): vlambda[i]=0
       iter += 1
 
    return (zlb,sol)
