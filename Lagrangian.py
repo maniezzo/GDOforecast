@@ -156,12 +156,12 @@ def checkFeas(sol,cap, costs):
       ii = i // ncli
       jj = i % ncli
       z += sol[i]*costs[ii,jj]
-   print(f"Checked cost: {z}")
+   #print(f"Checked cost: {z}")
 
    return (isFeas, subgrad)
 
 def subgradient(requests,costs,cap,b):
-   alpha = 0.01
+   alpha = 0.1
    vlambda = np.zeros(nser)
    iter = 0
    zub=16000
@@ -180,13 +180,15 @@ def subgradient(requests,costs,cap,b):
          for i in np.arange(nser):
             vlambda[i] += step * subgrad[i]
             if(vlambda[i]<=0): vlambda[i]=0
+         #print(f"Lambda {vlambda}")
+         #print(f"Subgr  {subgrad}")
       iter += 1
 
    return (zlb,sol)
 
 if __name__ == "__main__":
-   dfcosts = pd.read_csv("costsmall.csv")
-   dfreq   = pd.read_csv("requestsmall.csv")
+   dfcosts = pd.read_csv("costs.csv")
+   dfreq   = pd.read_csv("requests.csv")
    ncli = dfcosts.shape[1]
    nser = dfcosts.shape[0]
    b = np.ones(ncli)
