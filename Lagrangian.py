@@ -161,11 +161,10 @@ def checkFeas(sol,cap, costs):
 
    return (isFeas, subgrad)
 
-def subgradient(requests,costs,cap,b,niter=3):
-   alpha = 0.1
+def subgradient(requests,costs,cap,b,alpha=0.1,niter=3):
    vlambda = np.zeros(nser)
    iter = 0
-   zub=16000
+   zub=160
    while(iter < niter):
       print(f"SUBGR ===================== iter {iter}")
       (zlb,sol) = subProblem(requests,costs,cap,b,vlambda)
@@ -174,13 +173,13 @@ def subgradient(requests,costs,cap,b,niter=3):
          print(f"Trovato l'ottimo! zopt = zlb = {zlb}")
          return (zlb,sol)
       else:
-         print(f"subgr, iter {iter} zlb = {zlb}")
          sub2 = 0
          for i in np.arange(nser): sub2 += subgrad[i]*subgrad[i]
          step = alpha*(zub - zlb)/sub2
          for i in np.arange(nser):
             vlambda[i] += step * subgrad[i]
             if(vlambda[i]<=0): vlambda[i]=0
+         print(f"subgr, iter {iter} zlb = {zlb} step = {step}")
          print(f"Lambda {vlambda}")
          print(f"Subgr  {subgrad}")
       iter += 1
@@ -206,6 +205,6 @@ if __name__ == "__main__":
    (zLR,sol) =  subgradient(dfreq.iloc[0,0:ncli].values,
                            dfcosts.iloc[0:nser,0:ncli].values,
                            dfreq.iloc[0:nser,ncli].values,
-                           b,niter = 7)
+                           b,alpha=0.5, niter = 150)
    print(f"lagrangian model, cost {zLR}")
    pass
