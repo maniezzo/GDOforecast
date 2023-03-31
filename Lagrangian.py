@@ -136,6 +136,7 @@ def subProblem(requests, costs, cap, b, vlambda):
          lstsol.append({'cli': ii%ncli, 'ser': ii//ncli})
          #print(f"{v} = {v.varValue}  i: {ii}  cli {ii%ncli}, ser: {ii//ncli}")
    print(f"Subpr. objective: {cost} qcost {qcost} add2 {add2}")
+   print(f"LR sol: {sol}")
    return (cost,sol)
 
 def checkFeas(sol,cap, costs):
@@ -156,16 +157,16 @@ def checkFeas(sol,cap, costs):
       ii = i // ncli
       jj = i % ncli
       z += sol[i]*costs[ii,jj]
-   #print(f"Checked cost: {z}")
+   print(f"Checked cost: {z}")
 
    return (isFeas, subgrad)
 
-def subgradient(requests,costs,cap,b):
+def subgradient(requests,costs,cap,b,niter=3):
    alpha = 0.1
    vlambda = np.zeros(nser)
    iter = 0
    zub=16000
-   while(iter < 100):
+   while(iter < niter):
       print(f"SUBGR ===================== iter {iter}")
       (zlb,sol) = subProblem(requests,costs,cap,b,vlambda)
       (isFeas, subgrad) = checkFeas(sol,cap, costs)
@@ -180,15 +181,15 @@ def subgradient(requests,costs,cap,b):
          for i in np.arange(nser):
             vlambda[i] += step * subgrad[i]
             if(vlambda[i]<=0): vlambda[i]=0
-         #print(f"Lambda {vlambda}")
-         #print(f"Subgr  {subgrad}")
+         print(f"Lambda {vlambda}")
+         print(f"Subgr  {subgrad}")
       iter += 1
 
    return (zlb,sol)
 
 if __name__ == "__main__":
-   dfcosts = pd.read_csv("costs.csv")
-   dfreq   = pd.read_csv("requests.csv")
+   dfcosts = pd.read_csv("costsmall.csv")
+   dfreq   = pd.read_csv("requestsmall.csv")
    ncli = dfcosts.shape[1]
    nser = dfcosts.shape[0]
    b = np.ones(ncli)
@@ -205,6 +206,6 @@ if __name__ == "__main__":
    (zLR,sol) =  subgradient(dfreq.iloc[0,0:ncli].values,
                            dfcosts.iloc[0:nser,0:ncli].values,
                            dfreq.iloc[0:nser,ncli].values,
-                           b)
+                           b,niter = 7)
    print(f"lagrangian model, cost {zLR}")
    pass
