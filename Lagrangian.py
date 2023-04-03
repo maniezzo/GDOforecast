@@ -191,21 +191,30 @@ def computeZub(sol,costs,requests,cap):
       if not fAssigned:
          print(">>>>>>>>>>>>>>>>>>>>>>>> ASSIGNMENT ERROR <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 
+   if isFeasible:
+      print(f"Feasible solution, cost {zub}")
    return isFeasible, soliter, zub
 
 def subgradient(requests,costs,cap,b,alpha=0.1,niter=3):
-   vlambda = np.zeros(nser)
+   nuseless  = 0  # number of non improving iterations
+   alphainit = alpha
+   vlambda   = np.zeros(nser)
    iter = 0
    zub=50000
    zlb = 0
    while(iter < niter):
       print(f"SUBGR ===================== iter {iter}")
       (zliter,sol) = subProblem(requests,costs,cap,b,vlambda)
-      if zliter > zlb: zlb = zliter
       (isFeas, subgrad) = checkFeas(sol,cap, costs)
       isFeasible, soliter, zubiter = computeZub(sol,costs,requests,cap)
       if isFeasible != isFeas: print(">>>>>>>>>>>>>>>>> FEASIBILITY MISMATCH <<<<<<<<<<<<<<<<<<<")
-      if zubiter < zub: zub = zubiter
+      nuseless += 1
+      if zliter > zlb:
+         zlb = zliter
+         nuseless = 0
+      if zubiter < zub:
+         zub = zubiter
+         nuseless = 0
       if(isFeas):
          isOpt = True
          for i in np.arange(len(subgrad)):
@@ -229,6 +238,10 @@ def subgradient(requests,costs,cap,b,alpha=0.1,niter=3):
          alpha = 0.8*alpha
          if alpha < 0.004:
             alpha = 0.004
+      if nuseless > 50:
+         nuseless = 0
+         alpha = alphainit
+         vlambda = 100*np.random.random(nser)
 
    return (zlb,sol)
 
@@ -251,6 +264,6 @@ if __name__ == "__main__":
    (zLR,sol) =  subgradient(dfreq.iloc[0,0:ncli].values,
                            dfcosts.iloc[0:nser,0:ncli].values,
                            dfreq.iloc[0:nser,ncli].values,
-                           b,alpha=1.5, niter = 500)
+                           b,alpha=4, niter = 500)
    print(f"lagrangian model, cost {zLR}")
    pass
