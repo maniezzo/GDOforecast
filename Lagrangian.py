@@ -120,7 +120,7 @@ def subProblem(requests, costs, cap, b, vlambda):
 
    # solve the model
    probl.solve(pulp.PULP_CBC_CMD(msg=0))
-   cost = pulp.value(probl.objective)
+   cost = pulp.value(probl.objective) - add2
    print(f"Subpr. status: {pulp.LpStatus[probl.status]} cost {cost}")
    # determinnig cost components
    qcost = 0
@@ -136,7 +136,7 @@ def subProblem(requests, costs, cap, b, vlambda):
          lstsol.append({'cli': ii%ncli, 'ser': ii//ncli})
          #print(f"{v} = {v.varValue}  i: {ii}  cli {ii%ncli}, ser: {ii//ncli}")
    print(f"Subpr. objective: {cost} qcost {qcost} add2 {add2}")
-   print(f"LR sol: {sol}")
+   #print(f"LR sol: {sol}")
    return (cost,sol)
 
 def checkFeas(sol,cap, costs):
@@ -161,17 +161,40 @@ def checkFeas(sol,cap, costs):
 
    return (isFeas, subgrad)
 
+def computeZub(sol,costs,requests,cap):
+   zub = 0
+   freecap = np.array(cap)
+   soliter = np.full(ncli,-1)
+   indreq = np.argsort(requests)
+   indreq = np.flip(indreq) # higher to smaller
+   for ii in np.arange(ncli):
+      i = indreq[ii]
+      server = int(0*sol[i]+1*sol[ncli+i]+2*sol[2*ncli+i]+3*sol[3*ncli+i])
+      if(freecap[server] >= requests[i]):
+         soliter[i] = server
+         freecap[server] -= requests[i]
+
+   return zub
+
 def subgradient(requests,costs,cap,b,alpha=0.1,niter=3):
    vlambda = np.zeros(nser)
    iter = 0
-   zub=160
+   zub=16000
+   zlb = 0
    while(iter < niter):
       print(f"SUBGR ===================== iter {iter}")
-      (zlb,sol) = subProblem(requests,costs,cap,b,vlambda)
+      (zliter,sol) = subProblem(requests,costs,cap,b,vlambda)
+      if zliter < zlb: zlb = zliter
       (isFeas, subgrad) = checkFeas(sol,cap, costs)
+      zub = computeZub(sol,costs,requests,cap)
       if(isFeas):
-         print(f"Trovato l'ottimo! zopt = zlb = {zlb}")
-         return (zlb,sol)
+         isOpt = True
+         for i in np.arange(len(subgrad)):
+            if(vlambda[i]!=0 and subgrad[i]>0):
+               isOpt = False
+         if isOpt:
+            print(f"Trovato l'ottimo! zopt = zlb = {zlb}")
+            return (zlb,sol)
       else:
          sub2 = 0
          for i in np.arange(nser): sub2 += subgrad[i]*subgrad[i]
@@ -180,15 +203,15 @@ def subgradient(requests,costs,cap,b,alpha=0.1,niter=3):
             vlambda[i] += step * subgrad[i]
             if(vlambda[i]<=0): vlambda[i]=0
          print(f"subgr, iter {iter} zlb = {zlb} step = {step}")
-         print(f"Lambda {vlambda}")
-         print(f"Subgr  {subgrad}")
+         #print(f"Lambda {vlambda}")
+         #print(f"Subgr  {subgrad}")
       iter += 1
 
    return (zlb,sol)
 
 if __name__ == "__main__":
-   dfcosts = pd.read_csv("costsmall.csv")
-   dfreq   = pd.read_csv("requestsmall.csv")
+   dfcosts = pd.read_csv("costs.csv")
+   dfreq   = pd.read_csv("requests.csv")
    ncli = dfcosts.shape[1]
    nser = dfcosts.shape[0]
    b = np.ones(ncli)
@@ -205,6 +228,6 @@ if __name__ == "__main__":
    (zLR,sol) =  subgradient(dfreq.iloc[0,0:ncli].values,
                            dfcosts.iloc[0:nser,0:ncli].values,
                            dfreq.iloc[0:nser,ncli].values,
-                           b,alpha=0.5, niter = 150)
+                           b,alpha=5, niter = 100)
    print(f"lagrangian model, cost {zLR}")
    pass
