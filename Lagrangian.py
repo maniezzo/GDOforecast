@@ -121,7 +121,7 @@ def subProblem(requests, costs, cap, b, vlambda):
    # solve the model
    probl.solve(pulp.PULP_CBC_CMD(msg=0))
    cost = pulp.value(probl.objective) - add2
-   print(f"Subpr. status: {pulp.LpStatus[probl.status]} cost {cost}")
+   #print(f"Subpr. status: {pulp.LpStatus[probl.status]} cost {cost}")
    # determinnig cost components
    qcost = 0
    sol = np.zeros(ncol)
@@ -135,7 +135,7 @@ def subProblem(requests, costs, cap, b, vlambda):
             qcost += c[ii]
          lstsol.append({'cli': ii%ncli, 'ser': ii//ncli})
          #print(f"{v} = {v.varValue}  i: {ii}  cli {ii%ncli}, ser: {ii//ncli}")
-   print(f"Subpr. objective: {cost} qcost {qcost} add2 {add2}")
+   #print(f"Subpr. objective: {cost} qcost {qcost} add2 {add2}")
    #print(f"LR sol: {sol}")
    return (cost,sol)
 
@@ -157,7 +157,7 @@ def checkFeas(sol,cap, costs):
       ii = i // ncli
       jj = i % ncli
       z += sol[i]*costs[ii,jj]
-   print(f"Checked cost: {z}")
+   #print(f"Checked cost: {z}")
 
    return (isFeas, subgrad)
 
@@ -181,7 +181,7 @@ def computeZub(sol,costs,requests,cap):
          isFeasible = False
          srvCosts = costs[:,i]
          indc = np.argsort(srvCosts)
-         for k in np.arange(len(indc)):
+         for k in np.random.permutation(len(indc)):
             if (freecap[indc[k]] >= requests[i]):
                soliter[i] = indc[k]
                freecap[indc[k]] -= requests[i]
@@ -235,12 +235,12 @@ def subgradient(requests,costs,cap,b,alpha=0.1,niter=3):
       iter += 1
       if(iter%100 == 0):
          alpha = 0.8*alpha
-         if alpha < 0.004:
-            alpha = 0.004
+         if alpha < 0.01:
+            alpha = 0.01
       if nuseless > 100:
          nuseless = 0
          alpha = alphainit
-         vlambda = 40*np.random.random(nser)
+         vlambda = 20*np.random.random(nser)
 
    return (zlb,sol)
 
@@ -263,6 +263,6 @@ if __name__ == "__main__":
    (zLR,sol) =  subgradient(dfreq.iloc[0,0:ncli].values,
                            dfcosts.iloc[0:nser,0:ncli].values,
                            dfreq.iloc[0:nser,ncli].values,
-                           b,alpha=4, niter = 500)
+                           b,alpha=4, niter = 1000)
    print(f"lagrangian model, cost {zLR}")
    pass
