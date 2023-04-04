@@ -209,39 +209,38 @@ def subgradient(requests,costs,cap,b,alpha=0.1,niter=3):
       isFeasible, soliter, zubiter = computeZub(sol,costs,requests,cap)
       if isFeasible != isFeas: print(">>>>>>>>>>>>>>>>> FEASIBILITY MISMATCH <<<<<<<<<<<<<<<<<<<")
       nuseless += 1
-      if zliter > zlb:
+      if zliter > zlb:   # update lb
          zlb = zliter
          nuseless = 0
-      if zubiter < zub:
+      if zubiter < zub:  # update ub
          zub = zubiter
          nuseless = 0
-      if(isFeas):
+      if(isFeas):        # check for optimality
          isOpt = True
          for i in np.arange(len(subgrad)):
-            if(vlambda[i]!=0 and subgrad[i]>0):
+            if(vlambda[i]!=0 and subgrad[i]!=0):
                isOpt = False
          if isOpt:
             print(f"Trovato l'ottimo! zopt = zlb = {zlb}")
             return (zlb,sol)
-      else:
-         sub2 = 0
-         for i in np.arange(nser): sub2 += subgrad[i]*subgrad[i]
-         step = alpha*(zub - zlb)/sub2
-         for i in np.arange(nser):
-            vlambda[i] += step * subgrad[i]
-            if(vlambda[i]<=0): vlambda[i]=0
-         print(f"subgr, iter {iter} zlb= {zlb} zliter={zliter} zubiter={zubiter} zub={zub} step = {step}")
-         #print(f"Lambda {vlambda}")
-         #print(f"Subgr  {subgrad}")
+      sub2 = 0           # not provably optimal
+      for i in np.arange(nser): sub2 += subgrad[i]*subgrad[i]
+      step = alpha*(zub - zlb)/sub2
+      for i in np.arange(nser):
+         vlambda[i] += step * subgrad[i]
+         if(vlambda[i]<=0): vlambda[i]=0
+      print(f"subgr, iter {iter} zlb= {zlb} zliter={zliter} zubiter={zubiter} zub={zub} step = {step}")
+      #print(f"Lambda {vlambda}")
+      #print(f"Subgr  {subgrad}")
       iter += 1
-      if(iter%50 == 0):
+      if(iter%100 == 0):
          alpha = 0.8*alpha
          if alpha < 0.004:
             alpha = 0.004
-      if nuseless > 50:
+      if nuseless > 100:
          nuseless = 0
          alpha = alphainit
-         vlambda = 100*np.random.random(nser)
+         vlambda = 40*np.random.random(nser)
 
    return (zlb,sol)
 
