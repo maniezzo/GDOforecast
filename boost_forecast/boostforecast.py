@@ -16,8 +16,8 @@ def main_fcast(name, df):
       for idserie in range(len(bset)):
          ds = np.array(bset.iloc[idserie, :])  # one series of bootstrap set
          dlog = np.log(ds)
-         #fcast = rf.go_rf(dlog[:-look_back],look_back=look_back, verbose= (idserie==0))  # random forest
-         fcast = ar.go_AR(dlog,look_back=look_back, verbose= (idserie==0)) # AR, validazione nel metodo
+         fcast = rf.go_rf(dlog[:-look_back],look_back=look_back, verbose= (idserie==0))  # random forest
+         #fcast = ar.go_AR(dlog,look_back=look_back, verbose= (idserie==0)) # AR, validazione nel metodo
          trueval = dlog[-1] # valore vero
          print(f"idserie,{idserie},forecast,{fcast[2]}, error {trueval-fcast[2]}\n")
 

@@ -40,22 +40,31 @@ def main_boosting(name,df):
    plt.show()
 
    p = 7
-   idserie = 10
+   idserie = 0
    # fit AR(p)
    ts = df.iloc[:-3,idserie]
+
+   # tutte le serie, media e varianza originali (m,s2,adf), differenziate, differenziate log, differenziate boxcox (m,s2,adf,lambda)
+   
+   # serie differenziate di ordine 1 per renderle stazionarie, adf su tutte
+   adf = sm.tsa.stattools.adfuller(tsBC, maxlag=None, regression='ct', autolag='AIC', store=False, regresults=False)
+   print(f"Dickey-fuller = {adf}")
+
+   tsBC = np.log(ts)
 
    # Box-Cox of data. Requires positive data, add 1
    #ts1 = ts + 1  # Shifting data to be all positive
    #tsBC, BClambda = boxcox(ts)
    #print(f"Box-cox lambda value: {BClambda}")
-   tsBC = np.log(ts)
+   # se lambda piccolo diventa logaritmo (lambda = 0), si lascia il log
 
+   #p 3 -> 7, min in cui box cox viene superato, residui rumore bianco, non correlati
    tsBC = pd.Series(tsBC)
    model = AutoReg(tsBC, lags=p)
    model_fitted = model.fit()
 
    start = 0
-   end = len(tsBC) + 3  # Predicting 3 steps ahead
+   end = len(tsBC)# + 3  # Predicting 3 steps ahead
    predictions = model_fitted.predict(start=start, end=end)
 
    plt.figure(figsize=(12, 6)) # Plot of actual data and predictions
@@ -66,6 +75,7 @@ def main_boosting(name,df):
    plt.legend()
    plt.show()
 
+   # no backcasting
    head = backcast(tsBC,p)
    predictions[0:p] = head[0:p]
    plt.figure(figsize=(12, 6)) # Plot of actual data and predictions
@@ -76,6 +86,7 @@ def main_boosting(name,df):
    plt.legend()
    plt.show()
 
+   # varianza serie
    residuals = np.zeros(len(tsBC))
    for i in range(len(tsBC)):
       residuals[i] = tsBC[i] - predictions[i]
