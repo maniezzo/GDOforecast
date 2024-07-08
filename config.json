@@ -1,0 +1,14 @@
+{
+  "jNumSeries": 52,
+  "jgoSarima": false,
+  "jgoMLP": false,
+  "jMLPlr": 0.005,
+  "jMLPniter": 2500,
+  "jgoLSTM": false,
+  "jLSTMlr": 0.005,
+  "jLSTMniter": 50,
+  "jgoSVM": false,
+  "jgoXGboost": false,
+  "jgoRF": false,
+  "jBoost": true
+}
