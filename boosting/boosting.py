@@ -32,6 +32,53 @@ def backcast(ts,p):
    plt.show()
    return backcasted_predictions[0:p]
 
+# calcola avg, std a adf di vari preprocessing di df
+def tablePreProc(df):
+   lstVals = []
+   for idserie in range(df.shape[1]):
+      ts = df.iloc[:-3,idserie]
+      # tutte le serie, media e varianza originali (m,s2,adf), differenziate, differenziate log, differenziate boxcox (m,s2,adf,lambda)
+      # avg, std, adf serie originale
+      avgorig = np.average(ts.values)
+      stdorig = np.std(ts.values)
+      adforig = sm.tsa.stattools.adfuller(ts.values, maxlag=None, regression='ct', autolag='AIC')[1]
+
+      # avg, std, adf serie differenziata
+      tsdiff1 = [float(ts[i]-ts[i-1]) for i in range(1,len(ts))]
+      tsdiff1.insert(0,ts[0])
+      tsdiff1 = np.array(tsdiff1)
+      avgdiff1 = np.average(tsdiff1[1:])
+      stddiff1 = np.std(tsdiff1[1:])
+      adfdiff1 = sm.tsa.stattools.adfuller(tsdiff1[1:], maxlag=None, regression='ct', autolag='AIC')[1]
+
+      # avg, std, adf serie logdiff
+      tslogdiff = np.log(ts)
+      for i in range(len(tslogdiff)-1,0,-1):
+         tslogdiff[i] = float(tslogdiff[i]-tslogdiff[i-1])
+      tslogdiff = np.array(tslogdiff)
+      avglogdiff = np.average(tslogdiff[1:])
+      stdlogdiff = np.std(tslogdiff[1:])
+      adflogdiff = sm.tsa.stattools.adfuller(tslogdiff[1:], maxlag=None, regression='ct', autolag='AIC')[1]
+      print(f"chack {np.exp(tslogdiff[0])}")
+
+      # avg, std, adf serie box cox diff
+      tsBCdiff, BClambda = boxcox(ts)
+      for i in range(len(tsBCdiff)-1,0,-1):
+         tsBCdiff[i] = tsBCdiff[i] - tsBCdiff[i-1]
+      print(f"Box-cox lambda value: {BClambda}")
+      avgBCdiff = np.average(tsBCdiff[1:])
+      stdBCdiff = np.std(tsBCdiff[1:])
+      try:
+         adfBCdiff = sm.tsa.stattools.adfuller(tsBCdiff[1:], maxlag=None, regression='ct', autolag='AIC')[1]
+      except:
+         adfbcdiff = np.nan
+      lstVals.append([idserie,avgorig,stdorig,adforig,avgdiff1,stddiff1,adfdiff1,avglogdiff,stdlogdiff,adflogdiff,avgBCdiff,stdBCdiff,adfBCdiff,BClambda])
+
+   dfTable = pd.DataFrame(lstVals,
+                          columns=['idserie','avgorig','stdorig','adforig','avgdiff1','stddiff1','adfdiff1','avglogdiff','stdlogdiff','adflogdiff','avgBCdiff','stdBCdiff','adfBCdiff','BClambda'])
+   dfTable.to_csv('tab_preproc.csv')
+   return
+
 def main_boosting(name,df):
    # plot all series
    for idserie in range(len(df)):
@@ -39,13 +86,13 @@ def main_boosting(name,df):
       plt.title(name)
    plt.show()
 
+   tablePreProc(df)
+
    p = 7
    idserie = 0
    # fit AR(p)
    ts = df.iloc[:-3,idserie]
 
-   # tutte le serie, media e varianza originali (m,s2,adf), differenziate, differenziate log, differenziate boxcox (m,s2,adf,lambda)
-   
    # serie differenziate di ordine 1 per renderle stazionarie, adf su tutte
    adf = sm.tsa.stattools.adfuller(tsBC, maxlag=None, regression='ct', autolag='AIC', store=False, regresults=False)
    print(f"Dickey-fuller = {adf}")
