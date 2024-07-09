@@ -16,7 +16,7 @@ def makeModel(requests, costs, cap, b):
                         upBound=50)
    X.update(Q) # append Q to X
 
-   # create the LP object, set up as a MINIMIZATION problem
+   # create the LP object and set up as a MINIMIZATION problem
    probl = pulp.LpProblem('GDO', pulp.LpMinimize)
    # cost function
    c = np.zeros(ncol)
