@@ -12,7 +12,7 @@ import random
 def backcast(ts,p):
    # Reverse the time series data
    reversed_ts = ts[::-1]
-   model = AutoReg(reversed_ts, lags=p)
+   model = AutoReg(reversed_ts[:-1], lags=p)
    model_fitted = model.fit()
 
    # Generate backcasted predictions
@@ -25,7 +25,7 @@ def backcast(ts,p):
 
    # Plot the actual data and backcasted predictions
    plt.figure(figsize=(12, 6))
-   plt.plot(ts, label='Actual Data')
+   plt.plot(ts[1:], label='Actual Data')
    plt.plot(range(len(ts)), backcasted_predictions, label='Backcasted Data', color='red')
    plt.legend()
    plt.title("backcasted")
@@ -88,57 +88,51 @@ def main_boosting(name,df):
 
    tablePreProc(df)
 
+   idserie = 19
+   ts = df.iloc[:-3, idserie]
+
+   # log diff della serie
+   tslogdiff = np.log(ts)
+   for i in range(len(tslogdiff) - 1, 0, -1):
+      tslogdiff[i] = float(tslogdiff[i] - tslogdiff[i - 1])
+   tslogdiff = np.array(tslogdiff)
+   avglogdiff = np.average(tslogdiff[1:])
+   stdlogdiff = np.std(tslogdiff[1:])
+   adflogdiff = sm.tsa.stattools.adfuller(tslogdiff[1:], maxlag=None, regression='ct', autolag='AIC')[1]
+   print(f"chack ts[0]={np.exp(tslogdiff[0])}, ts[1]={np.exp(tslogdiff[1]+tslogdiff[0])}")
+
    p = 7
-   idserie = 0
-   # fit AR(p)
-   ts = df.iloc[:-3,idserie]
-
-   # serie differenziate di ordine 1 per renderle stazionarie, adf su tutte
-   adf = sm.tsa.stattools.adfuller(tsBC, maxlag=None, regression='ct', autolag='AIC', store=False, regresults=False)
-   print(f"Dickey-fuller = {adf}")
-
-   tsBC = np.log(ts)
-
-   # Box-Cox of data. Requires positive data, add 1
-   #ts1 = ts + 1  # Shifting data to be all positive
-   #tsBC, BClambda = boxcox(ts)
-   #print(f"Box-cox lambda value: {BClambda}")
-   # se lambda piccolo diventa logaritmo (lambda = 0), si lascia il log
-
-   #p 3 -> 7, min in cui box cox viene superato, residui rumore bianco, non correlati
-   tsBC = pd.Series(tsBC)
-   model = AutoReg(tsBC, lags=p)
+   model = AutoReg(tslogdiff, lags=p)
    model_fitted = model.fit()
 
    start = 0
-   end = len(tsBC)# + 3  # Predicting 3 steps ahead
+   end = len(tslogdiff)# + 3  # Predicting 3 steps ahead
    predictions = model_fitted.predict(start=start, end=end)
 
    plt.figure(figsize=(12, 6)) # Plot of actual data and predictions
-   plt.plot(tsBC, label='Box Cox Data')
-   plt.plot(predictions, label='Predicted Data', color='red')
+   plt.plot(tslogdiff[1:], label='Series Data')
+   plt.plot(predictions[1:], label='Predicted Data', color='red')
    plt.axvline(x=start, color='gray', linestyle='--', label='Prediction Start')
-   plt.title("forecasted")
+   plt.title("Predicted vs. actual")
    plt.legend()
    plt.show()
 
-   # no backcasting
-   head = backcast(tsBC,p)
+   # backcasting
+   head = backcast(tslogdiff,p)
    predictions[0:p] = head[0:p]
    plt.figure(figsize=(12, 6)) # Plot of actual data and predictions
-   plt.plot(tsBC, label='Actual Data')
+   plt.plot(tslogdiff[1:], label='Actual Data')
    plt.plot(predictions, label='Predicted Data', color='red')
    plt.axvline(x=start, color='gray', linestyle='--', label='Prediction Start')
    plt.title("combined")
    plt.legend()
    plt.show()
 
-   # varianza serie
-   residuals = np.zeros(len(tsBC))
-   for i in range(len(tsBC)):
-      residuals[i] = tsBC[i] - predictions[i]
+   # residui
+   residuals = np.zeros(len(tslogdiff))
+   for i in range(1,len(tslogdiff)):
+      residuals[i] = tslogdiff[i] - predictions[i]
    plt.plot(residuals,label="residuals")
-   #plt.plot(tsBC.values,label="series")
    plt.title("residuals")
    plt.legend()
    plt.show()
@@ -152,10 +146,10 @@ def main_boosting(name,df):
    plt.show()
 
    res = sm.stats.diagnostic.acorr_ljungbox(residuals,model_df=p)
-   print(f"lb_pvalue {res.lb_pvalue[p+1]}")
+   print(f"Ljung box lb_pvalue {res.lb_pvalue[p+1]}")
 
-   # loop if residuals are random enough
-   denoised = np.array([tsBC[i] - residuals[i] for i in range(len(residuals))])
+   # boost, data generation if residuals are random enough
+   denoised = np.array([tslogdiff[i] - residuals[i] for i in range(len(residuals))]) # denoising also first one!
    nboost = 100
    boost_set = np.zeros(nboost*len(residuals)).reshape(nboost,len(residuals))
    # generate nboost series
@@ -164,24 +158,21 @@ def main_boosting(name,df):
       res_repetition = random.choices(residuals, k=len(residuals)) # extraction with repetition
       for j in range(len(res_repetition)):
          boost_set[iboost,j] = predictions[j] + res_repetition[j]
-   boost_set[0] = tsBC  # first seies is the original one
+      boost_set[iboost,0] = tslogdiff[0] # first value is the first empirical
 
-   # reconstruction, inverse log
-   for i in range(nboost):
-      for j in range(len(residuals)):
-         boost_set[i,j] = np.exp(boost_set[i,j])
+      # Reconstruction, invert preprocessing
+      fReconstruct = False
+      if fReconstruct:
+         for j in range(1,len(residuals)):
+            boost_set[iboost,j] = boost_set[iboost,j]+boost_set[iboost,j-1]
+         boost_set[iboost] = np.exp(boost_set[iboost])
 
    for i in range(10):
-      plt.plot(boost_set[i,:])
+      plt.plot(boost_set[i,1:])
    plt.title("boosted (10)")
-   plt.ylim(10,25)
+   plt.ylim(5*min(boost_set[0,1:]),5*max(boost_set[0,1:]))
    plt.show()
    np.savetxt(f"..\\data\\boost{idserie}.csv", boost_set, delimiter=",")
-
-
-   # Invert the Box-Cox transformation
-   #inverted_data = inv_boxcox(tsBC, BClambda)
-   newts = np.exp(tsBC)
 
    print("finito")
    sys.exit()

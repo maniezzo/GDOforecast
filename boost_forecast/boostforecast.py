@@ -7,23 +7,43 @@ import run_AR as ar
 def main_fcast(name, df):
    # foreach boosted series forecast
    #for iboostset in len(df): # for each block of boosted series
-   idserie = 10
+   idserie = 19
    for iboostset in range(idserie,idserie+1):
       bset = pd.read_csv(f"../data/boost{iboostset}.csv",header=None)
       fcast_all = np.zeros(len(bset))
       look_back = 3 # solo con questo va
 
       for idserie in range(len(bset)):
-         ds = np.array(bset.iloc[idserie, :])  # one series of bootstrap set
-         dlog = np.log(ds)
-         fcast = rf.go_rf(dlog[:-look_back],look_back=look_back, verbose= (idserie==0))  # random forest
+         ds = np.array(bset.iloc[idserie, 1:])  # one series of bootstrap set, diff log values, remove first one
+         fcast = rf.go_rf(ds[:-look_back],look_back=look_back, verbose= (idserie==0))  # random forest, keeping look-back out for validation
          #fcast = ar.go_AR(dlog,look_back=look_back, verbose= (idserie==0)) # AR, validazione nel metodo
-         trueval = dlog[-1] # valore vero
+         trueval = bset.iloc[idserie,-1] # valore vero
          print(f"idserie,{idserie},forecast,{fcast[2]}, error {trueval-fcast[2]}\n")
+
+         # reconstruction
+         dslog = np.zeros(len(ds)+1)
+         dslog[0] = bset.iloc[idserie,0]
+         for j in range(len(ds)): dslog[j+1] = ds[j]+dslog[j]
+         fcast[0] = fcast[0]+dslog[-1]
+         fcast[1] = fcast[1]+fcast[0]
+         fcast[2] = fcast[2]+fcast[1]
+
+         plt.plot(dslog,label="dslog")
+         plt.plot(range(len(dslog),len(dslog)+3),fcast,label="fcast")
+         plt.legend()
+         plt.title(f"series {idserie}")
+         plt.show()
 
          fvalue = np.exp(fcast[2])
          fcast_all[idserie] = fvalue
          print(f"forecast value = {fvalue}")
+
+         ds = np.exp(dslog)
+         plt.plot(ds,label="xtrain")
+         plt.plot(df.iloc[:,idserie])
+         plt.legend()
+         plt.title(f"true series {idserie}")
+         plt.show()
 
       # previsione = media
       fcast_all = np.sort(fcast_all)
