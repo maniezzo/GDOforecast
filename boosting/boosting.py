@@ -79,7 +79,41 @@ def tablePreProc(df):
    dfTable.to_csv('tab_preproc.csv')
    return
 
+def trash():
+   p = 3
+   ts = np.array([1.4,1,1.9,1.6,1.3,1.4,1.9,1.2])
+   model = AutoReg(ts, lags=3, trend='n')
+   model_fitted = model.fit()
+   phiHin = model_fitted.params
+   predictions2 = model_fitted.predict(start=3, end=7)
+   check2 = [phiHin[0]*ts[i-1]+phiHin[1]*ts[i-2]+phiHin[2]*ts[i-3] for i in range(3,len(ts))]
+
+   tsflip = np.flip(ts)
+   model = AutoReg(tsflip, lags=3, trend='n')
+   model_fitted = model.fit()
+   phiHer = model_fitted.params
+   predictions1 = np.flip( model_fitted.predict(start=3, end=7) )
+   check1 = [phiHer[0]*tsflip[i-1]+phiHer[1]*tsflip[i-2]+phiHer[2]*tsflip[i-3] for i in range(5,len(ts))]
+
+   pred = np.hstack((predictions1[:p],predictions2))
+   residuals = np.array([ts[i]-pred[i] for i in range(len(ts))])
+   res_repetition = random.choices(residuals, k=len(residuals))  # extraction with repetition
+
+   Xfor = np.zeros(len(ts))
+   for i in range(p,len(ts)):
+      Xfor[i] = sum([phiHin[k]*pred[i-k] for k in range(p)]) + res_repetition[i]
+
+   for i in range(p):
+      Xfor[i] = sum([phiHer[k]*pred[i+k] for k in range(p)]) + res_repetition[i] # i primi p valori, con i phi her
+
+   # backward filtering (recoloring)
+   Xnew = np.zeros(len(ts))
+   for i in range(len(ts)-p,0,-1):
+      Xnew[i-1] = Xfor[i-1] + sum([phiHin[k]*(Xnew[i+k] - Xfor[i+k]) for k in range(p)])
+   return
+
 def main_boosting(name,df):
+   trash()
    # plot all series
    for idserie in range(len(df)):
       plt.plot(df.iloc[:,idserie])
@@ -94,12 +128,12 @@ def main_boosting(name,df):
    # log diff della serie
    tslogdiff = np.log(ts)
    for i in range(len(tslogdiff) - 1, 0, -1):
-      tslogdiff[i] = float(tslogdiff[i] - tslogdiff[i - 1])
+      tslogdiff[i] = float(tslogdiff[i] - tslogdiff[i-1])
    tslogdiff = np.array(tslogdiff)
    avglogdiff = np.average(tslogdiff[1:])
    stdlogdiff = np.std(tslogdiff[1:])
    adflogdiff = sm.tsa.stattools.adfuller(tslogdiff[1:], maxlag=None, regression='ct', autolag='AIC')[1]
-   print(f"chack ts[0]={np.exp(tslogdiff[0])}, ts[1]={np.exp(tslogdiff[1]+tslogdiff[0])}")
+   print(f"chack ts[0]={np.exp(tslogdiff[0])} ({ts[0]}), ts[1]={np.exp(tslogdiff[1]+tslogdiff[0])} ({ts[1]})")
 
    p = 7
    model = AutoReg(tslogdiff, lags=p)
@@ -149,13 +183,15 @@ def main_boosting(name,df):
    print(f"Ljung box lb_pvalue {res.lb_pvalue[p+1]}")
 
    # boost, data generation if residuals are random enough
-   denoised = np.array([tslogdiff[i] - residuals[i] for i in range(len(residuals))]) # denoising also first one!
+   denoised = np.array([tslogdiff[i] - residuals[i] for i in range(len(residuals))]) # aka predictions, but denoising also first one!
    nboost = 100
    boost_set = np.zeros(nboost*len(residuals)).reshape(nboost,len(residuals))
    # generate nboost series
    for iboost in range(nboost):
       res_scramble   = np.random.permutation(residuals)            # scramble residuals
       res_repetition = random.choices(residuals, k=len(residuals)) # extraction with repetition
+      if (iboost==0):   # for checking purposes
+         res_repetition = residuals
       for j in range(len(res_repetition)):
          boost_set[iboost,j] = predictions[j] + res_repetition[j]
       boost_set[iboost,0] = tslogdiff[0] # first value is the first empirical
@@ -169,10 +205,37 @@ def main_boosting(name,df):
 
    for i in range(10):
       plt.plot(boost_set[i,1:])
-   plt.title("boosted (10)")
+   plt.title(f"boosted (10), series {idserie}")
    plt.ylim(5*min(boost_set[0,1:]),5*max(boost_set[0,1:]))
    plt.show()
    np.savetxt(f"..\\data\\boost{idserie}.csv", boost_set, delimiter=",")
+
+   # ricostruzione, controllo
+   #tscheck = np.zeros(len(tslogdiff))
+   bocheck0 = np.zeros(len(tslogdiff))
+   bocheck1 = np.zeros(len(tslogdiff))
+   prcheck = np.zeros(len(tslogdiff))
+   #tscheck[0] = tslogdiff[0]
+   bocheck0[0] = boost_set[0,0]
+   bocheck1[0] = boost_set[1,0]
+   prcheck[0] = tslogdiff[0]
+   for i in range(1,len(tslogdiff)):
+      #tscheck[i] = tslogdiff[i] + tscheck[i-1]
+      bocheck0[i] = boost_set[0,i] + bocheck0[i - 1]
+      bocheck1[i] = boost_set[1,i] + bocheck1[i - 1]
+      prcheck[i] = predictions[i] + prcheck[i - 1]
+   #tscheck = np.exp(tscheck)
+   bocheck0 = np.exp(bocheck0)
+   bocheck1 = np.exp(bocheck1)
+   prcheck = np.exp(prcheck)
+   #plt.plot(tscheck,'g:',label="ts check",linewidth=5)
+   plt.plot(ts,'r',label="empyrical",linewidth=3)
+   plt.plot(bocheck0,'b:',label="boost check residuals",linewidth=5)
+   plt.plot(bocheck1,label="boost check rand",linewidth=3)
+   plt.plot(prcheck,label="predictions")
+   plt.legend()
+   plt.title("check")
+   plt.show()
 
    print("finito")
    sys.exit()

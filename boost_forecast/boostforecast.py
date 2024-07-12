@@ -5,11 +5,11 @@ import run_randomf as rf
 import run_AR as ar
 
 def main_fcast(name, df):
+   idserie = 19 # this to test only one series
    # foreach boosted series forecast
    #for iboostset in len(df): # for each block of boosted series
-   idserie = 19
    for iboostset in range(idserie,idserie+1):
-      bset = pd.read_csv(f"../data/boost{iboostset}.csv",header=None)
+      bset = pd.read_csv(f"../data/boost{iboostset}.csv",header=None) # 42 values, no validation data
       fcast_all = np.zeros(len(bset))
       look_back = 3 # solo con questo va
 
@@ -18,9 +18,9 @@ def main_fcast(name, df):
          fcast = rf.go_rf(ds[:-look_back],look_back=look_back, verbose= (idserie==0))  # random forest, keeping look-back out for validation
          #fcast = ar.go_AR(dlog,look_back=look_back, verbose= (idserie==0)) # AR, validazione nel metodo
          trueval = bset.iloc[idserie,-1] # valore vero
-         print(f"idserie,{idserie},forecast,{fcast[2]}, error {trueval-fcast[2]}\n")
+         print(f"idserie,{idserie}, true last {trueval} forecast,{fcast[2]}, error {trueval-fcast[2]}\n")
 
-         # reconstruction
+         # forecast undiff
          dslog = np.zeros(len(ds)+1)
          dslog[0] = bset.iloc[idserie,0]
          for j in range(len(ds)): dslog[j+1] = ds[j]+dslog[j]
@@ -44,6 +44,7 @@ def main_fcast(name, df):
          plt.legend()
          plt.title(f"true series {idserie}")
          plt.show()
+         print(f"Check forecast = {fvalue}")
 
       # previsione = media
       fcast_all = np.sort(fcast_all)
@@ -72,4 +73,4 @@ if __name__ == "__main__":
    name = "dataframe_nocovid_full"
    df2 = pd.read_csv(f"..\{name}.csv", usecols=[i for i in range(1, 53)])
    print(f"Boost forecasting {name}")
-   main_fcast(name, df2) # momentarily useless arguments
+   main_fcast(name, df2.iloc[:-3,:]) # actual data only for 45 months
