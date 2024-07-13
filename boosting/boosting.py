@@ -79,7 +79,7 @@ def tablePreProc(df):
    dfTable.to_csv('tab_preproc.csv')
    return
 
-def trash():
+def recolor():
    p = 3
    ts = np.array([1.4,1,1.9,1.6,1.3,1.4,1.9,1.2])
    model = AutoReg(ts, lags=3, trend='n')
@@ -113,7 +113,7 @@ def trash():
    return
 
 def main_boosting(name,df):
-   trash()
+   recolor()
    # plot all series
    for idserie in range(len(df)):
       plt.plot(df.iloc[:,idserie])

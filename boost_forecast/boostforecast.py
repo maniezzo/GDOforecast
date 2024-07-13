@@ -28,23 +28,25 @@ def main_fcast(name, df):
          fcast[1] = fcast[1]+fcast[0]
          fcast[2] = fcast[2]+fcast[1]
 
-         plt.plot(dslog,label="dslog")
-         plt.plot(range(len(dslog),len(dslog)+3),fcast,label="fcast")
-         plt.legend()
-         plt.title(f"series {idserie}")
-         plt.show()
+         if idserie == 0:
+            plt.plot(dslog,label="dslog")
+            plt.plot(range(len(dslog),len(dslog)+3),fcast,label="fcast")
+            plt.legend()
+            plt.title(f"series {idserie}")
+            plt.show()
 
-         fvalue = np.exp(fcast[2])
-         fcast_all[idserie] = fvalue
-         print(f"forecast value = {fvalue}")
+            fvalue = np.exp(fcast[2])
+            fcast_all[idserie] = fvalue
+            print(f"forecast value = {fvalue}")
 
-         ds = np.exp(dslog)
-         plt.plot(ds,label="xtrain")
-         plt.plot(df.iloc[:,idserie])
-         plt.legend()
-         plt.title(f"true series {idserie}")
-         plt.show()
-         print(f"Check forecast = {fvalue}")
+            ds = np.exp(dslog)
+            plt.plot(ds,'b:',label="recostruction",linewidth=5)
+            plt.plot(df.iloc[:,iboostset],'r',label="xtrain",linewidth=2)
+            plt.plot(range(len(ds),len(ds)+3),np.exp(fcast),"g",label="fcast",linewidth=2)
+            plt.legend()
+            plt.title(f"Check series {iboostset}")
+            plt.show()
+            print(f"Check forecast = {fvalue}")
 
       # previsione = media
       fcast_all = np.sort(fcast_all)

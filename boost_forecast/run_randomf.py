@@ -30,9 +30,11 @@ def go_rf(ds,look_back=3,verbose=False):
       x_test[2,0] = yfore[i]
 
    if verbose:
-      plt.plot(y)
-      plt.plot(ypred)
-      plt.plot([None for x in ypred]+[x for x in yfore])
+      plt.plot(y,label="empyrical")
+      plt.plot(ypred,label="model")
+      plt.plot([None for x in ypred]+[x for x in yfore],label="forecast")
+      plt.title("Random forest model")
+      plt.legend()
       plt.show()
    return yfore
 
