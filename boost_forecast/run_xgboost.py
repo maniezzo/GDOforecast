@@ -2,32 +2,37 @@ import numpy as np, pandas as pd
 import matplotlib.pyplot as plt
 from xgboost import XGBRegressor
 
-def go_xgboost(ds,indices,look_back=3):
+def go_xgboost(ds,look_back=3,verbose=False):
    if(look_back!=3):
       print("ERROR, look_back must be 3 in this application")
       return
    x = np.arange(len(ds))
-   y = ds.values
-   x_train, xtest = x[:-look_back], x[-look_back:]
-   y_train, ytest = y[:-look_back], y[-look_back:]
+   y = ds #.values
+   x_train, x_test = x[:-look_back], x[-look_back:]
+   y_train, y_test = y[:-look_back], y[-look_back:]
 
    x_train = np.vstack(x_train)
    y_train = np.vstack(y_train)
-   xtest = np.vstack(xtest)
-   ytest = np.vstack(ytest)
+   x_test = np.vstack(x_test)
+   y_test = np.vstack(y_test)
    # fit model
    model = XGBRegressor(objective='reg:squarederror', n_estimators=1000)
 
    model.fit(x_train, y_train)
    ypred = model.predict(x_train)
    yfore = np.zeros(look_back)
-   # rollong forecast
+   # rolling forecast, valid only if look_back=3
    for i in np.arange(look_back):
-      yfore[i] = model.predict(xtest)[0]
-      xtest = np.append(xtest[1:],yfore[i])
+      yfore[i] = model.predict(x_test)[0]
+      x_test[0,0] = x_test[1,0]
+      x_test[1,0] = x_test[2,0]
+      x_test[2,0] = yfore[i]
 
-   plt.plot(ds.values)
-   plt.plot(ypred)
-   plt.plot([None for x in ypred]+[x for x in yfore])
-   plt.show()
+   if verbose:
+      plt.plot(y,label="empyrical")
+      plt.plot(ypred,label="model")
+      plt.plot([None for x in ypred]+[x for x in yfore],label="forecast")
+      plt.title("Random forest model")
+      plt.legend()
+      plt.show()
    return yfore

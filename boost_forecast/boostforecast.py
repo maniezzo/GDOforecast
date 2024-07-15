@@ -3,10 +3,20 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import run_randomf as rf
 import run_AR as ar
+import run_xgboost as xgb
+import run_sarimax as sar
 
 # forecasts a single future value look_back time instant ahead using the specified mathod
-def forecast_value(ds,dslog0,method,look_back = 3):
-   fcast = ar.go_AR(ds[:-look_back], look_back=look_back, verbose=False)  # AR, validazione nel metodo
+def forecast_value(ds,dslog0,method,look_back = 3, verbose = False):
+
+   if(method=="AR"):
+      fcast = ar.go_AR(ds[:-look_back], look_back=look_back, verbose=False)  # AR semplice
+   elif (method == "randomf"):
+      fcast = rf.go_rf(ds[:-look_back], look_back=look_back, verbose=False)  # random forest,
+   elif(method=="xgboost"):
+      fcast = xgb.go_xgboost(ds[:-look_back], look_back=look_back, verbose= False)  # XGboost
+   elif(method=="arima"):
+      fcast = sar.go_sarima(ds[:-look_back], look_back=look_back, autoArima=True, verbose= False)  # ARIMA
 
    # forecast undiff
    dslog = np.zeros(len(ds) + 1)
@@ -15,6 +25,13 @@ def forecast_value(ds,dslog0,method,look_back = 3):
    fcast[0] = fcast[0] + dslog[-1]
    fcast[1] = fcast[1] + fcast[0]
    fcast[2] = fcast[2] + fcast[1]
+
+   if verbose:
+      plt.plot(dslog, label="dslog")
+      plt.plot(range(len(dslog), len(dslog) + 3), fcast, label="fcast")
+      plt.legend()
+      plt.title(f"forecast method {method}")
+      plt.show()
 
    fvalue = np.exp(fcast[2])
    return fvalue
@@ -27,6 +44,13 @@ def main_fcast(name, df):
       bset = pd.read_csv(f"../data/boost{iboostset}.csv",header=None) # 42 values, no validation data
       fcast_all = np.zeros(len(bset))
       look_back = 3 # solo con questo va
+
+      # non-bootssrap point forecasts
+      ds = np.array(bset.iloc[0, 1:])  # one series of bootstrap set, diff log values, remove first one
+      forecast_value(ds,bset.iloc[idserie,0],method="AR",look_back=look_back,verbose=True)
+      forecast_value(ds,bset.iloc[idserie,0],method="randomf",look_back=look_back,verbose=True)
+      forecast_value(ds,bset.iloc[idserie,0],method="xgboost",look_back=look_back,verbose=True)
+      forecast_value(ds,bset.iloc[idserie,0],method="arima",look_back=look_back,verbose=True)
 
       for idserie in range(len(bset)):
          ds = np.array(bset.iloc[idserie, 1:])  # one series of bootstrap set, diff log values, remove first one
