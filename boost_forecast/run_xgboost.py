@@ -3,6 +3,9 @@ import matplotlib.pyplot as plt
 from xgboost import XGBRegressor
 
 def go_xgboost(ds,indices,look_back=3):
+   if(look_back!=3):
+      print("ERROR, look_back must be 3 in this application")
+      return
    x = np.arange(len(ds))
    y = ds.values
    x_train, xtest = x[:-look_back], x[-look_back:]

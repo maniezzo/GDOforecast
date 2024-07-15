@@ -4,6 +4,21 @@ import matplotlib.pyplot as plt
 import run_randomf as rf
 import run_AR as ar
 
+# forecasts a single future value look_back time instant ahead using the specified mathod
+def forecast_value(ds,dslog0,method,look_back = 3):
+   fcast = ar.go_AR(ds[:-look_back], look_back=look_back, verbose=False)  # AR, validazione nel metodo
+
+   # forecast undiff
+   dslog = np.zeros(len(ds) + 1)
+   dslog[0] = dslog0
+   for j in range(len(ds)): dslog[j + 1] = ds[j] + dslog[j]
+   fcast[0] = fcast[0] + dslog[-1]
+   fcast[1] = fcast[1] + fcast[0]
+   fcast[2] = fcast[2] + fcast[1]
+
+   fvalue = np.exp(fcast[2])
+   return fvalue
+
 def main_fcast(name, df):
    idserie = 19 # this to test only one series
    # foreach boosted series forecast
