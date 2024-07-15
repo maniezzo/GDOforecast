@@ -15,8 +15,8 @@ def main_fcast(name, df):
 
       for idserie in range(len(bset)):
          ds = np.array(bset.iloc[idserie, 1:])  # one series of bootstrap set, diff log values, remove first one
-         fcast = rf.go_rf(ds[:-look_back],look_back=look_back, verbose= (idserie==0))  # random forest, keeping look-back out for validation
-         #fcast = ar.go_AR(dlog,look_back=look_back, verbose= (idserie==0)) # AR, validazione nel metodo
+         #fcast = rf.go_rf(ds[:-look_back],look_back=look_back, verbose= (idserie==0))  # random forest, keeping look-back out for validation
+         fcast = ar.go_AR(ds[:-look_back],look_back=look_back, verbose= (idserie==0)) # AR, validazione nel metodo
          trueval = bset.iloc[idserie,-1] # valore vero
          print(f"idserie,{idserie}, true last {trueval} forecast,{fcast[2]}, error {trueval-fcast[2]}\n")
 
@@ -28,16 +28,16 @@ def main_fcast(name, df):
          fcast[1] = fcast[1]+fcast[0]
          fcast[2] = fcast[2]+fcast[1]
 
+         fvalue = np.exp(fcast[2])
+         fcast_all[idserie] = fvalue
+         print(f"forecast value = {fvalue}")
+
          if idserie == 0:
             plt.plot(dslog,label="dslog")
             plt.plot(range(len(dslog),len(dslog)+3),fcast,label="fcast")
             plt.legend()
             plt.title(f"series {idserie}")
             plt.show()
-
-            fvalue = np.exp(fcast[2])
-            fcast_all[idserie] = fvalue
-            print(f"forecast value = {fvalue}")
 
             ds = np.exp(dslog)
             plt.plot(ds,'b:',label="recostruction",linewidth=5)
