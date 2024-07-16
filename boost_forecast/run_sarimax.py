@@ -3,37 +3,33 @@ import matplotlib.pyplot as plt
 import pmdarima as pm
 
 def go_sarima(ds, look_back=3, autoArima=False,verbose=False):
+   print("PMDARIMA: WATCH OUT! needs numpy 1.26.0 or higher")
    if autoArima:
-      model = pm.auto_arima(ds.values, start_p=1, start_q=1,
-                            test='adf', max_p=3, max_q=3, m=12,
-                            start_P=0, seasonal=True,
-                            d=None, D=1,
-                            trace=False,
-                            error_action='ignore',
-                            suppress_warnings=True,
-                            maxiter = 500,
-                            stepwise=True)
+      model = pm.auto_arima(ds,
+                            start_p=0, start_q=0, max_p=3, max_q=3,
+                            start_P=0, start_Q=0, max_P=1, max_Q=1,
+                            seasonal=True, m=12, d=None, D=None, test='adf',
+                            trace=True, error_action='ignore', suppress_warnings=True,
+                            maxiter = 100, stepwise=True)
       morder     = model.order
       mseasorder = model.seasonal_order
    else:
-      #ARIMA(0,1,1)(2,1,0)[12] intercept
+      #ARIMA(0,1,1)(1,1,0)[12] intercept
       morder = (0,1,1) #model.order
-      mseasorder = (2,1,0,13) #model.seasonal_order
+      mseasorder = (1,1,0,12) #model.seasonal_order
 
-   model = pm.arima.ARIMA(morder, seasonal_order=mseasorder, exogenous=externals, return_conf_int=True)
+   model = pm.arima.ARIMA(morder, seasonal_order=mseasorder,  return_conf_int=True)
    fitted = model.fit(ds)
    #print(model.summary())
-   ypred = fitted.predict_in_sample(exog=externals)
-   yfore,confint = fitted.predict(n_periods=3,exog=externals[9:12], return_conf_int=True)  # forecast
-   plt.plot(ds.values)
-   plt.plot([x for x in ypred[1:]])
-   plt.plot([None for i in ypred] + [x for x in yfore])
-   plt.fill_between(np.arange(len(ypred),len(ypred)+3),
-                    confint[:, 0], confint[:, 1],
-                    alpha=0.1, color='b')
-   plt.title("pmdarima")
-   plt.show()
-
+   ypred = fitted.predict_in_sample()
+   yfore,confint = fitted.predict(n_periods=3,return_conf_int=True)  # forecast
+   if verbose:
+      plt.plot(ds,label="empyrical")
+      plt.plot(ypred,label="model")
+      plt.plot([None for x in ypred]+[x for x in yfore],label="forecast")
+      plt.title("ARIMA model")
+      plt.legend()
+      plt.show()
    '''
    # the same, sklearn (dopo autoarima)
    from statsmodels.tsa.statespace.sarimax import SARIMAX

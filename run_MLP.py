@@ -16,7 +16,7 @@ def create_dataset(arrdata,indices,look_back=1):
 
 def go_MLP(ds,indices,look_back = 12, lr=0.05, niter=1000):
 	np.random.seed(550)                 # for reproducibility
-	data = ds.values.reshape(-1, 1)     # time series values, 2D for compatibility
+	data = ds.values.reshape(-1, 1)     # time series values, 2D for compatibility with standardscaler
 	data = data.astype('float32') # needed for MLP input
 	externals = np.array([indices[i % 12] for i in np.arange(len(ds))]).reshape(-1, 1)
 	numExternals = 1

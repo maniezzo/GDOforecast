@@ -16,7 +16,7 @@ def go_xgboost(ds,look_back=3,verbose=False):
    x_test = np.vstack(x_test)
    y_test = np.vstack(y_test)
    # fit model
-   model = XGBRegressor(objective='reg:squarederror', n_estimators=1000)
+   model = XGBRegressor(objective='reg:squarederror', n_estimators=1500)
 
    model.fit(x_train, y_train)
    ypred = model.predict(x_train)

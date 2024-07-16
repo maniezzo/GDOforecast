@@ -5,6 +5,7 @@ import run_randomf as rf
 import run_AR as ar
 import run_xgboost as xgb
 import run_sarimax as sar
+import run_MLP as mlp
 
 # forecasts a single future value look_back time instant ahead using the specified mathod
 def forecast_value(ds,dslog0,method,look_back = 3, verbose = False):
@@ -15,8 +16,10 @@ def forecast_value(ds,dslog0,method,look_back = 3, verbose = False):
       fcast = rf.go_rf(ds[:-look_back], look_back=look_back, verbose=False)  # random forest,
    elif(method=="xgboost"):
       fcast = xgb.go_xgboost(ds[:-look_back], look_back=look_back, verbose= False)  # XGboost
-   elif(method=="arima"):
-      fcast = sar.go_sarima(ds[:-look_back], look_back=look_back, autoArima=True, verbose= False)  # ARIMA
+   elif (method == "arima"):
+      fcast = sar.go_sarima(ds[:-look_back], look_back=look_back, autoArima=True, verbose=False)  # ARIMA
+   elif(method=="MLP"):
+      fcast = mlp.go_MLP(ds[:-look_back],look_back = look_back, lr=0.05, niter=1000, verbose=True) # MLP, pytorch
 
    # forecast undiff
    dslog = np.zeros(len(ds) + 1)
@@ -48,6 +51,7 @@ def main_fcast(name, df):
       # non-bootssrap point forecasts
       ds = np.array(bset.iloc[0, 1:])  # one series of bootstrap set, diff log values, remove first one
       forecast_value(ds,bset.iloc[idserie,0],method="AR",look_back=look_back,verbose=True)
+      forecast_value(ds,bset.iloc[idserie,0],method="MLP",look_back=look_back,verbose=True)
       forecast_value(ds,bset.iloc[idserie,0],method="randomf",look_back=look_back,verbose=True)
       forecast_value(ds,bset.iloc[idserie,0],method="xgboost",look_back=look_back,verbose=True)
       forecast_value(ds,bset.iloc[idserie,0],method="arima",look_back=look_back,verbose=True)
