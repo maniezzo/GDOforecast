@@ -4,7 +4,6 @@ from sklearn import preprocessing
 import copy
 
 import torch
-import tqdm
 import torch.nn as nn           # neural network
 
 def create_dataset(arrdata,look_back=3):
