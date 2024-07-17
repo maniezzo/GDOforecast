@@ -103,7 +103,7 @@ def go_MLP(ds,look_back = 3, lr=0.05, niter=1000, verbose=False):
 	testForecast = scaler.inverse_transform(X_scaled[train_size-look_back:].reshape(-1, 1))
 	yfore        = scaler.inverse_transform(yfore.reshape(-1, 1)).flatten()
 
-	plt.plot(ds)
+	plt.plot(ds,'g',label="ds")
 	plt.plot(trainPredict.flatten(),label="train")
 	tpq = len(trainPredict.flatten())-look_back
 	plt.plot(range(tpq,tpq+len(testForecast.flatten() )), testForecast.flatten(),label="test")
