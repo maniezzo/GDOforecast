@@ -8,12 +8,15 @@ import run_sarimax as sar
 import run_MLP as mlp
 import run_lstm as lstm
 import run_SVM as svm
+import run_HW as hw
 
 # forecasts a single future value look_back time instant ahead using the specified mathod
 def forecast_value(ds,dslog0,method,look_back = 3, verbose = False):
 
    if(method=="AR"):
       fcast = ar.go_AR(ds[:-look_back], look_back=look_back, verbose=False)  # AR semplice
+   elif (method == "HW"):
+      fcast = hw.go_HW(ds[:-look_back], look_back=look_back, verbose=True)  # Holt Winters semplice
    elif (method == "randomf"):
       fcast = rf.go_rf(ds[:-look_back], look_back=look_back, verbose=False)  # random forest,
    elif(method=="xgboost"):
@@ -56,13 +59,14 @@ def main_fcast(name, df):
 
       # non-bootssrap point forecasts
       ds = np.array(bset.iloc[0, 1:])  # one series of bootstrap set, diff log values, remove first one
-      forecast_value(ds,bset.iloc[idserie,0],method="AR",look_back=look_back,verbose=True)
-      forecast_value(ds,bset.iloc[idserie,0],method="svm",look_back=look_back,verbose=True)
-      forecast_value(ds,bset.iloc[idserie,0],method="lstm",look_back=look_back,verbose=True)
-      forecast_value(ds,bset.iloc[idserie,0],method="MLP",look_back=look_back,verbose=True)
-      forecast_value(ds,bset.iloc[idserie,0],method="randomf",look_back=look_back,verbose=True)
-      forecast_value(ds,bset.iloc[idserie,0],method="xgboost",look_back=look_back,verbose=True)
-      forecast_value(ds,bset.iloc[idserie,0],method="arima",look_back=look_back,verbose=True)
+      yar    = forecast_value(ds,bset.iloc[idserie,0],method="AR",look_back=look_back,verbose=True)
+      yhw    = forecast_value(ds,bset.iloc[idserie,0],method="HW",look_back=look_back,verbose=True)
+      ysvm   = forecast_value(ds,bset.iloc[idserie,0],method="svm",look_back=look_back,verbose=True)
+      ylstm  = forecast_value(ds,bset.iloc[idserie,0],method="lstm",look_back=look_back,verbose=True)
+      ymlp   = forecast_value(ds,bset.iloc[idserie,0],method="MLP",look_back=look_back,verbose=True)
+      yrf    = forecast_value(ds,bset.iloc[idserie,0],method="randomf",look_back=look_back,verbose=True)
+      yxgb   = forecast_value(ds,bset.iloc[idserie,0],method="xgboost",look_back=look_back,verbose=True)
+      yarima = forecast_value(ds,bset.iloc[idserie,0],method="arima",look_back=look_back,verbose=True)
 
       for idserie in range(len(bset)):
          ds = np.array(bset.iloc[idserie, 1:])  # one series of bootstrap set, diff log values, remove first one
@@ -106,6 +110,7 @@ def main_fcast(name, df):
       # intervallo = 5 - 95
       fcast_05 = fcast_all[5]
       fcast_95 = fcast_all[95]
+      fcast_50 = fcast_all[50]
 
       # validazione previsione algoritmi
 
@@ -113,10 +118,19 @@ def main_fcast(name, df):
       plt.hist(fcast_all, color='lightgreen', ec='black', bins=15)
       plt.xlabel("Values")
       plt.ylabel("Frequency")
+      plt.axvline(x=fcast_50,  color='gray', linestyle='-', linewidth=3, label='Median')
       plt.axvline(x=fcast_avg, color='gray', linestyle='--', label='Average')
-      plt.axvline(x=fcast_05,  color='gray', linestyle='--', label='0.05')
-      plt.axvline(x=fcast_95,  color='gray', linestyle='--', label='0.95')
+      plt.axvline(x=fcast_05,  color='gray', linestyle='-', label='0.05')
+      plt.axvline(x=fcast_95,  color='gray', linestyle='-', label='0.95')
       plt.axvline(x=df.iloc[-1,iboostset],  color='red',  linestyle='-', label='true val')
+      plt.axvline(x=yar,   color='b', linestyle=':', label='AR')
+      plt.axvline(x=yhw,   color='g', linestyle=':', label='HW')
+      plt.axvline(x=ysvm,  color='c', linestyle=':', label='SVM')
+      plt.axvline(x=ylstm, color='m', linestyle=':', label='LSTM')
+      plt.axvline(x=ymlp,  color='y', linestyle=':', label='MLP')
+      plt.axvline(x=yrf,   color='r', linestyle=':', label='RF')
+      plt.axvline(x=yxgb,  color='k', linestyle=':', label='XGB')
+      plt.axvline(x=yarima, color='purple', linestyle=':', label='ARIMA')
       plt.title(f"Distribution of forecast Values, series {iboostset}")
       plt.legend()
       plt.show()

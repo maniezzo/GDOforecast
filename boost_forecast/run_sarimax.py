@@ -6,11 +6,11 @@ def go_sarima(ds, look_back=3, autoArima=False,verbose=False):
    print("PMDARIMA: WATCH OUT! needs numpy 1.26.0 or higher")
    if autoArima:
       model = pm.auto_arima(ds,
-                            start_p=0, start_q=0, max_p=3, max_q=3,
+                            start_p=0, start_q=0, max_p=2, max_q=2,
                             start_P=0, start_Q=0, max_P=1, max_Q=1,
-                            seasonal=True, m=12, d=None, D=None, test='adf',
-                            trace=True, error_action='ignore', suppress_warnings=True,
-                            maxiter = 100, stepwise=True)
+                            seasonal=True, m=12, d=1, D=None, test='adf',
+                            trace=True, error_action='warn', suppress_warnings=True,
+                            maxiter = 50, stepwise=True)
       morder     = model.order
       mseasorder = model.seasonal_order
    else:
