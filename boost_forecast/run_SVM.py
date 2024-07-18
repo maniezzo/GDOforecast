@@ -26,15 +26,14 @@ def go_svm(ds, look_back=3, verbose=False):
 
    X_fore = scaler_in.transform(X_fore.reshape(-1, 1))
 
+   '''
    param_grid = {"C": np.linspace(10 ** (-2), 10 ** 3, 100),
                  'gamma': np.linspace(0.0001, 1, 20)}
-
-   '''
    mod = SVR(kernel='rbf',C=250.0, gamma=20, epsilon=0.2)
    model = GridSearchCV(estimator=mod, param_grid=param_grid,
                         scoring="neg_mean_squared_error", verbose=1)
    '''
-   model = SVR(kernel='rbf',C=5.0, gamma=150.0, epsilon=0.1)
+   model = SVR(kernel='rbf',C=15, gamma=300, epsilon=0.01)
    model = model.fit(X_train, y_train.ravel())
 
    # prediction
@@ -63,4 +62,4 @@ def go_svm(ds, look_back=3, verbose=False):
    print("MSE: ", skmetrics.mean_squared_error(real, forcast), " R2: ", skmetrics.r2_score(real, forcast))
    #print(best_model.best_params_)
 
-   return yfore
+   return forecasted
