@@ -1,4 +1,5 @@
 import sklearn.preprocessing as skprep
+import sklearn.metrics as skmetrics
 from sklearn.svm import SVR
 from sklearn.model_selection import GridSearchCV
 import matplotlib.pyplot as plt
@@ -27,26 +28,26 @@ def go_svm(ds, look_back=3, verbose=False):
    best_model = model.fit(X_train, y_train.ravel())
 
    # prediction
-   predicted_tr = model.predict(X_train)
-   predicted_te = model.predict(X_test)
+   predicted_train = model.predict(X_train)
+   predicted_test = model.predict(X_test)
 
    # inverse_transform because prediction is done on scaled inputs
-   predicted_tr = scaler_out.inverse_transform(predicted_tr.reshape(-1, 1))
-   predicted_te = scaler_out.inverse_transform(predicted_te.reshape(-1, 1))
+   predicted_train = scaler_out.inverse_transform(predicted_train.reshape(-1, 1))
+   predicted_test = scaler_out.inverse_transform(predicted_test.reshape(-1, 1))
 
    # plot
-   forcast = np.concatenate((predicted_tr, predicted_te))
+   #forcast = np.concatenate((predicted_train, predicted_test))
    real = np.concatenate((train[:, 1], test[:, 1]))
-   plt.plot(real, color='blue', label='Real Erlangs')
-   plt.plot(forcast, "--", linewidth=2, color='red', label='Predicted Erlangs')
-   plt.title('Erlangs Prediction--')
+   plt.plot(real, color='blue', label='Real')
+   plt.plot(predicted_train, color='green', label='Model train')
+   plt.plot(range(len(predicted_train),len(predicted_train)+len(predicted_test)), predicted_test, color='red', label='Model test')
+   plt.title('Prediction')
    plt.xlabel('Time')
-   plt.ylabel('Erlangs')
    plt.legend()
    plt.show()
 
    # error
-   print("MSE: ", mse(real, forcast), " R2: ", r2_score(real, forcast))
+   print("MSE: ", skmetrics.mse(real, forcast), " R2: ", skmetrics.r2_score(real, forcast))
    print(best_model.best_params_)
 
 
