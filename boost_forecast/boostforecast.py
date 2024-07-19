@@ -14,7 +14,7 @@ import run_HW as hw
 def forecast_value(ds,dslog0,method,look_back = 3, verbose = False):
 
    if(method=="AR"):
-      fcast = ar.go_AR(ds[:-look_back], look_back=look_back, verbose=False)  # AR semplice
+      fcast = ar.go_AR(ds[:-look_back], look_back=look_back, verbose=False, gridSearch=True)  # AR semplice
    elif (method == "HW"):
       fcast = hw.go_HW(ds[:-look_back], look_back=look_back, verbose=True)  # Holt Winters semplice
    elif (method == "randomf"):
