@@ -9,7 +9,7 @@ def go_sarima(ds, look_back=3, autoArima=False,verbose=False):
                             start_p=0, start_q=0, max_p=2, max_q=2,
                             start_P=0, start_Q=0, max_P=1, max_Q=1,
                             seasonal=True, m=12, d=1, D=None, test='adf',
-                            trace=True, error_action='warn', suppress_warnings=True,
+                            trace=False, error_action='warn', suppress_warnings=True,
                             maxiter = 50, stepwise=True)
       morder     = model.order
       mseasorder = model.seasonal_order
@@ -20,6 +20,7 @@ def go_sarima(ds, look_back=3, autoArima=False,verbose=False):
 
    model = pm.arima.ARIMA(morder, seasonal_order=mseasorder,  return_conf_int=True)
    fitted = model.fit(ds)
+   print(f"ARIMA: order {morder} mseasorder {mseasorder}")
    #print(model.summary())
    ypred = fitted.predict_in_sample()
    yfore,confint = fitted.predict(n_periods=3,return_conf_int=True)  # forecast

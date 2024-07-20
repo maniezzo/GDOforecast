@@ -80,7 +80,7 @@ def tablePreProc(df):
    return
 
 def recolor():
-   p = 3
+   p = 0
    ts = np.array([1.4,1,1.9,1.6,1.3,1.4,1.9,1.2])
    model = AutoReg(ts, lags=3, trend='n')
    model_fitted = model.fit()
@@ -113,7 +113,7 @@ def recolor():
    return
 
 def main_boosting(name,df):
-   recolor()
+   #recolor()
    # plot all series
    for idserie in range(len(df)):
       plt.plot(df.iloc[:,idserie])
@@ -122,7 +122,7 @@ def main_boosting(name,df):
 
    tablePreProc(df)
 
-   idserie = 19
+   idserie = 0
    ts = df.iloc[:-3, idserie]
 
    # log diff della serie

@@ -9,17 +9,18 @@ def ARlog_likelyhood(y,coeff,p):
    n = len(y)
    residuals = []
    for t in range(p, n): # cannot use the first p
-      ytpred = 0
-      for i in range(p):
-         ytpred += coeff[i]*y[t-p+i] #
+      #ytpred = coeff[0]
+      #for i in range(p):
+      #   ytpred += coeff[i+1]*y[t-p+i]
+      ytpred = coeff[0] + np.sum(coeff[1:]*y[t-p:t])
       residuals.append(y[t] - ytpred)
    sigma = np.std(residuals) # standard deviation of the residuals
 
    residuals = np.array(residuals)
    n_residuals = len(residuals)
 
-   add1 = -n_residuals / 2 * np.log(2 * np.pi * sigma ** 2)
-   add2 = -1 / (2 * sigma ** 2) * np.sum(residuals ** 2)
+   add1 = -n_residuals / 2 * np.log(2 * np.pi * sigma ** 2) # nres/2 * 2pi s^2
+   add2 = -1 / (2 * sigma ** 2) * np.sum(residuals ** 2)    # -1/(2 s^2) * sum(res^2)
 
    log_likelihood = add1 + add2
    return log_likelihood
@@ -36,7 +37,7 @@ def go_AR(ds, look_back=3, verbose=False, gridSearch = False):
    if gridSearch:
       bestp = -1
       best_score = float("inf")
-      for p in range(0,3):
+      for p in range(0,5):
          model = AutoReg(y_train, lags=p)
          model_fit = model.fit()
 
@@ -64,7 +65,7 @@ def go_AR(ds, look_back=3, verbose=False, gridSearch = False):
    pred = model_fitted.predict(start=start, end=end) # prediction and forecast
 
    mse = sk.metrics.mean_absolute_error(y_test, pred[-look_back:])
-   print("MSE={}".format(mse))
+   print(f"AR: p={p} MSE={mse}")
    ypred = pred[:-look_back]
    yfore = pred[-look_back:]
 

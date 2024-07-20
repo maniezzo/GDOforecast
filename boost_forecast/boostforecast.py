@@ -49,7 +49,7 @@ def forecast_value(ds,dslog0,method,look_back = 3, verbose = False):
    return fvalue
 
 def main_fcast(name, df):
-   idserie = 19 # this to test only one series
+   idserie = 3 # this to test only one series
    # foreach boosted series forecast
    #for iboostset in len(df): # for each block of boosted series
    for iboostset in range(idserie,idserie+1):
@@ -71,6 +71,7 @@ def main_fcast(name, df):
       for idserie in range(len(bset)):
          ds = np.array(bset.iloc[idserie, 1:])  # one series of bootstrap set, diff log values, remove first one
          #fcast = rf.go_rf(ds[:-look_back],look_back=look_back, verbose= (idserie==0))  # random forest, keeping look-back out for validation
+         #fcast = sar.go_sarima(ds[:-look_back], look_back=look_back, autoArima=True, verbose=(idserie==0))  # ARIMA
          fcast = ar.go_AR(ds[:-look_back],look_back=look_back, verbose= (idserie==0)) # AR, validazione nel metodo
          trueval = bset.iloc[idserie,-1] # valore vero
          print(f"idserie,{idserie}, true last {trueval} forecast,{fcast[2]}, error {trueval-fcast[2]}\n")
@@ -108,9 +109,9 @@ def main_fcast(name, df):
       fcast_avg = np.average(fcast_all)
 
       # intervallo = 5 - 95
-      fcast_05 = fcast_all[5]
-      fcast_95 = fcast_all[95]
-      fcast_50 = fcast_all[50]
+      fcast_05 = fcast_all[6]    # 125/100*5
+      fcast_95 = fcast_all[119]  #
+      fcast_50 = fcast_all[62]
 
       # validazione previsione algoritmi
 

@@ -48,7 +48,7 @@ def go_lstm(ds, look_back = 12, lr=0.05, niter=1000, verbose=False):
    loss_fn   = nn.MSELoss()
    loader    = tudata.DataLoader(tudata.TensorDataset(X_train, y_train), shuffle=True, batch_size=8)
 
-   n_epochs = 2000
+   n_epochs = 1500
    for epoch in range(n_epochs):
       model.train()
       for X_batch, y_batch in loader:
