@@ -6,7 +6,7 @@ from statsmodels.tsa.ar_model import AutoReg
 from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
 from scipy.stats import boxcox
 from scipy.special import inv_boxcox
-import random
+import random, copy
 
 # backcast the first 6 data
 def backcast(ts,p):
@@ -79,23 +79,24 @@ def tablePreProc(df):
    dfTable.to_csv('tab_preproc.csv')
    return
 
-def recolor():
-   p = 0
+def recolor_check():
+   p = 3 # only 3 for check
    ts = np.array([1.4,1,1.9,1.6,1.3,1.4,1.9,1.2])
-   model = AutoReg(ts, lags=3, trend='n')
+   model = AutoReg(ts, lags=p, trend='n')
    model_fitted = model.fit()
    phiHin = model_fitted.params
-   predictions2 = model_fitted.predict(start=3, end=7)
+   predictions2 = model_fitted.predict(start=p, end=len(ts)-1)
    check2 = [phiHin[0]*ts[i-1]+phiHin[1]*ts[i-2]+phiHin[2]*ts[i-3] for i in range(3,len(ts))]
 
+   # backward filtering
    tsflip = np.flip(ts)
-   model = AutoReg(tsflip, lags=3, trend='n')
+   model = AutoReg(tsflip, lags=p, trend='n')
    model_fitted = model.fit()
    phiHer = model_fitted.params
-   predictions1 = np.flip( model_fitted.predict(start=3, end=7) )
+   predictions1 = np.flip( model_fitted.predict(start=p, end=len(ts)-1) )
    check1 = [phiHer[0]*tsflip[i-1]+phiHer[1]*tsflip[i-2]+phiHer[2]*tsflip[i-3] for i in range(5,len(ts))]
 
-   pred = np.hstack((predictions1[:p],predictions2))
+   pred = np.concatenate((predictions1[:p+1] ,predictions2)) # two (( are mandatory
    residuals = np.array([ts[i]-pred[i] for i in range(len(ts))])
    res_repetition = random.choices(residuals, k=len(residuals))  # extraction with repetition
 
@@ -106,14 +107,14 @@ def recolor():
    for i in range(p):
       Xfor[i] = sum([phiHer[k]*pred[i+k] for k in range(p)]) + res_repetition[i] # i primi p valori, con i phi her
 
-   # backward filtering (recoloring)
+   # recoloring
    Xnew = np.zeros(len(ts))
-   for i in range(len(ts)-p,0,-1):
-      Xnew[i-1] = Xfor[i-1] + sum([phiHin[k]*(Xnew[i+k] - Xfor[i+k]) for k in range(p)])
-   return
+   for i in range(len(ts)):
+      Xnew[i] = Xfor[i] + res_repetition[i]
+   return Xnew
 
-def main_boosting(name,df):
-   #recolor()
+def main_boosting(name,df,backCast = True):
+   recolor_check()
    # plot all series
    for idserie in range(len(df)):
       plt.plot(df.iloc[:,idserie])
@@ -139,8 +140,8 @@ def main_boosting(name,df):
    model = AutoReg(tslogdiff, lags=p)
    model_fitted = model.fit()
 
-   start = 0
-   end = len(tslogdiff)# + 3  # Predicting 3 steps ahead
+   start = 0 # if no backcasting the first p will be later deleted
+   end = len(tslogdiff) # + 3  # Predicting 3 steps ahead
    predictions = model_fitted.predict(start=start, end=end)
 
    plt.figure(figsize=(12, 6)) # Plot of actual data and predictions
@@ -152,21 +153,24 @@ def main_boosting(name,df):
    plt.show()
 
    # backcasting
-   head = backcast(tslogdiff,p)
-   predictions[0:p] = head[0:p]
-   plt.figure(figsize=(12, 6)) # Plot of actual data and predictions
-   plt.plot(tslogdiff[1:], label='Actual Data')
-   plt.plot(predictions, label='Predicted Data', color='red')
-   plt.axvline(x=start, color='gray', linestyle='--', label='Prediction Start')
-   plt.title("combined")
-   plt.legend()
-   plt.show()
+   if(backCast):
+      head = backcast(tslogdiff,p)
+      predictions[0:p] = head[0:p]
+      plt.figure(figsize=(12, 6)) # Plot of actual data and predictions
+      plt.plot(tslogdiff[1:], label='Actual Data')
+      plt.plot(predictions, label='Predicted Data', color='red')
+      plt.axvline(x=start, color='gray', linestyle='--', label='Prediction Start')
+      plt.title("combined")
+      plt.legend()
+      plt.show()
+   else:
+      start = p
 
    # residui
    residuals = np.zeros(len(tslogdiff))
    for i in range(1,len(tslogdiff)):
       residuals[i] = tslogdiff[i] - predictions[i]
-   plt.plot(residuals,label="residuals")
+   plt.plot(residuals[start:],label="residuals")
    plt.title("residuals")
    plt.legend()
    plt.show()
@@ -174,18 +178,20 @@ def main_boosting(name,df):
    # acf and ljung box test
    plt.rcParams.update({'figure.figsize': (9, 7), 'figure.dpi': 120})
    fig, axes = plt.subplots(1, 2, sharex=True)
-   axes[0].plot(residuals);
+   axes[0].plot(residuals[start:]);
    axes[0].set_title('Original Series')
-   plot_acf(residuals, ax=axes[1])
+   plot_acf(residuals[start:], ax=axes[1])
    plt.show()
 
-   res = sm.stats.diagnostic.acorr_ljungbox(residuals,model_df=p)
-   print(f"Ljung box lb_pvalue {res.lb_pvalue[p+1]}")
+   res = sm.stats.diagnostic.acorr_ljungbox(residuals[start:],model_df=p)
+   print(f"Ljung box lb_pvalue {res.lb_pvalue[p-1]}")
 
    # boost, data generation if residuals are random enough
-   denoised = np.array([tslogdiff[i] - residuals[i] for i in range(len(residuals))]) # aka predictions, but denoising also first one!
-   nboost = 100
-   boost_set = np.zeros(nboost*len(residuals)).reshape(nboost,len(residuals))
+   denoised = np.array([tslogdiff[i] - residuals[i] for i in range(start,len(residuals))]) # aka predictions, but denoising also first one!
+   nboost = 125
+   predictions = predictions[start:] # in case of no backcasting
+   residuals   = residuals[start:]
+   boost_set   = np.zeros(nboost*len(residuals)).reshape(nboost,len(residuals))
    # generate nboost series
    for iboost in range(nboost):
       res_scramble   = np.random.permutation(residuals)            # scramble residuals
@@ -211,31 +217,32 @@ def main_boosting(name,df):
    np.savetxt(f"..\\data\\boost{idserie}.csv", boost_set, delimiter=",")
 
    # ricostruzione, controllo
-   #tscheck = np.zeros(len(tslogdiff))
-   bocheck0 = np.zeros(len(tslogdiff))
-   bocheck1 = np.zeros(len(tslogdiff))
-   prcheck = np.zeros(len(tslogdiff))
-   #tscheck[0] = tslogdiff[0]
-   bocheck0[0] = boost_set[0,0]
-   bocheck1[0] = boost_set[1,0]
-   prcheck[0] = tslogdiff[0]
-   for i in range(1,len(tslogdiff)):
-      #tscheck[i] = tslogdiff[i] + tscheck[i-1]
-      bocheck0[i] = boost_set[0,i] + bocheck0[i - 1]
-      bocheck1[i] = boost_set[1,i] + bocheck1[i - 1]
-      prcheck[i] = predictions[i] + prcheck[i - 1]
-   #tscheck = np.exp(tscheck)
-   bocheck0 = np.exp(bocheck0)
-   bocheck1 = np.exp(bocheck1)
-   prcheck = np.exp(prcheck)
-   #plt.plot(tscheck,'g:',label="ts check",linewidth=5)
-   plt.plot(ts,'r',label="empyrical",linewidth=3)
-   plt.plot(bocheck0,'b:',label="boost check residuals",linewidth=5)
-   plt.plot(bocheck1,label="boost check rand",linewidth=3)
-   plt.plot(prcheck,label="predictions")
-   plt.legend()
-   plt.title("check")
-   plt.show()
+   if backCast:
+      #tscheck = np.zeros(len(tslogdiff))
+      bocheck0 = np.zeros(len(tslogdiff)) # check residuals
+      bocheck1 = np.zeros(len(tslogdiff)) # check rand
+      prcheck  = np.zeros(len(tslogdiff))
+      #tscheck[0] = tslogdiff[0]
+      bocheck0[0] = boost_set[0,0]
+      bocheck1[0] = boost_set[1,0]
+      prcheck[0]  = tslogdiff[0]
+      for i in range(1,boost_set.shape[1]):
+         #tscheck[i] = tslogdiff[i] + tscheck[i-1]
+         bocheck0[i] = boost_set[0,i] + bocheck0[i - 1]
+         bocheck1[i] = boost_set[1,i] + bocheck1[i - 1]
+         prcheck[i]  = predictions[i] + prcheck[i - 1]
+      #tscheck = np.exp(tscheck)
+      bocheck0 = np.exp(bocheck0)
+      bocheck1 = np.exp(bocheck1)
+      prcheck  = np.exp(prcheck)
+      #plt.plot(tscheck,'g:',label="ts check",linewidth=5)
+      plt.plot(ts,'r',label="empyrical",linewidth=3)
+      plt.plot(bocheck0,'b:',label="boost check residuals",linewidth=5)
+      plt.plot(bocheck1,label="boost check rand",linewidth=3)
+      plt.plot(prcheck,label="predictions")
+      plt.legend()
+      plt.title("check")
+      plt.show()
 
    print("finito")
    sys.exit()
@@ -244,4 +251,4 @@ if __name__ == "__main__":
    name = "dataframe_nocovid_full"
    df2 = pd.read_csv(f"..\{name}.csv", usecols = [i for i in range(1,53)])
    print(f"Boosting {name}")
-   main_boosting(name,df2.iloc[:-3,:])
+   main_boosting(name,df2.iloc[:-3,:], backCast=False) # last 3 were original forecasts

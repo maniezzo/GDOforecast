@@ -49,7 +49,7 @@ def forecast_value(ds,dslog0,method,look_back = 3, verbose = False):
    return fvalue
 
 def main_fcast(name, df):
-   idserie = 3 # this to test only one series
+   idserie = 0 # this to test only one series
    # foreach boosted series forecast
    #for iboostset in len(df): # for each block of boosted series
    for iboostset in range(idserie,idserie+1):
@@ -109,9 +109,9 @@ def main_fcast(name, df):
       fcast_avg = np.average(fcast_all)
 
       # intervallo = 5 - 95
-      fcast_05 = fcast_all[6]    # 125/100*5
-      fcast_95 = fcast_all[119]  #
-      fcast_50 = fcast_all[62]
+      fcast_05 = fcast_all[int(len(fcast_all)/100*5)]   # 125/100*5
+      fcast_95 = fcast_all[int(len(fcast_all)/100*95)]  #
+      fcast_50 = fcast_all[int(len(fcast_all)/100*50)]
 
       # validazione previsione algoritmi
 
@@ -135,6 +135,8 @@ def main_fcast(name, df):
       plt.title(f"Distribution of forecast Values, series {iboostset}")
       plt.legend()
       plt.show()
+      print("fcast_50","fcast_avg","fcast_05","fcast_95","df.iloc[-1","iboostset]","yar","yhw","ysvm","ylstm","ymlp","yrf","yxgb","yarima")
+      print(fcast_50, fcast_avg,fcast_05, fcast_95, df.iloc[-1,iboostset], yar, yhw, ysvm, ylstm, ymlp, yrf, yxgb, yarima)
    print("finito")
 
 if __name__ == "__main__":
