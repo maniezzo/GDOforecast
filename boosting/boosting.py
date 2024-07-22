@@ -113,7 +113,7 @@ def recolor_check():
       Xnew[i] = Xfor[i] + res_repetition[i]
    return Xnew
 
-def main_boosting(name,df,backCast = True):
+def main_boosting(name,df,backCast = True, repetition=True, nboost=125,p=7):
    recolor_check()
    # plot all series
    for idserie in range(len(df)):
@@ -123,7 +123,7 @@ def main_boosting(name,df,backCast = True):
 
    tablePreProc(df)
 
-   idserie = 0
+   idserie = 10
    ts = df.iloc[:-3, idserie]
 
    # log diff della serie
@@ -136,7 +136,6 @@ def main_boosting(name,df,backCast = True):
    adflogdiff = sm.tsa.stattools.adfuller(tslogdiff[1:], maxlag=None, regression='ct', autolag='AIC')[1]
    print(f"chack ts[0]={np.exp(tslogdiff[0])} ({ts[0]}), ts[1]={np.exp(tslogdiff[1]+tslogdiff[0])} ({ts[1]})")
 
-   p = 7
    model = AutoReg(tslogdiff, lags=p)
    model_fitted = model.fit()
 
@@ -188,18 +187,20 @@ def main_boosting(name,df,backCast = True):
 
    # boost, data generation if residuals are random enough
    denoised = np.array([tslogdiff[i] - residuals[i] for i in range(start,len(residuals))]) # aka predictions, but denoising also first one!
-   nboost = 125
    predictions = predictions[start:] # in case of no backcasting
    residuals   = residuals[start:]
    boost_set   = np.zeros(nboost*len(residuals)).reshape(nboost,len(residuals))
    # generate nboost series
    for iboost in range(nboost):
-      res_scramble   = np.random.permutation(residuals)            # scramble residuals
-      res_repetition = random.choices(residuals, k=len(residuals)) # extraction with repetition
+      if repetition:
+         randResiduals = random.choices(residuals, k=len(residuals))  # extraction with repetition
+      else:
+         randResiduals = np.random.permutation(residuals)            # scramble residuals
+
       if (iboost==0):   # for checking purposes
-         res_repetition = residuals
-      for j in range(len(res_repetition)):
-         boost_set[iboost,j] = predictions[j] + res_repetition[j]
+         randResiduals = residuals
+      for j in range(len(randResiduals)):
+         boost_set[iboost,j] = predictions[j] + randResiduals[j]
       boost_set[iboost,0] = tslogdiff[0] # first value is the first empirical
 
       # Reconstruction, invert preprocessing
@@ -214,7 +215,10 @@ def main_boosting(name,df,backCast = True):
    plt.title(f"boosted (10), series {idserie}")
    plt.ylim(5*min(boost_set[0,1:]),5*max(boost_set[0,1:]))
    plt.show()
-   np.savetxt(f"..\\data\\boost{idserie}.csv", boost_set, delimiter=",")
+
+   attrib  = "r" if repetition else "s"  # repetition or scramble
+   attrib += "b" if backcast else "f"    # backcast or forecast only (shorter)
+   np.savetxt(f"..\\data\\boost{idserie}_{attrib}.csv", boost_set, delimiter=",")
 
    # ricostruzione, controllo
    if backCast:
@@ -251,4 +255,4 @@ if __name__ == "__main__":
    name = "dataframe_nocovid_full"
    df2 = pd.read_csv(f"..\{name}.csv", usecols = [i for i in range(1,53)])
    print(f"Boosting {name}")
-   main_boosting(name,df2.iloc[:-3,:], backCast=False) # last 3 were original forecasts
+   main_boosting(name,df2.iloc[:-3,:], backCast=True, repetition=False, nboost = 125) # last 3 were original forecasts
