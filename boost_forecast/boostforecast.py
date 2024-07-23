@@ -141,7 +141,7 @@ def main_fcast(name, df, idserie=0,attrib="sbAR", verbose=True):
       print("series","attrib","fcast_50","fcast_avg","fcast_05","fcast_95","true","yar","yhw","ysvm","ylstm","ymlp","yrf","yxgb","yarima")
       print(iboostset,attrib,fcast_50, fcast_avg,fcast_05, fcast_95, df.iloc[-1,iboostset], yar, yhw, ysvm, ylstm, ymlp, yrf, yxgb, yarima)
       # Append results to res file
-      with open("res.csv", "a") as fout:
+      with open(f"res_{attrib}.csv", "a") as fout:
          #fout.write("series,attrib,fcast_50,fcast_avg,fcast_05,fcast_95,true,yar,yhw,ysvm,ylstm,ymlp,yrf,yxgb,yarima\n")
          fout.write(f"{iboostset},{attrib},{fcast_50},{fcast_avg},{fcast_05},{fcast_95},{df.iloc[-1,iboostset]},{yar},{yhw},{ysvm[-1]},{ylstm},{ymlp},{yrf},{yxgb},{yarima}\n")
    print("finito")
@@ -150,7 +150,7 @@ if __name__ == "__main__":
    name = "dataframe_nocovid_full"
    df2 = pd.read_csv(f"../{name}.csv", usecols=[i for i in range(1, 53)])
    print(f"Boost forecasting {name}")
-   attrib = "sb"
+   attrib = "rf"
    distrib = "AR" # "RF" "ARIMA"
    attrib+=distrib
-   main_fcast(name, df2.iloc[:-3,:], idserie=50, attrib=attrib, verbose=False) # actual data only for 45 months
+   main_fcast(name, df2.iloc[:-3,:], idserie=0, attrib=attrib, verbose=False) # actual data only for 45 months
