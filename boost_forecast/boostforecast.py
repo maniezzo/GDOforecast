@@ -150,4 +150,4 @@ if __name__ == "__main__":
    attrib = "sb"
    distrib = "AR" # "RF" "ARIMA"
    attrib+=distrib
-   main_fcast(name, df2.iloc[:-3,:], idserie=9, attrib=attrib) # actual data only for 45 months
+   main_fcast(name, df2.iloc[:-3,:], idserie=0, attrib=attrib) # actual data only for 45 months
