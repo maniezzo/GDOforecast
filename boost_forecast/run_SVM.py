@@ -48,14 +48,15 @@ def go_svm(ds, look_back=3, verbose=False):
 
    # plot
    real = np.concatenate((y_train, y_test))
-   plt.plot(real, color='blue', label='Real')
-   plt.plot(predicted_train, color='green', label='Model train')
-   plt.plot(range(len(predicted_train),len(predicted_train)+len(predicted_test)), predicted_test, color='orange', label='Model test')
-   plt.plot(range(len(ds),len(ds)+look_back), forecasted, color='red', label='forecast')
-   plt.title('Prediction')
-   plt.xlabel('Time')
-   plt.legend()
-   plt.show()
+   if verbose:
+      plt.plot(real, color='blue', label='Real')
+      plt.plot(predicted_train, color='green', label='Model train')
+      plt.plot(range(len(predicted_train),len(predicted_train)+len(predicted_test)), predicted_test, color='orange', label='Model test')
+      plt.plot(range(len(ds),len(ds)+look_back), forecasted, color='red', label='forecast')
+      plt.title('Prediction')
+      plt.xlabel('Time')
+      plt.legend()
+      plt.show()
 
    # error
    forcast = np.concatenate((predicted_train, predicted_test))

@@ -14,21 +14,21 @@ import run_HW as hw
 def forecast_value(ds,dslog0,method,look_back = 3, verbose = False):
 
    if(method=="AR"):
-      fcast = ar.go_AR(ds[:-look_back], look_back=look_back, verbose=False, gridSearch=True)  # AR semplice
+      fcast = ar.go_AR(ds[:-look_back], look_back=look_back, verbose=verbose, gridSearch=True)  # AR semplice
    elif (method == "HW"):
-      fcast = hw.go_HW(ds[:-look_back], look_back=look_back, verbose=True)  # Holt Winters semplice
+      fcast = hw.go_HW(ds[:-look_back], look_back=look_back, verbose=verbose)  # Holt Winters semplice
    elif (method == "randomf"):
-      fcast = rf.go_rf(ds[:-look_back], look_back=look_back, verbose=False)  # random forest,
+      fcast = rf.go_rf(ds[:-look_back], look_back=look_back, verbose=verbose)  # random forest,
    elif(method=="xgboost"):
-      fcast = xgb.go_xgboost(ds[:-look_back], look_back=look_back, verbose= False)  # XGboost
+      fcast = xgb.go_xgboost(ds[:-look_back], look_back=look_back, verbose= verbose)  # XGboost
    elif (method == "arima"):
-      fcast = sar.go_sarima(ds[:-look_back], look_back=look_back, autoArima=True, verbose=False)  # ARIMA
+      fcast = sar.go_sarima(ds[:-look_back], look_back=look_back, autoArima=True, verbose=verbose)  # ARIMA
    elif (method == "MLP"):
-      fcast = mlp.go_MLP(ds[:-look_back], look_back=look_back, lr=0.05, niter=1000, verbose=True)  # MLP, pytorch
+      fcast = mlp.go_MLP(ds[:-look_back], look_back=look_back, lr=0.05, niter=1000, verbose=verbose)  # MLP, pytorch
    elif (method == "lstm"):
-      fcast = lstm.go_lstm(ds[:-look_back], look_back=look_back, lr=0.05, niter=1000, verbose=True)  # MLP, pytorch
+      fcast = lstm.go_lstm(ds[:-look_back], look_back=look_back, lr=0.05, niter=1000, verbose=verbose)  # MLP, pytorch
    elif(method=="svm"):
-      fcast = svm.go_svm(ds[:-look_back],look_back = look_back, verbose=True) # svm
+      fcast = svm.go_svm(ds[:-look_back],look_back = look_back, verbose=verbose) # svm
 
    # forecast undiff
    dslog = np.zeros(len(ds) + 1)
@@ -48,30 +48,30 @@ def forecast_value(ds,dslog0,method,look_back = 3, verbose = False):
    fvalue = np.exp(fcast[2])
    return fvalue
 
-def main_fcast(name, df, idserie=0,attrib="sbAR"):
+def main_fcast(name, df, idserie=0,attrib="sbAR", verbose=True):
    # foreach boosted series forecast
    #for iboostset in len(df): # for each block of boosted series
-   for iboostset in range(idserie,idserie+1):
+   for iboostset in range(idserie,idserie+5):
       bset = pd.read_csv(f"../data/boost{iboostset}_{attrib[:2]}.csv",header=None) # 42 values, no validation data
       fcast_all = np.zeros(len(bset))
       look_back = 3 # solo con questo va
 
       # non-bootssrap point forecasts
       ds = np.array(bset.iloc[0, 1:])  # one series of bootstrap set, diff log values, remove first one
-      yar    = forecast_value(ds,bset.iloc[idserie,0],method="AR",look_back=look_back,verbose=True)
-      yhw    = forecast_value(ds,bset.iloc[idserie,0],method="HW",look_back=look_back,verbose=True)
-      ysvm   = forecast_value(ds,bset.iloc[idserie,0],method="svm",look_back=look_back,verbose=True)
-      ylstm  = forecast_value(ds,bset.iloc[idserie,0],method="lstm",look_back=look_back,verbose=True)
-      ymlp   = forecast_value(ds,bset.iloc[idserie,0],method="MLP",look_back=look_back,verbose=True)
-      yrf    = forecast_value(ds,bset.iloc[idserie,0],method="randomf",look_back=look_back,verbose=True)
-      yxgb   = forecast_value(ds,bset.iloc[idserie,0],method="xgboost",look_back=look_back,verbose=True)
-      yarima = forecast_value(ds,bset.iloc[idserie,0],method="arima",look_back=look_back,verbose=True)
+      yar    = forecast_value(ds,bset.iloc[idserie,0],method="AR",look_back=look_back,verbose=verbose)
+      yhw    = forecast_value(ds,bset.iloc[idserie,0],method="HW",look_back=look_back,verbose=verbose)
+      ysvm   = forecast_value(ds,bset.iloc[idserie,0],method="svm",look_back=look_back,verbose=verbose)
+      ylstm  = forecast_value(ds,bset.iloc[idserie,0],method="lstm",look_back=look_back,verbose=verbose)
+      ymlp   = forecast_value(ds,bset.iloc[idserie,0],method="MLP",look_back=look_back,verbose=verbose)
+      yrf    = forecast_value(ds,bset.iloc[idserie,0],method="randomf",look_back=look_back,verbose=verbose)
+      yxgb   = forecast_value(ds,bset.iloc[idserie,0],method="xgboost",look_back=look_back,verbose=verbose)
+      yarima = forecast_value(ds,bset.iloc[idserie,0],method="arima",look_back=look_back,verbose=verbose)
 
       for idserie in range(len(bset)):
          ds = np.array(bset.iloc[idserie, 1:])  # one series of bootstrap set, diff log values, remove first one
-         if(attrib[2:] == "AR"):      fcast = ar.go_AR(ds[:-look_back],look_back=look_back, verbose= (idserie==0)) # AR, validazione nel metodo
-         elif(attrib[2:] == "RF"):    fcast = rf.go_rf(ds[:-look_back],look_back=look_back, verbose= (idserie==0)) # random forest, keeping look-back out for validation
-         elif(attrib[2:] == "ARIMA"): fcast = sar.go_sarima(ds[:-look_back], look_back=look_back, autoArima=True, verbose=(idserie==0))  # ARIMA
+         if(attrib[2:] == "AR"):      fcast = ar.go_AR(ds[:-look_back],look_back=look_back, verbose=False) # (idserie==0)) # AR, validazione nel metodo
+         elif(attrib[2:] == "RF"):    fcast = rf.go_rf(ds[:-look_back],look_back=look_back, verbose=False) # (idserie==0)) # random forest, keeping look-back out for validation
+         elif(attrib[2:] == "ARIMA"): fcast = sar.go_sarima(ds[:-look_back], look_back=look_back, autoArima=True, verbose=False) #(idserie==0))  # ARIMA
 
          trueval = bset.iloc[idserie,-1] # valore vero
          print(f"idserie,{idserie}, true last {trueval} forecast,{fcast[2]}, error {trueval-fcast[2]}\n")
@@ -89,19 +89,21 @@ def main_fcast(name, df, idserie=0,attrib="sbAR"):
          print(f"forecast value = {fvalue}")
 
          if idserie == 0:
-            plt.plot(dslog,label="dslog")
-            plt.plot(range(len(dslog),len(dslog)+3),fcast,label="fcast")
-            plt.legend()
-            plt.title(f"series {idserie}")
-            plt.show()
+            if verbose:
+               plt.plot(dslog,label="dslog")
+               plt.plot(range(len(dslog),len(dslog)+3),fcast,label="fcast")
+               plt.legend()
+               plt.title(f"series {idserie}")
+               plt.show()
 
             ds = np.exp(dslog)
-            plt.plot(ds,'b:',label="recostruction",linewidth=5)
-            plt.plot(df.iloc[:,iboostset],'r',label="xtrain",linewidth=2)
-            plt.plot(range(len(ds),len(ds)+3),np.exp(fcast),"g",label="fcast",linewidth=2)
-            plt.legend()
-            plt.title(f"Check series {iboostset}")
-            plt.show()
+            if verbose:
+               plt.plot(ds,'b:',label="recostruction",linewidth=5)
+               plt.plot(df.iloc[:,iboostset],'r',label="xtrain",linewidth=2)
+               plt.plot(range(len(ds),len(ds)+3),np.exp(fcast),"g",label="fcast",linewidth=2)
+               plt.legend()
+               plt.title(f"Check series {iboostset}")
+               plt.show()
             print(f"Check forecast = {fvalue}")
 
       # previsione = media
@@ -116,38 +118,39 @@ def main_fcast(name, df, idserie=0,attrib="sbAR"):
       # validazione previsione algoritmi
 
       # distribution of forecasts, plt histogram:
-      plt.hist(fcast_all, color='lightgreen', ec='black', bins=15)
-      plt.xlabel("Values")
-      plt.ylabel("Frequency")
-      plt.axvline(x=fcast_50,  color='gray', linestyle='-', linewidth=3, label='Median')
-      plt.axvline(x=fcast_avg, color='gray', linestyle='--', label='Average')
-      plt.axvline(x=fcast_05,  color='gray', linestyle='-', label='0.05')
-      plt.axvline(x=fcast_95,  color='gray', linestyle='-', label='0.95')
-      plt.axvline(x=df.iloc[-1,iboostset],  color='red',  linestyle='-', label='true val')
-      plt.axvline(x=yar,   color='b', linestyle=':', label='AR')
-      plt.axvline(x=yhw,   color='g', linestyle=':', label='HW')
-      plt.axvline(x=ysvm,  color='c', linestyle=':', label='SVM')
-      plt.axvline(x=ylstm, color='m', linestyle=':', label='LSTM')
-      plt.axvline(x=ymlp,  color='y', linestyle=':', label='MLP')
-      plt.axvline(x=yrf,   color='r', linestyle=':', label='RF')
-      plt.axvline(x=yxgb,  color='k', linestyle=':', label='XGB')
-      plt.axvline(x=yarima, color='purple', linestyle=':', label='ARIMA')
-      plt.title(f"Distribution of forecast Values, series {iboostset}")
-      plt.legend()
-      plt.show()
+      if verbose:
+         plt.hist(fcast_all, color='lightgreen', ec='black', bins=15)
+         plt.xlabel("Values")
+         plt.ylabel("Frequency")
+         plt.axvline(x=fcast_50,  color='gray', linestyle='-', linewidth=3, label='Median')
+         plt.axvline(x=fcast_avg, color='gray', linestyle='--', label='Average')
+         plt.axvline(x=fcast_05,  color='gray', linestyle='-', label='0.05')
+         plt.axvline(x=fcast_95,  color='gray', linestyle='-', label='0.95')
+         plt.axvline(x=df.iloc[-1,iboostset],  color='red',  linestyle='-', label='true val')
+         plt.axvline(x=yar,   color='b', linestyle=':', label='AR')
+         plt.axvline(x=yhw,   color='g', linestyle=':', label='HW')
+         plt.axvline(x=ysvm,  color='c', linestyle=':', label='SVM')
+         plt.axvline(x=ylstm, color='m', linestyle=':', label='LSTM')
+         plt.axvline(x=ymlp,  color='y', linestyle=':', label='MLP')
+         plt.axvline(x=yrf,   color='r', linestyle=':', label='RF')
+         plt.axvline(x=yxgb,  color='k', linestyle=':', label='XGB')
+         plt.axvline(x=yarima, color='purple', linestyle=':', label='ARIMA')
+         plt.title(f"Distribution of forecast Values, series {iboostset}")
+         plt.legend()
+         plt.show()
       print("series","attrib","fcast_50","fcast_avg","fcast_05","fcast_95","true","yar","yhw","ysvm","ylstm","ymlp","yrf","yxgb","yarima")
       print(iboostset,attrib,fcast_50, fcast_avg,fcast_05, fcast_95, df.iloc[-1,iboostset], yar, yhw, ysvm, ylstm, ymlp, yrf, yxgb, yarima)
       # Append results to res file
       with open("res.csv", "a") as fout:
          #fout.write("series,attrib,fcast_50,fcast_avg,fcast_05,fcast_95,true,yar,yhw,ysvm,ylstm,ymlp,yrf,yxgb,yarima\n")
-         fout.write(f"{iboostset},{attrib},{fcast_50},{fcast_avg},{fcast_05},{fcast_95},{df.iloc[-1,iboostset]},{yar},{yhw},{ysvm},{ylstm},{ymlp},{yrf},{yxgb},{yarima}\n")
+         fout.write(f"{iboostset},{attrib},{fcast_50},{fcast_avg},{fcast_05},{fcast_95},{df.iloc[-1,iboostset]},{yar},{yhw},{ysvm[-1]},{ylstm},{ymlp},{yrf},{yxgb},{yarima}\n")
    print("finito")
 
 if __name__ == "__main__":
    name = "dataframe_nocovid_full"
-   df2 = pd.read_csv(f"..\{name}.csv", usecols=[i for i in range(1, 53)])
+   df2 = pd.read_csv(f"../{name}.csv", usecols=[i for i in range(1, 53)])
    print(f"Boost forecasting {name}")
    attrib = "sb"
    distrib = "AR" # "RF" "ARIMA"
    attrib+=distrib
-   main_fcast(name, df2.iloc[:-3,:], idserie=0, attrib=attrib) # actual data only for 45 months
+   main_fcast(name, df2.iloc[:-3,:], idserie=50, attrib=attrib, verbose=False) # actual data only for 45 months

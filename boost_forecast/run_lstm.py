@@ -79,11 +79,12 @@ def go_lstm(ds, look_back = 12, lr=0.05, niter=1000, verbose=False):
       test_plot[len(train) + look_back:len(datas)] = model(X_test)[:, -1]
 
    # results, plot
-   plt.plot(datas)
-   plt.plot(train_plot, c='r')
-   plt.plot(test_plot,  c='g')
-   plt.title("LSTM series")
-   plt.show()
+   if verbose:
+      plt.plot(datas)
+      plt.plot(train_plot, c='r')
+      plt.plot(test_plot,  c='g')
+      plt.title("LSTM series")
+      plt.show()
 
    numpred = 3
    yfore = np.zeros(numpred)
@@ -102,13 +103,14 @@ def go_lstm(ds, look_back = 12, lr=0.05, niter=1000, verbose=False):
    testForecast = scaler.inverse_transform(y_test.reshape(-1, 1))
    yfore = scaler.inverse_transform(yfore.reshape(-1, 1)).flatten()
 
-   plt.plot(ds, 'g', label="ds")
-   plt.plot(range( look_back-1, look_back-1+len(trainPredict)),trainPredict, label="train")
-   tpq =  look_back +len(trainPredict.flatten())
-   plt.plot(range(tpq, tpq + len(testForecast.flatten())), testForecast.flatten(),  label="test")
-   plt.plot(range(len(ds) - look_back, len(ds) - look_back + len(yfore)), yfore[:],'r', label="forecast")
-   plt.title("LSTM model")
-   plt.legend()
-   plt.show()
+   if verbose:
+      plt.plot(ds, 'g', label="ds")
+      plt.plot(range( look_back-1, look_back-1+len(trainPredict)),trainPredict, label="train")
+      tpq =  look_back +len(trainPredict.flatten())
+      plt.plot(range(tpq, tpq + len(testForecast.flatten())), testForecast.flatten(),  label="test")
+      plt.plot(range(len(ds) - look_back, len(ds) - look_back + len(yfore)), yfore[:],'r', label="forecast")
+      plt.title("LSTM model")
+      plt.legend()
+      plt.show()
 
    return yfore

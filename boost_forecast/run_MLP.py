@@ -81,12 +81,13 @@ def go_MLP(ds,look_back = 3, lr=0.05, niter=1000, verbose=False):
 	print("MSE: %.2f" % best_loss)
 	print("RMSE: %.2f" % np.sqrt(best_loss))
 	la = np.array(losses)
-	plt.figure()
-	plt.plot(la)
-	plt.ylabel('Loss')
-	plt.xlabel('epoch');
-	plt.title("Losses")
-	plt.show()
+	if verbose:
+		plt.figure()
+		plt.plot(la)
+		plt.ylabel('Loss')
+		plt.xlabel('epoch');
+		plt.title("Losses")
+		plt.show()
 
 	numpred=3
 	yfore = np.zeros(numpred)
@@ -103,13 +104,14 @@ def go_MLP(ds,look_back = 3, lr=0.05, niter=1000, verbose=False):
 	testForecast = scaler.inverse_transform(X_scaled[train_size-look_back:].reshape(-1, 1))
 	yfore        = scaler.inverse_transform(yfore.reshape(-1, 1)).flatten()
 
-	plt.plot(ds,'g',label="ds")
-	plt.plot(trainPredict.flatten(),label="train")
-	tpq = len(trainPredict.flatten())-look_back
-	plt.plot(range(tpq,tpq+len(testForecast.flatten() )), testForecast.flatten(),label="test")
-	plt.plot(range(len(ds)-look_back, len(ds)-look_back+len(yfore)),yfore[:],label="forecast")
-	plt.title("MLP model")
-	plt.legend()
-	plt.show()
+	if verbose:
+		plt.plot(ds,'g',label="ds")
+		plt.plot(trainPredict.flatten(),label="train")
+		tpq = len(trainPredict.flatten())-look_back
+		plt.plot(range(tpq,tpq+len(testForecast.flatten() )), testForecast.flatten(),label="test")
+		plt.plot(range(len(ds)-look_back, len(ds)-look_back+len(yfore)),yfore[:],label="forecast")
+		plt.title("MLP model")
+		plt.legend()
+		plt.show()
 
 	return yfore

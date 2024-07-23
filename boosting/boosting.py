@@ -125,8 +125,7 @@ def main_boosting(name,df,backCast = True, repetition=True, nboost=125,p=7,verbo
 
    tablePreProc(df)
 
-   #idserie = 15
-   for idserie in range(31,52):
+   for idserie in range(30,31):
       ts = df.iloc[:-3, idserie]
 
       # log diff della serie
@@ -261,6 +260,6 @@ def main_boosting(name,df,backCast = True, repetition=True, nboost=125,p=7,verbo
 
 if __name__ == "__main__":
    name = "dataframe_nocovid_full"
-   df2 = pd.read_csv(f"..\{name}.csv", usecols = [i for i in range(1,53)])
+   df2 = pd.read_csv(f"../{name}.csv", usecols = [i for i in range(1,53)])
    print(f"Boosting {name}")
    main_boosting(name,df2.iloc[:-3,:], backCast=True, repetition=False, nboost = 125, verbose=False) # last 3 were original forecasts
