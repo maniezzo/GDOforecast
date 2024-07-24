@@ -225,7 +225,7 @@ def main_boosting(name,df,backCast = True, repetition=True, nboost=125,p=7,verbo
 
       attrib  = "r" if repetition else "s"  # repetition or scramble
       attrib += "b" if backCast else "f"    # backcast or forecast only (shorter)
-      np.savetxt(f"..\\data\\boost{idserie}_{attrib}.csv", boost_set, delimiter=",")
+      np.savetxt(f"..\\data\\boost{idserie}_{attrib}_{nboost}.csv", boost_set, delimiter=",")
 
       # ricostruzione, controllo
       if backCast and verbose:
@@ -262,4 +262,4 @@ if __name__ == "__main__":
    name = "dataframe_nocovid_full"
    df2 = pd.read_csv(f"../{name}.csv", usecols = [i for i in range(1,53)])
    print(f"Boosting {name}")
-   main_boosting(name,df2.iloc[:-3,:], backCast=False, repetition=True, nboost = 125, verbose=False) # last 3 were original forecasts
+   main_boosting(name,df2.iloc[:-3,:], backCast=False, repetition=True, nboost = 75, verbose=False) # last 3 were original forecasts

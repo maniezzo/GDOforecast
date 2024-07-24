@@ -48,11 +48,11 @@ def forecast_value(ds,dslog0,method,look_back = 3, verbose = False):
    fvalue = np.exp(fcast[2])
    return fvalue
 
-def main_fcast(name, df, idserie=0,attrib="sbAR", verbose=True):
+def main_fcast(name, df, idserie=0,attrib="sbAR", nboost=125, verbose=True):
    # foreach boosted series forecast
    #for iboostset in len(df): # for each block of boosted series
    for iboostset in range(idserie,idserie+5):
-      bset = pd.read_csv(f"../data/boost{iboostset}_{attrib[:2]}.csv",header=None) # 42 values, no validation data
+      bset = pd.read_csv(f"../data/boost{iboostset}_{attrib[:2]}_{nboost}.csv",header=None) # 42 values, no validation data
       fcast_all = np.zeros(len(bset))
       look_back = 3 # solo con questo va
 
@@ -138,19 +138,19 @@ def main_fcast(name, df, idserie=0,attrib="sbAR", verbose=True):
          plt.title(f"Distribution of forecast Values, series {iboostset}")
          plt.legend()
          plt.show()
-      print("series","attrib","fcast_50","fcast_avg","fcast_05","fcast_95","true","yar","yhw","ysvm","ylstm","ymlp","yrf","yxgb","yarima")
-      print(iboostset,attrib,fcast_50, fcast_avg,fcast_05, fcast_95, df.iloc[-1,iboostset], yar, yhw, ysvm, ylstm, ymlp, yrf, yxgb, yarima)
+      print("series","attrib","true","fcast_50","fcast_avg","fcast_05","fcast_95","yar","yhw","ysvm","ylstm","ymlp","yrf","yxgb","yarima")
+      print(iboostset,attrib,df.iloc[-1,iboostset], fcast_50, fcast_avg,fcast_05, fcast_95, yar, yhw, ysvm, ylstm, ymlp, yrf, yxgb, yarima)
       # Append results to res file
       with open(f"res_{attrib}.csv", "a") as fout:
          #fout.write("series,attrib,fcast_50,fcast_avg,fcast_05,fcast_95,true,yar,yhw,ysvm,ylstm,ymlp,yrf,yxgb,yarima\n")
-         fout.write(f"{iboostset},{attrib},{fcast_50},{fcast_avg},{fcast_05},{fcast_95},{df.iloc[-1,iboostset]},{yar},{yhw},{ysvm[-1]},{ylstm},{ymlp},{yrf},{yxgb},{yarima}\n")
+         fout.write(f"{iboostset},{attrib},{df.iloc[-1,iboostset]},{fcast_50},{fcast_avg},{fcast_05},{fcast_95},{yar},{yhw},{ysvm[-1]},{ylstm},{ymlp},{yrf},{yxgb},{yarima}\n")
    print("finito")
 
 if __name__ == "__main__":
    name = "dataframe_nocovid_full"
    df2 = pd.read_csv(f"../{name}.csv", usecols=[i for i in range(1, 53)])
    print(f"Boost forecasting {name}")
-   attrib = "rf"
+   attrib = "rf"  # random resampling, only forcast
    distrib = "AR" # "RF" "ARIMA"
    attrib+=distrib
-   main_fcast(name, df2.iloc[:-3,:], idserie=0, attrib=attrib, verbose=False) # actual data only for 45 months
+   main_fcast(name, df2.iloc[:-3,:], idserie=0, attrib=attrib, nboost=75, verbose=False) # actual data only for 45 months
