@@ -262,4 +262,4 @@ if __name__ == "__main__":
    name = "dataframe_nocovid_full"
    df2 = pd.read_csv(f"../{name}.csv", usecols = [i for i in range(1,53)])
    print(f"Boosting {name}")
-   main_boosting(name,df2.iloc[:-3,:], backCast=False, repetition=True, nboost = 175, verbose=False) # last 3 were original forecasts
+   main_boosting(name,df2.iloc[:-3,:], backCast=False, repetition=True, nboost = 125, verbose=False) # last 3 were original forecasts
