@@ -230,7 +230,9 @@ def main_boosting(name,df,backCast = True, repetition=True, nboost=125,p=7,verbo
       np.savetxt(f"..\\data\\boost{idserie}_{attrib}_{nboost}.csv", boost_set, delimiter=",")
 
       # create table boost(id integer primary key autoincrement, model text, nboost int, idseries int, series text)
-      sql.insertSqlite("..\\data\\results.sqlite", bmodel, nboost, idserie, boost_set)
+      fback = 1 if backCast   else 0
+      frep  = 1 if repetition else 0
+      sql.insertSqlite("..\\data\\results.sqlite", bmodel,fback, frep, nboost, idserie, boost_set)
 
       # ricostruzione, controllo
       if backCast and verbose:
@@ -267,4 +269,5 @@ if __name__ == "__main__":
    name = "dataframe_nocovid_full"
    df2 = pd.read_csv(f"../{name}.csv", usecols = [i for i in range(1,53)])
    print(f"Boosting {name}")
+   sql.createSqlite("..\\data\\results.sqlite")
    main_boosting(name,df2.iloc[:-3,:], backCast=False, repetition=True, nboost = 125, verbose=False) # last 3 were original forecasts
