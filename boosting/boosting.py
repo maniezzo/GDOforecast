@@ -7,6 +7,7 @@ from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
 from scipy.stats import boxcox
 from scipy.special import inv_boxcox
 import random, copy
+import sqlite101 as sql
 
 # backcast the first 6 data
 def backcast(ts,p,verbose=True):
@@ -114,7 +115,7 @@ def recolor_check():
       Xnew[i] = Xfor[i] + res_repetition[i]
    return Xnew
 
-def main_boosting(name,df,backCast = True, repetition=True, nboost=125,p=7,verbose=True):
+def main_boosting(name,df,backCast = True, repetition=True, nboost=125,p=7,verbose=True,bmodel="AR"):
    recolor_check()
    # plot all series
    if verbose:
@@ -124,6 +125,7 @@ def main_boosting(name,df,backCast = True, repetition=True, nboost=125,p=7,verbo
       plt.show()
 
    tablePreProc(df)
+   sql.deleteSqLite("..\\data\\results.sqlite", bmodel, nboost)
 
    for idserie in range(0,52):
       ts = df.iloc[:-3, idserie]
@@ -226,6 +228,9 @@ def main_boosting(name,df,backCast = True, repetition=True, nboost=125,p=7,verbo
       attrib  = "r" if repetition else "s"  # repetition or scramble
       attrib += "b" if backCast else "f"    # backcast or forecast only (shorter)
       np.savetxt(f"..\\data\\boost{idserie}_{attrib}_{nboost}.csv", boost_set, delimiter=",")
+
+      # create table boost(id integer primary key autoincrement, model text, nboost int, idseries int, series text)
+      sql.insertSqlite("..\\data\\results.sqlite", bmodel, nboost, idserie, boost_set)
 
       # ricostruzione, controllo
       if backCast and verbose:
