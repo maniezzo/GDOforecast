@@ -1,7 +1,7 @@
 import pandas as pd, numpy as np
 import sqlite3
-import json
-import sys
+import json,csv
+import sys,os
 
 # creates table boost, removes it if existing
 def createSqlite(dbfilePath):
@@ -57,24 +57,34 @@ def insertSqlite(dbfilePath, model, fback, frep, nboost, idseries, boost_set):
     conn.close()
 
 # runs the query to pull out the relevant series (writes them to csv)
-def querySqlite(dbfilePath, nboost):
+def querySqlite(dbfilePath, model, fback, frep, nboost):
+    # removes all csv files in directory
+    currdir = '..//data//'
+    filelist = [f for f in os.listdir(currdir) if f.endswith('.csv')]
+    for f in filelist:
+        os.remove(os.path.join(currdir, f))
+
+    # generates new csv from sqlite
     sys.path.append('../boosting')
     import sqlite101 as sql
     conn = sqlite3.connect(dbfilePath)
     command = conn.cursor()
-    for i in range(nboost):
-        query = f"select idseries,idrepl,series from boost where model='AR' and fback=0 and frep=1 and nboost=125 and idseries={i}"
+    for i in range(52):
+        query = f"select idseries,idrepl,series from boost where model='{model}' and fback={fback} and frep={frep} and nboost={nboost} and idseries={i}"
         command.execute(query)
         records = command.fetchall()
         print(f"series {i}")
+        fcsv = open(f"../data/boost{i}.csv", mode='w', newline='')
+        for row in records:
+            print("Id: ", row[0])
+            print("idrepl: ", row[1])
+            print("series: ", row[2])
+            print("\n")
+            arr = np.array(json.loads(row[2]))
+            writer = csv.writer(fcsv)
+            writer.writerow(arr)
+        fcsv.close()
 
-    for row in records:
-        print("Id: ", row[0])
-        print("Name: ", row[1])
-        print("Email: ", row[2])
-        print("JoiningDate: ", row[3])
-        print("Salary: ", row[4])
-        print("\n")
-    conn.commit()
+    conn.commit() # useless, no transaction. just to flush memory
     conn.close()
     return

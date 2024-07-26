@@ -49,24 +49,16 @@ def forecast_value(ds,dslog0,method,look_back = 3, verbose = False):
    fvalue = np.exp(fcast[2])
    return fvalue
 
-def readSqlite(dbfilePath, model, fback, frep, nboost):
+def main_fcast(name, df, idserie=0, model='AR', fback=0, frep=1, nboost=125, verbose=True):
+   dbfilePath='../data/results.sqlite'
    sys.path.append('../boosting')
    import sqlite101 as sql
-   sql.querySqlite(dbfilePath,nboost)
-   return
+   sql.querySqlite(dbfilePath, model, fback, frep, nboost)
 
-
-def main_fcast(name, df, idserie=0,attrib="sbAR", nboost=125, verbose=True):
-   dbfilePath='../data/results.sqlite'
-   model="AR"
-   fback=0
-   frep=1
-   nboost=125
-   readSqlite(dbfilePath, model, fback, frep, nboost)
    # foreach boosted series forecast
    #for iboostset in len(df): # for each block of boosted series
    for iboostset in range(idserie,idserie+1):
-      bset = pd.read_csv(f"../data/boost{iboostset}_{attrib[:2]}_{nboost}.csv",header=None) # 42 values, no validation data
+      bset = pd.read_csv(f"../data/boost{iboostset}.csv", header=None) # 42 values, no validation data
       fcast_all = np.zeros(len(bset))
       look_back = 3 # solo con questo va
 
@@ -83,9 +75,9 @@ def main_fcast(name, df, idserie=0,attrib="sbAR", nboost=125, verbose=True):
 
       for idserie in range(len(bset)):
          ds = np.array(bset.iloc[idserie, 1:])  # one series of bootstrap set, diff log values, remove first one
-         if(attrib[2:] == "AR"):      fcast = ar.go_AR(ds[:-look_back],look_back=look_back, verbose=False) # (idserie==0)) # AR, validazione nel metodo
-         elif(attrib[2:] == "RF"):    fcast = rf.go_rf(ds[:-look_back],look_back=look_back, verbose=False) # (idserie==0)) # random forest, keeping look-back out for validation
-         elif(attrib[2:] == "ARIMA"): fcast = sar.go_sarima(ds[:-look_back], look_back=look_back, autoArima=True, verbose=False) #(idserie==0))  # ARIMA
+         if(model == "AR"):      fcast = ar.go_AR(ds[:-look_back], look_back=look_back, verbose=False) # (idserie==0)) # AR, validazione nel metodo
+         elif(model == "RF"):    fcast = rf.go_rf(ds[:-look_back], look_back=look_back, verbose=False) # (idserie==0)) # random forest, keeping look-back out for validation
+         elif(model == "ARIMA"): fcast = sar.go_sarima(ds[:-look_back], look_back=look_back, autoArima=True, verbose=False) #(idserie==0))  # ARIMA
 
          trueval = bset.iloc[idserie,-1] # valore vero
          print(f"idserie,{idserie}, true last {trueval} forecast,{fcast[2]}, error {trueval-fcast[2]}\n")
@@ -153,11 +145,11 @@ def main_fcast(name, df, idserie=0,attrib="sbAR", nboost=125, verbose=True):
          plt.legend()
          plt.show()
       print("series","attrib","true","fcast_50","fcast_avg","fcast_05","fcast_95","yar","yhw","ysvm","ylstm","ymlp","yrf","yxgb","yarima")
-      print(iboostset,attrib,df.iloc[-1,iboostset], fcast_50, fcast_avg,fcast_05, fcast_95, yar, yhw, ysvm, ylstm, ymlp, yrf, yxgb, yarima)
+      print(iboostset, model, df.iloc[-1,iboostset], fcast_50, fcast_avg, fcast_05, fcast_95, yar, yhw, ysvm, ylstm, ymlp, yrf, yxgb, yarima)
       # Append results to res file
-      with open(f"res_{attrib}_{nboost}.csv", "a") as fout:
+      with open(f"res_{model}_{nboost}.csv", "a") as fout:
          #fout.write("series,attrib,fcast_50,fcast_avg,fcast_05,fcast_95,true,yar,yhw,ysvm,ylstm,ymlp,yrf,yxgb,yarima\n")
-         fout.write(f"{iboostset},{attrib},{df.iloc[-1,iboostset]},{fcast_50},{fcast_avg},{fcast_05},{fcast_95},{yar},{yhw},{ysvm[-1]},{ylstm},{ymlp},{yrf},{yxgb},{yarima}\n")
+         fout.write(f"{iboostset},{model},{df.iloc[-1,iboostset]},{fcast_50},{fcast_avg},{fcast_05},{fcast_95},{yar},{yhw},{ysvm[-1]},{ylstm},{ymlp},{yrf},{yxgb},{yarima}\n")
    print("finito")
 
 if __name__ == "__main__":
@@ -166,5 +158,9 @@ if __name__ == "__main__":
    print(f"Boost forecasting {name}")
    attrib = "rf"  # random resampling, only forcast
    distrib = "AR" # "RF" "ARIMA"
+   model="AR"
+   fback=0
+   frep=1
+   nboost=125
    attrib+=distrib
-   main_fcast(name, df2.iloc[:-3,:], idserie=29, attrib=attrib, nboost=175, verbose=True) # actual data only for 45 months
+   main_fcast(name, df2.iloc[:-3,:], idserie=29, model=model, fback=fback, frep=frep, nboost=125, verbose=True) # actual data only for 45 months
