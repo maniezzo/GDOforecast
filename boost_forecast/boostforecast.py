@@ -9,6 +9,7 @@ import run_MLP as mlp
 import run_lstm as lstm
 import run_SVM as svm
 import run_HW as hw
+import sys
 
 # forecasts a single future value look_back time instant ahead using the specified mathod
 def forecast_value(ds,dslog0,method,look_back = 3, verbose = False):
@@ -48,7 +49,20 @@ def forecast_value(ds,dslog0,method,look_back = 3, verbose = False):
    fvalue = np.exp(fcast[2])
    return fvalue
 
+def readSqlite(dbfilePath, model, fback, frep, nboost):
+   sys.path.append('../boosting')
+   import sqlite101 as sql
+   sql.querySqlite(dbfilePath,nboost)
+   return
+
+
 def main_fcast(name, df, idserie=0,attrib="sbAR", nboost=125, verbose=True):
+   dbfilePath='../data/results.sqlite'
+   model="AR"
+   fback=0
+   frep=1
+   nboost=125
+   readSqlite(dbfilePath, model, fback, frep, nboost)
    # foreach boosted series forecast
    #for iboostset in len(df): # for each block of boosted series
    for iboostset in range(idserie,idserie+1):

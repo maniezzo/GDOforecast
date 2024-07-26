@@ -1,6 +1,7 @@
 import pandas as pd, numpy as np
 import sqlite3
 import json
+import sys
 
 # creates table boost, removes it if existing
 def createSqlite(dbfilePath):
@@ -54,3 +55,26 @@ def insertSqlite(dbfilePath, model, fback, frep, nboost, idseries, boost_set):
                     (model, fback, frep, nboost, idseries, i, jarray))
         conn.commit()
     conn.close()
+
+# runs the query to pull out the relevant series (writes them to csv)
+def querySqlite(dbfilePath, nboost):
+    sys.path.append('../boosting')
+    import sqlite101 as sql
+    conn = sqlite3.connect(dbfilePath)
+    command = conn.cursor()
+    for i in range(nboost):
+        query = f"select idseries,idrepl,series from boost where model='AR' and fback=0 and frep=1 and nboost=125 and idseries={i}"
+        command.execute(query)
+        records = command.fetchall()
+        print(f"series {i}")
+
+    for row in records:
+        print("Id: ", row[0])
+        print("Name: ", row[1])
+        print("Email: ", row[2])
+        print("JoiningDate: ", row[3])
+        print("Salary: ", row[4])
+        print("\n")
+    conn.commit()
+    conn.close()
+    return
