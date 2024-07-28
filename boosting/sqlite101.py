@@ -73,6 +73,10 @@ def querySqlite(dbfilePath, model, fback, frep, nboost):
         query = f"select idseries,idrepl,series from boost where model='{model}' and fback={fback} and frep={frep} and nboost={nboost} and idseries={i}"
         command.execute(query)
         records = command.fetchall()
+        if(len(records) == 0):
+           print("Configuration unavailable. Exiting ...")
+           sys.exit(0)
+        # got the dataseries
         print(f"series {i}")
         fcsv = open(f"../data/boost{i}.csv", mode='w', newline='')
         for row in records:
