@@ -163,4 +163,4 @@ if __name__ == "__main__":
    frep=1
    nboost=125
    attrib+=distrib
-   main_fcast(name, df2.iloc[:-3,:], idserie=29, model=model, fback=fback, frep=frep, nboost=125, verbose=True) # actual data only for 45 months
+   main_fcast(name, df2.iloc[:-3,:], idserie=29, model=model, fback=fback, frep=frep, nboost=75, verbose=True) # actual data only for 45 months

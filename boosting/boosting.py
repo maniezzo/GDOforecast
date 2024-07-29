@@ -170,7 +170,7 @@ def main_boosting(name,df,backCast = True, repetition=True, nboost=75,p=7,verbos
          print(f"Unavailable model {bmodel}, exiting")
          return
 
-      if verbose:
+      if verbose and idserie==0:
          plt.figure(figsize=(12, 6)) # Plot of actual data and predictions
          plt.plot(tslogdiff[1:], label='Series Data')
          plt.plot(predictions[1:], label='Predicted Data', color='red')
@@ -198,14 +198,14 @@ def main_boosting(name,df,backCast = True, repetition=True, nboost=75,p=7,verbos
       residuals = np.zeros(len(tslogdiff))
       for i in range(1,len(tslogdiff)):
          residuals[i] = tslogdiff[i] - predictions[i]
-      if verbose:
+      if verbose and idserie==0:
          plt.plot(residuals[start:],label="residuals")
          plt.title("residuals")
          plt.legend()
          plt.show()
 
       # acf and ljung box test
-      if verbose:
+      if verbose and idserie==0:
          plt.rcParams.update({'figure.figsize': (9,7), 'figure.dpi': 120})
          fig, axes = plt.subplots(1, 2, sharex=True)
          axes[0].plot(residuals[start:]);
@@ -221,27 +221,28 @@ def main_boosting(name,df,backCast = True, repetition=True, nboost=75,p=7,verbos
       predictions = predictions[start:] # in case of no backcasting
       residuals   = residuals[start:]
       boost_set   = np.zeros(nboost*len(residuals)).reshape(nboost,len(residuals))
-      # generate nboost series
+
+      # ------------------------------------------------------------------ generate nboost series
       for iboost in range(nboost):
          if repetition:
             randResiduals = random.choices(residuals, k=len(residuals))  # extraction with repetition
          else:
-            randResiduals = np.random.permutation(residuals)            # scramble residuals
+            randResiduals = np.random.permutation(residuals)             # scramble residuals
 
          if (iboost==0):   # for checking purposes
             randResiduals = residuals
          for j in range(len(randResiduals)):
             boost_set[iboost,j] = predictions[j] + randResiduals[j]
-         boost_set[iboost,0] = tslogdiff[0] # first value is the first empirical
+         boost_set[iboost,0] = tslogdiff[p-1] # first value is the empirical needed for recostruction
 
          # Reconstruction, invert preprocessing
-         fReconstruct = False
+         fReconstruct = True
          if fReconstruct:
             for j in range(1,len(residuals)):
                boost_set[iboost,j] = boost_set[iboost,j]+boost_set[iboost,j-1]
             boost_set[iboost] = np.exp(boost_set[iboost])
 
-      if verbose:
+      if verbose and idserie==0:
          for i in range(10):
             plt.plot(boost_set[i,1:])
          plt.title(f"boosted (10), series {idserie}")
@@ -260,7 +261,7 @@ def main_boosting(name,df,backCast = True, repetition=True, nboost=75,p=7,verbos
       sql.insertSqlite("..\\data\\results.sqlite", bmodel,fback, frep, nboost, idserie, boost_set)
 
       # ricostruzione, controllo
-      if backCast and verbose:
+      if backCast and verbose and idserie==0:
          #tscheck = np.zeros(len(tslogdiff))
          bocheck0 = np.zeros(len(tslogdiff)) # check residuals
          bocheck1 = np.zeros(len(tslogdiff)) # check rand
@@ -295,4 +296,4 @@ if __name__ == "__main__":
    df2 = pd.read_csv(f"../{name}.csv", usecols = [i for i in range(1,53)])
    print(f"Boosting {name}")
    #sql.createSqlite("..\\data\\results.sqlite")
-   main_boosting(name,df2.iloc[:-3,:], backCast=False, repetition=True, nboost = 75, verbose=False, bmodel="AR") # last 3 were original forecasts
+   main_boosting(name,df2.iloc[:-3,:], backCast=False, repetition=True, nboost = 75, verbose=True, bmodel="AR") # last 3 were original forecasts
