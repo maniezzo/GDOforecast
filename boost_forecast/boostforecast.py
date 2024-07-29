@@ -63,15 +63,17 @@ def main_fcast(name, df, idserie=0, model='AR', fback=0, frep=1, nboost=125, ver
       look_back = 3 # solo con questo va
 
       # non-bootssrap point forecasts
-      ds = np.array(bset.iloc[0, 1:])  # one series of bootstrap set, diff log values, remove first one
-      yar    = forecast_value(ds,bset.iloc[idserie,0],method="AR",look_back=look_back,verbose=verbose)
-      yhw    = forecast_value(ds,bset.iloc[idserie,0],method="HW",look_back=look_back,verbose=verbose)
-      ysvm   = forecast_value(ds,bset.iloc[idserie,0],method="svm",look_back=look_back,verbose=verbose)
-      ylstm  = forecast_value(ds,bset.iloc[idserie,0],method="lstm",look_back=look_back,verbose=verbose)
-      ymlp   = forecast_value(ds,bset.iloc[idserie,0],method="MLP",look_back=look_back,verbose=verbose)
-      yrf    = forecast_value(ds,bset.iloc[idserie,0],method="randomf",look_back=look_back,verbose=verbose)
-      yxgb   = forecast_value(ds,bset.iloc[idserie,0],method="xgboost",look_back=look_back,verbose=verbose)
-      yarima = forecast_value(ds,bset.iloc[idserie,0],method="arima",look_back=look_back,verbose=verbose)
+      fForeCast = False
+      if fForeCast:
+         ds = np.array(bset.iloc[0, 1:])  # one series of bootstrap set, diff log values, remove first one
+         yar    = forecast_value(ds,bset.iloc[idserie,0],method="AR",look_back=look_back,verbose=verbose)
+         yhw    = forecast_value(ds,bset.iloc[idserie,0],method="HW",look_back=look_back,verbose=verbose)
+         ysvm   = forecast_value(ds,bset.iloc[idserie,0],method="svm",look_back=look_back,verbose=verbose)
+         ylstm  = forecast_value(ds,bset.iloc[idserie,0],method="lstm",look_back=look_back,verbose=verbose)
+         ymlp   = forecast_value(ds,bset.iloc[idserie,0],method="MLP",look_back=look_back,verbose=verbose)
+         yrf    = forecast_value(ds,bset.iloc[idserie,0],method="randomf",look_back=look_back,verbose=verbose)
+         yxgb   = forecast_value(ds,bset.iloc[idserie,0],method="xgboost",look_back=look_back,verbose=verbose)
+         yarima = forecast_value(ds,bset.iloc[idserie,0],method="arima",look_back=look_back,verbose=verbose)
 
       for idserie in range(len(bset)):
          ds = np.array(bset.iloc[idserie, 1:])  # one series of bootstrap set, diff log values, remove first one
@@ -163,4 +165,4 @@ if __name__ == "__main__":
    frep=1
    nboost=125
    attrib+=distrib
-   main_fcast(name, df2.iloc[:-3,:], idserie=29, model=model, fback=fback, frep=frep, nboost=75, verbose=True) # actual data only for 45 months
+   main_fcast(name, df2.iloc[:-3,:], idserie=0, model=model, fback=fback, frep=frep, nboost=125, verbose=True) # actual data only for 45 months

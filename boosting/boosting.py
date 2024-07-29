@@ -246,7 +246,7 @@ def main_boosting(name,df,backCast = True, repetition=True, nboost=75,p=7,verbos
          for i in range(10):
             plt.plot(boost_set[i,1:])
          plt.title(f"boosted (10), series {idserie}")
-         plt.ylim(5*min(boost_set[0,1:]),5*max(boost_set[0,1:]))
+         plt.ylim(0.5*min(boost_set[0,1:]),5*max(boost_set[0,1:]))
          plt.show()
 
       attrib  = "r" if repetition else "s"  # repetition or scramble
@@ -296,4 +296,4 @@ if __name__ == "__main__":
    df2 = pd.read_csv(f"../{name}.csv", usecols = [i for i in range(1,53)])
    print(f"Boosting {name}")
    #sql.createSqlite("..\\data\\results.sqlite")
-   main_boosting(name,df2.iloc[:-3,:], backCast=False, repetition=True, nboost = 75, verbose=True, bmodel="AR") # last 3 were original forecasts
+   main_boosting(name,df2.iloc[:-3,:], backCast=False, repetition=True, nboost = 175, verbose=True, bmodel="AR") # last 3 were original forecasts
