@@ -8,6 +8,7 @@ from scipy.stats import boxcox
 from scipy.special import inv_boxcox
 import random, copy
 import sqlite101 as sql
+import pmdarima as pm
 
 # backcast the first 6 data
 def backcast(ts,p,verbose=True):
@@ -115,7 +116,7 @@ def recolor_check():
       Xnew[i] = Xfor[i] + res_repetition[i]
    return Xnew
 
-def main_boosting(name,df,backCast = True, repetition=True, nboost=125,p=7,verbose=True,bmodel="AR"):
+def main_boosting(name,df,backCast = True, repetition=True, nboost=75,p=7,verbose=True,bmodel="AR"):
    recolor_check()
    # plot all series
    if verbose:
@@ -140,12 +141,34 @@ def main_boosting(name,df,backCast = True, repetition=True, nboost=125,p=7,verbo
       adflogdiff = sm.tsa.stattools.adfuller(tslogdiff[1:], maxlag=None, regression='ct', autolag='AIC')[1]
       print(f"chack ts[0]={np.exp(tslogdiff[0])} ({ts[0]}), ts[1]={np.exp(tslogdiff[1]+tslogdiff[0])} ({ts[1]})")
 
-      model = AutoReg(tslogdiff, lags=p)
-      model_fitted = model.fit()
+      if(bmodel=='AR'):
+         model = AutoReg(tslogdiff, lags=p)
+         model_fitted = model.fit()
 
-      start = 0 # if no backcasting the first p will be later deleted
-      end = len(tslogdiff) # + 3  # Predicting 3 steps ahead
-      predictions = model_fitted.predict(start=start, end=end)
+         start = 0 # if no backcasting the first p will be later deleted
+         end = len(tslogdiff) # + 3  # Predicting 3 steps ahead
+         predictions = model_fitted.predict(start=start, end=end)
+      elif(bmodel=='ARIMA'):
+         print("ARIMA")
+         model = pm.auto_arima(tslogdiff,
+                               start_p=0, start_q=0, max_p=2, max_q=2,
+                               start_P=0, start_Q=0, max_P=1, max_Q=1,
+                               seasonal=False, m=12, d=1, D=None, test='adf',
+                               trace=False, error_action='warn', suppress_warnings=True,
+                               maxiter=50, stepwise=True)
+         morder = model.order
+         mseasorder = model.seasonal_order
+         model = pm.arima.ARIMA(morder, seasonal_order=mseasorder, return_conf_int=True)
+         fitted = model.fit(tslogdiff)
+         print(f"ARIMA: order {morder} mseasorder {mseasorder}")
+         # print(model.summary())
+         ypred = fitted.predict_in_sample()
+         yfore, confint = fitted.predict(n_periods=3, return_conf_int=True)  # forecast
+
+         return
+      else:
+         print(f"Unavailable model {bmodel}, exiting")
+         return
 
       if verbose:
          plt.figure(figsize=(12, 6)) # Plot of actual data and predictions
@@ -227,7 +250,9 @@ def main_boosting(name,df,backCast = True, repetition=True, nboost=125,p=7,verbo
 
       attrib  = "r" if repetition else "s"  # repetition or scramble
       attrib += "b" if backCast else "f"    # backcast or forecast only (shorter)
-      np.savetxt(f"..\\data\\boost{idserie}_{attrib}_{nboost}.csv", boost_set, delimiter=",")
+      np.savetxt(f"..\\data\\boost{idserie}.csv", boost_set, delimiter=",")
+      with open(f"..\\data\\boostset_config.txt", "w") as f:
+         f.write(F"model:{bmodel} backcasting:{backCast} repeated extractions: {repetition} num boostr. series:{nboost}")
 
       # create table boost(id integer primary key autoincrement, model text, nboost int, idseries int, series text)
       fback = 1 if backCast   else 0
@@ -269,5 +294,5 @@ if __name__ == "__main__":
    name = "dataframe_nocovid_full"
    df2 = pd.read_csv(f"../{name}.csv", usecols = [i for i in range(1,53)])
    print(f"Boosting {name}")
-   sql.createSqlite("..\\data\\results.sqlite")
-   main_boosting(name,df2.iloc[:-3,:], backCast=False, repetition=True, nboost = 125, verbose=False) # last 3 were original forecasts
+   #sql.createSqlite("..\\data\\results.sqlite")
+   main_boosting(name,df2.iloc[:-3,:], backCast=False, repetition=True, nboost = 75, verbose=False, bmodel="AR") # last 3 were original forecasts

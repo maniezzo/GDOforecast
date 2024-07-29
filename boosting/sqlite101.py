@@ -36,7 +36,8 @@ def createSqlite(dbfilePath):
 def deleteSqLite(dbfilePath,model, nboost):
     conn = sqlite3.connect(dbfilePath)
     command = conn.cursor()
-    command.execute("delete from boost where model = \"AR\" and nboost = 100")
+    query   = f"delete from boost where (model = '{model}' and nboost = {nboost})"
+    command.execute(query)
     # Commit changes and close connection
     conn.commit()
     conn.close()
