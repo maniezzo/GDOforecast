@@ -12,7 +12,7 @@ import run_HW as hw
 import sys
 
 # forecasts a single future value look_back time instant ahead using the specified mathod
-def forecast_value(ds,dslog0,method,look_back = 3, verbose = False):
+def forecast_value(ds,dslog,method,look_back = 3, verbose = False):
 
    if(method=="AR"):
       fcast = ar.go_AR(ds[:-look_back], look_back=look_back, verbose=verbose, gridSearch=True)  # AR semplice
@@ -32,12 +32,10 @@ def forecast_value(ds,dslog0,method,look_back = 3, verbose = False):
       fcast = svm.go_svm(ds[:-look_back],look_back = look_back, verbose=verbose) # svm
 
    # forecast undiff
-   dslog = np.zeros(len(ds) + 1)
-   dslog[0] = dslog0
-   for j in range(len(ds)): dslog[j + 1] = ds[j] + dslog[j]
    fcast[0] = fcast[0] + dslog[-1]
    fcast[1] = fcast[1] + fcast[0]
    fcast[2] = fcast[2] + fcast[1]
+   fvalue = np.exp(fcast[2])
 
    if verbose:
       plt.plot(dslog, label="dslog")
@@ -45,8 +43,6 @@ def forecast_value(ds,dslog0,method,look_back = 3, verbose = False):
       plt.legend()
       plt.title(f"forecast method {method}")
       plt.show()
-
-   fvalue = np.exp(fcast[2])
    return fvalue
 
 def main_fcast(name, df, idcustomer=0, model='AR', fback=0, frep=1, nboost=125, verbose=True):
@@ -61,19 +57,6 @@ def main_fcast(name, df, idcustomer=0, model='AR', fback=0, frep=1, nboost=125, 
       bset = pd.read_csv(f"../data/boost{iboostset}.csv", header=None) # 42 values, no validation data
       fcast_all = np.zeros(len(bset))
       look_back = 3 # solo con questo va
-
-      # non-bootssrap point forecasts
-      fForeCast = True
-      if fForeCast:
-         ds = np.array(bset.iloc[0, 1:])  # one series of bootstrap set, diff log values, remove first one
-         yar    = forecast_value(ds,bset.iloc[iboostset,0],method="AR",look_back=look_back,verbose=verbose)
-         yhw    = forecast_value(ds,bset.iloc[iboostset,0],method="HW",look_back=look_back,verbose=verbose)
-         ysvm   = forecast_value(ds,bset.iloc[iboostset,0],method="svm",look_back=look_back,verbose=verbose)
-         ylstm  = forecast_value(ds,bset.iloc[iboostset,0],method="lstm",look_back=look_back,verbose=verbose)
-         ymlp   = forecast_value(ds,bset.iloc[iboostset,0],method="MLP",look_back=look_back,verbose=verbose)
-         yrf    = forecast_value(ds,bset.iloc[iboostset,0],method="randomf",look_back=look_back,verbose=verbose)
-         yxgb   = forecast_value(ds,bset.iloc[iboostset,0],method="xgboost",look_back=look_back,verbose=verbose)
-         yarima = forecast_value(ds,bset.iloc[iboostset,0],method="arima",look_back=look_back,verbose=verbose)
 
       for idserie in range(bset.shape[0]):
          ds = np.array(bset.iloc[idserie, 0:])  # one series of bootstrap set, diff log values
@@ -123,6 +106,19 @@ def main_fcast(name, df, idcustomer=0, model='AR', fback=0, frep=1, nboost=125, 
       fcast_05 = fcast_all[int(len(fcast_all)/100*5)]   # 125/100*5
       fcast_95 = fcast_all[int(len(fcast_all)/100*95)]  #
       fcast_50 = fcast_all[int(len(fcast_all)/100*50)]
+
+      # non-bootssrap point forecasts
+      fForeCast = True
+      if fForeCast:
+         ds = np.array(bset.iloc[0, 1:])  # one series of bootstrap set, diff log values, remove first one
+         yar    = forecast_value(ds,dslog,method="AR",look_back=look_back,verbose=verbose)
+         yhw    = forecast_value(ds,dslog,method="HW",look_back=look_back,verbose=verbose)
+         ysvm   = forecast_value(ds,dslog,method="svm",look_back=look_back,verbose=verbose)
+         ylstm  = forecast_value(ds,dslog,method="lstm",look_back=look_back,verbose=verbose)
+         ymlp   = forecast_value(ds,dslog,method="MLP",look_back=look_back,verbose=verbose)
+         yrf    = forecast_value(ds,dslog,method="randomf",look_back=look_back,verbose=verbose)
+         yxgb   = forecast_value(ds,dslog,method="xgboost",look_back=look_back,verbose=verbose)
+         yarima = forecast_value(ds,dslog,method="arima",look_back=look_back,verbose=verbose)
 
       # validazione previsione algoritmi
 
