@@ -49,45 +49,46 @@ def forecast_value(ds,dslog0,method,look_back = 3, verbose = False):
    fvalue = np.exp(fcast[2])
    return fvalue
 
-def main_fcast(name, df, idserie=0, model='AR', fback=0, frep=1, nboost=125, verbose=True):
+def main_fcast(name, df, idcustomer=0, model='AR', fback=0, frep=1, nboost=125, verbose=True):
    dbfilePath='../data/results.sqlite'
    sys.path.append('../boosting')
    import sqlite101 as sql
-   sql.querySqlite(dbfilePath, model, fback, frep, nboost)
+   sql.querySqlite(dbfilePath, model, fback, frep, nboost) # writes the csv files selecting data from db
 
    # foreach boosted series forecast
    #for iboostset in len(df): # for each block of boosted series
-   for iboostset in range(idserie,idserie+1):
+   for iboostset in range(idcustomer,idcustomer+1):
       bset = pd.read_csv(f"../data/boost{iboostset}.csv", header=None) # 42 values, no validation data
       fcast_all = np.zeros(len(bset))
       look_back = 3 # solo con questo va
 
       # non-bootssrap point forecasts
-      fForeCast = False
+      fForeCast = True
       if fForeCast:
          ds = np.array(bset.iloc[0, 1:])  # one series of bootstrap set, diff log values, remove first one
-         yar    = forecast_value(ds,bset.iloc[idserie,0],method="AR",look_back=look_back,verbose=verbose)
-         yhw    = forecast_value(ds,bset.iloc[idserie,0],method="HW",look_back=look_back,verbose=verbose)
-         ysvm   = forecast_value(ds,bset.iloc[idserie,0],method="svm",look_back=look_back,verbose=verbose)
-         ylstm  = forecast_value(ds,bset.iloc[idserie,0],method="lstm",look_back=look_back,verbose=verbose)
-         ymlp   = forecast_value(ds,bset.iloc[idserie,0],method="MLP",look_back=look_back,verbose=verbose)
-         yrf    = forecast_value(ds,bset.iloc[idserie,0],method="randomf",look_back=look_back,verbose=verbose)
-         yxgb   = forecast_value(ds,bset.iloc[idserie,0],method="xgboost",look_back=look_back,verbose=verbose)
-         yarima = forecast_value(ds,bset.iloc[idserie,0],method="arima",look_back=look_back,verbose=verbose)
+         yar    = forecast_value(ds,bset.iloc[iboostset,0],method="AR",look_back=look_back,verbose=verbose)
+         yhw    = forecast_value(ds,bset.iloc[iboostset,0],method="HW",look_back=look_back,verbose=verbose)
+         ysvm   = forecast_value(ds,bset.iloc[iboostset,0],method="svm",look_back=look_back,verbose=verbose)
+         ylstm  = forecast_value(ds,bset.iloc[iboostset,0],method="lstm",look_back=look_back,verbose=verbose)
+         ymlp   = forecast_value(ds,bset.iloc[iboostset,0],method="MLP",look_back=look_back,verbose=verbose)
+         yrf    = forecast_value(ds,bset.iloc[iboostset,0],method="randomf",look_back=look_back,verbose=verbose)
+         yxgb   = forecast_value(ds,bset.iloc[iboostset,0],method="xgboost",look_back=look_back,verbose=verbose)
+         yarima = forecast_value(ds,bset.iloc[iboostset,0],method="arima",look_back=look_back,verbose=verbose)
 
-      for idserie in range(len(bset)):
-         ds = np.array(bset.iloc[idserie, 1:])  # one series of bootstrap set, diff log values, remove first one
-         if(model == "AR"):      fcast = ar.go_AR(ds[:-look_back], look_back=look_back, verbose=False) # (idserie==0)) # AR, validazione nel metodo
-         elif(model == "RF"):    fcast = rf.go_rf(ds[:-look_back], look_back=look_back, verbose=False) # (idserie==0)) # random forest, keeping look-back out for validation
-         elif(model == "ARIMA"): fcast = sar.go_sarima(ds[:-look_back], look_back=look_back, autoArima=True, verbose=False) #(idserie==0))  # ARIMA
+      for idserie in range(bset.shape[0]):
+         ds = np.array(bset.iloc[idserie, 0:])  # one series of bootstrap set, diff log values
+         if(model == "AR"):      fcast = ar.go_AR(ds, look_back=look_back, verbose=False, gridSearch=True) # (idserie==0)) # AR, validazione nel metodo
+         elif(model == "RF"):    fcast = rf.go_rf(ds, look_back=look_back, verbose=False) # (idserie==0)) # random forest, keeping look-back out for validation
+         elif(model == "ARIMA"): fcast = sar.go_sarima(ds, look_back=look_back, autoArima=True, verbose=False) #(idserie==0))  # ARIMA
 
-         trueval = bset.iloc[idserie,-1] # valore vero
+         trueval = bset.iloc[iboostset,-1] # valore vero
          print(f"idserie,{idserie}, true last {trueval} forecast,{fcast[2]}, error {trueval-fcast[2]}\n")
 
-         # forecast undiff
-         dslog = np.zeros(len(ds)+1)
-         dslog[0] = bset.iloc[idserie,0]
-         for j in range(len(ds)): dslog[j+1] = ds[j]+dslog[j]
+         # forecast: undiff fcast (yfore)
+         seedval = np.log( df.iloc[6,iboostset] ) # cheating a bit, I should have saved this somewhere else, maybe
+         dslog = np.zeros(len(ds)-look_back)
+         dslog[0] = seedval + ds[0]
+         for j in range(1,len(dslog)): dslog[j] = ds[j]+dslog[j-1]
          fcast[0] = fcast[0]+dslog[-1]
          fcast[1] = fcast[1]+fcast[0]
          fcast[2] = fcast[2]+fcast[1]
@@ -106,9 +107,9 @@ def main_fcast(name, df, idserie=0, model='AR', fback=0, frep=1, nboost=125, ver
 
             ds = np.exp(dslog)
             if verbose:
-               plt.plot(ds,'b:',label="recostruction",linewidth=5)
-               plt.plot(df.iloc[:,iboostset],'r',label="xtrain",linewidth=2)
-               plt.plot(range(len(ds),len(ds)+3),np.exp(fcast),"g",label="fcast",linewidth=2)
+               plt.plot(range(7,7+len(ds)),ds,'b:',label="recostruction",linewidth=5)
+               plt.plot(df.iloc[:-look_back,iboostset],'r',label="xtrain",linewidth=2)
+               plt.plot(range(7+len(ds),7+len(ds)+3),np.exp(fcast),"g",label="fcast",linewidth=2)
                plt.legend()
                plt.title(f"Check series {iboostset}")
                plt.show()
@@ -163,6 +164,6 @@ if __name__ == "__main__":
    model="AR"
    fback=0
    frep=1
-   nboost=125
+   nboost=100
    attrib+=distrib
-   main_fcast(name, df2.iloc[:-3,:], idserie=0, model=model, fback=fback, frep=frep, nboost=125, verbose=True) # actual data only for 45 months
+   main_fcast(name, df2.iloc[:-3,:], idcustomer=0, model=model, fback=fback, frep=frep, nboost=125, verbose=True) # actual data only for 45 months

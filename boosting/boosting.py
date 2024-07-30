@@ -132,15 +132,17 @@ def main_boosting(name,df,backCast = True, repetition=True, nboost=75,p=7,verbos
       ts = df.iloc[:-3, idserie]
 
       # log diff della serie
-      tslogdiff = np.log(ts)
+      tslog = np.log(ts)
+      tslogdiff = np.zeros(len(ts))
+      tslogdiff[0] = tslog[0]
       #for i in range(len(tslogdiff) - 1, 0, -1):
       for i in range(1,len(tslogdiff)):
-         tslogdiff[i] = float(tslogdiff[i] - tslogdiff[i-1])
+         tslogdiff[i] = float(tslog[i] - tslog[i-1])
       tslogdiff = np.array(tslogdiff)
       avglogdiff = np.average(tslogdiff[1:])
       stdlogdiff = np.std(tslogdiff[1:])
       adflogdiff = sm.tsa.stattools.adfuller(tslogdiff[1:], maxlag=None, regression='ct', autolag='AIC')[1]
-      print(f"chack ts[0]={np.exp(tslogdiff[0])} (<->{ts[0]}), ts[1]={np.exp(tslogdiff[1]+tslogdiff[0])} (<->{ts[1]})")
+      print(f"iter {idserie}: chack ts[0]={np.exp(tslogdiff[0])} (<->{ts[0]}), ts[1]={np.exp(tslogdiff[1]+tslogdiff[0])} (<->{ts[1]})")
 
       if(bmodel=='AR'):
          model = AutoReg(tslogdiff, lags=p)
@@ -244,7 +246,7 @@ def main_boosting(name,df,backCast = True, repetition=True, nboost=75,p=7,verbos
             # second, reconstruct logs
             lnts = np.zeros(len(ts))
             lnts[0] = tslogdiff[0]
-            for j in range(1,len(ts)): lnts[j] = lndiff[j] + lndiff[j-1]
+            for j in range(1,len(ts)): lnts[j] = lndiff[j] + lnts[j-1]
             rects = np.exp(lnts)
             plt.plot(ts,'r',label='empyrical',linewidth=3)
             plt.plot(rects,':b',label='reconstructed',linewidth=3)
@@ -256,7 +258,7 @@ def main_boosting(name,df,backCast = True, repetition=True, nboost=75,p=7,verbos
          for i in range(10):
             plt.plot(boost_set[i,1:])
          plt.title(f"boosted (10), series {idserie}")
-         plt.ylim(0.5*min(boost_set[0,1:]),5*max(boost_set[0,1:]))
+         plt.ylim(3*min(boost_set[0,1:]),3*max(boost_set[0,1:]))
          plt.show()
 
       attrib  = "r" if repetition else "s"  # repetition or scramble
