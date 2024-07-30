@@ -133,20 +133,21 @@ def main_boosting(name,df,backCast = True, repetition=True, nboost=75,p=7,verbos
 
       # log diff della serie
       tslogdiff = np.log(ts)
-      for i in range(len(tslogdiff) - 1, 0, -1):
+      #for i in range(len(tslogdiff) - 1, 0, -1):
+      for i in range(1,len(tslogdiff)):
          tslogdiff[i] = float(tslogdiff[i] - tslogdiff[i-1])
       tslogdiff = np.array(tslogdiff)
       avglogdiff = np.average(tslogdiff[1:])
       stdlogdiff = np.std(tslogdiff[1:])
       adflogdiff = sm.tsa.stattools.adfuller(tslogdiff[1:], maxlag=None, regression='ct', autolag='AIC')[1]
-      print(f"chack ts[0]={np.exp(tslogdiff[0])} ({ts[0]}), ts[1]={np.exp(tslogdiff[1]+tslogdiff[0])} ({ts[1]})")
+      print(f"chack ts[0]={np.exp(tslogdiff[0])} (<->{ts[0]}), ts[1]={np.exp(tslogdiff[1]+tslogdiff[0])} (<->{ts[1]})")
 
       if(bmodel=='AR'):
          model = AutoReg(tslogdiff, lags=p)
          model_fitted = model.fit()
 
          start = 0 # if no backcasting the first p will be later deleted
-         end = len(tslogdiff) # + 3  # Predicting 3 steps ahead
+         end = len(tslogdiff)-1 # + 3  # Predicting 3 steps ahead
          predictions = model_fitted.predict(start=start, end=end)
       elif(bmodel=='ARIMA'):
          print("ARIMA")
@@ -196,7 +197,7 @@ def main_boosting(name,df,backCast = True, repetition=True, nboost=75,p=7,verbos
 
       # residui
       residuals = np.zeros(len(tslogdiff))
-      for i in range(1,len(tslogdiff)):
+      for i in range(0,len(tslogdiff)):
          residuals[i] = tslogdiff[i] - predictions[i]
       if verbose and idserie==0:
          plt.plot(residuals[start:],label="residuals")
@@ -217,7 +218,7 @@ def main_boosting(name,df,backCast = True, repetition=True, nboost=75,p=7,verbos
       print(f"Ljung box lb_pvalue {res.lb_pvalue[p-1]}")
 
       # boost, data generation if residuals are random enough
-      denoised = np.array([tslogdiff[i] - residuals[i] for i in range(start,len(residuals))]) # aka predictions, but denoising also first one!
+      denoised = np.array([tslogdiff[i] - residuals[i] for i in range(start,len(residuals))]) # aka predictions
       predictions = predictions[start:] # in case of no backcasting
       residuals   = residuals[start:]
       boost_set   = np.zeros(nboost*len(residuals)).reshape(nboost,len(residuals))
@@ -233,14 +234,23 @@ def main_boosting(name,df,backCast = True, repetition=True, nboost=75,p=7,verbos
             randResiduals = residuals
          for j in range(len(randResiduals)):
             boost_set[iboost,j] = predictions[j] + randResiduals[j]
-         boost_set[iboost,0] = tslogdiff[p-1] # first value is the empirical needed for recostruction
 
          # Reconstruction, invert preprocessing
-         fReconstruct = True
-         if fReconstruct:
-            for j in range(1,len(residuals)):
-               boost_set[iboost,j] = boost_set[iboost,j]+boost_set[iboost,j-1]
-            boost_set[iboost] = np.exp(boost_set[iboost])
+         if iboost==0 and idserie==0:
+            # first, reconstruct diff of logs
+            lndiff = np.zeros(len(ts))
+            for j in range(p): lndiff[j] = tslogdiff[j] # these I must copy
+            for j in range(p,len(ts)): lndiff[j] = boost_set[iboost,j-p]
+            # second, reconstruct logs
+            lnts = np.zeros(len(ts))
+            lnts[0] = tslogdiff[0]
+            for j in range(1,len(ts)): lnts[j] = lndiff[j] + lndiff[j-1]
+            rects = np.exp(lnts)
+            plt.plot(ts,'r',label='empyrical',linewidth=3)
+            plt.plot(rects,':b',label='reconstructed',linewidth=3)
+            plt.legend()
+            plt.title('check: reconstruction')
+            plt.show()
 
       if verbose and idserie==0:
          for i in range(10):
