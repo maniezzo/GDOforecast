@@ -50,11 +50,13 @@ def main_fcast(name, df, idcustomer=0, model='AR', fback=0, frep=1, nboost=125, 
    sys.path.append('../boosting')
    import sqlite101 as sql
    sql.querySqlite(dbfilePath, model, fback, frep, nboost) # writes the csv files selecting data from db
+   with open(f"res_{model}_{nboost}.csv", "w") as fout:
+      fout.write("series,attrib,fcast_50,fcast_avg,fcast_05,fcast_95,true,yar,yhw,ysvm,ylstm,ymlp,yrf,yxgb,yarima\n")
 
    # foreach boosted series forecast
    #for iboostset in len(df): # for each block of boosted series
    for iboostset in range(idcustomer,idcustomer+52):
-      bset = pd.read_csv(f"../data/boost{iboostset}.csv", header=None) # 42 values, no validation data
+      bset = pd.read_csv(f"../data/boost{iboostset}.csv", header=None) # no validation data
       fcast_all = np.zeros(len(bset))
       look_back = 3 # solo con questo va
 
@@ -143,11 +145,11 @@ def main_fcast(name, df, idcustomer=0, model='AR', fback=0, frep=1, nboost=125, 
          plt.title(f"Distribution of forecast Values, series {iboostset}")
          plt.legend()
          plt.show()
+
       print("series","attrib","true","fcast_50","fcast_avg","fcast_05","fcast_95","yar","yhw","ysvm","ylstm","ymlp","yrf","yxgb","yarima")
       print(iboostset, model, df.iloc[-1,iboostset], fcast_50, fcast_avg, fcast_05, fcast_95, yar, yhw, ysvm, ylstm, ymlp, yrf, yxgb, yarima)
       # Append results to res file
       with open(f"res_{model}_{nboost}.csv", "a") as fout:
-         #fout.write("series,attrib,fcast_50,fcast_avg,fcast_05,fcast_95,true,yar,yhw,ysvm,ylstm,ymlp,yrf,yxgb,yarima\n")
          fout.write(f"{iboostset},{model},{df.iloc[-1,iboostset]},{fcast_50},{fcast_avg},{fcast_05},{fcast_95},{yar},{yhw},{ysvm[-1]},{ylstm},{ymlp},{yrf},{yxgb},{yarima}\n")
    print("finito")
 
