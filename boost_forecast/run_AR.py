@@ -51,9 +51,10 @@ def go_AR(ds, look_back=3, verbose=False, gridSearch = False):
          if aic<best_score:
             best_score = aic
             bestp = p
-         print(f'p:{p} AIC: {model_fit.aic} check:{aic}')
-      print("Best p:", bestp)
-      print("Best score:", best_score)
+         if verbose: print(f'p:{p} AIC: {model_fit.aic} check:{aic}')
+      if verbose:
+         print("Best p:", bestp)
+         print("Best score:", best_score)
       p = bestp
    else:
       p = 7

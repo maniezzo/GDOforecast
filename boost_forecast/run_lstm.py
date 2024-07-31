@@ -65,7 +65,7 @@ def go_lstm(ds, look_back = 12, lr=0.05, niter=1000, verbose=False):
             train_rmse = np.sqrt(loss_fn(y_pred, y_train))
             ytest = model(X_test)
             test_rmse = np.sqrt(loss_fn(ytest, y_test))
-         print("Epoch %d: train RMSE %.4f, test RMSE %.4f" % (epoch, train_rmse, test_rmse))
+         print("LSTM epoch %d: train RMSE %.4f, test RMSE %.4f" % (epoch, train_rmse, test_rmse))
 
    with torch.no_grad():
       # shift train predictions for plotting
