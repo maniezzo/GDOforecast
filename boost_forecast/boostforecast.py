@@ -53,7 +53,7 @@ def main_fcast(name, df, idcustomer=0, model='AR', fback=0, frep=1, nboost=125, 
 
    # foreach boosted series forecast
    #for iboostset in len(df): # for each block of boosted series
-   for iboostset in range(idcustomer,idcustomer+1):
+   for iboostset in range(idcustomer,idcustomer+52):
       bset = pd.read_csv(f"../data/boost{iboostset}.csv", header=None) # 42 values, no validation data
       fcast_all = np.zeros(len(bset))
       look_back = 3 # solo con questo va
@@ -162,4 +162,4 @@ if __name__ == "__main__":
    frep=1
    nboost=100
    attrib+=distrib
-   main_fcast(name, df2.iloc[:-3,:], idcustomer=0, model=model, fback=fback, frep=frep, nboost=125, verbose=True) # actual data only for 45 months
+   main_fcast(name, df2.iloc[:-3,:], idcustomer=0, model=model, fback=fback, frep=frep, nboost=75, verbose=False) # actual data only for 45 months
