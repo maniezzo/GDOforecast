@@ -51,7 +51,7 @@ def main_fcast(name, df, idcustomer=0, model='AR', fback=0, frep=1, nboost=125, 
    import sqlite101 as sql
    sql.querySqlite(dbfilePath, model, fback, frep, nboost) # writes the csv files selecting data from db
    with open(f"res_{model}_{nboost}.csv", "w") as fout:
-      fout.write("series,attrib,fcast_50,fcast_avg,fcast_05,fcast_95,true,yar,yhw,ysvm,ylstm,ymlp,yrf,yxgb,yarima\n")
+      fout.write("series,attrib,true,fcast_50,fcast_avg,fcast_05,fcast_95,yar,yhw,ysvm,ylstm,ymlp,yrf,yxgb,yarima\n")
 
    # foreach boosted series forecast
    #for iboostset in len(df): # for each block of boosted series
