@@ -363,7 +363,7 @@ def draw_diagram(df_perf, dfname=""):
     # fAscending True:  minimize, lower values better
     # fAscending False: maximize, higher values better
     draw_cd_diagram(df_perf=df_perf, title=f"{obfuncname} {dfname}", labels=True, fAscending = True)
-    print("Diagram is written on file cd-diagram.png")
+    print(f"Diagram is written on file {obfuncname}resXXX.png")
 
 if __name__ == '__main__':
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
@@ -375,6 +375,6 @@ if __name__ == '__main__':
     # fAscending True:  minimize, lower values better
     # fAscending False: maximize, higher values better
     draw_cd_diagram(df_perf=df_perf, title=obfuncname, labels=True, fAscending = True)
-    print("Diagram is written on file cd-diagram.png")
+    print(f"Diagram is written on file {obfuncname}resXXX.png")
 
 

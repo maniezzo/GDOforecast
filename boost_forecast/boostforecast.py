@@ -13,7 +13,6 @@ import sys
 
 # forecasts a single future value look_back time instant ahead using the specified mathod
 def forecast_value(ds,dslog,method,look_back = 3, verbose = False):
-
    if(method=="AR"):
       fcast = ar.go_AR(ds[:-look_back], look_back=look_back, verbose=verbose, gridSearch=True)  # AR semplice
    elif (method == "HW"):
@@ -48,7 +47,7 @@ def forecast_value(ds,dslog,method,look_back = 3, verbose = False):
 def main_fcast(name, df, idcustomer=0, model='AR', fback=0, frep=1, nboost=125, verbose=True):
    dbfilePath='../data/results.sqlite'
    sys.path.append('../boosting')
-   import sqlite101 as sql
+   import sqlite101 as sql # path was updated one line above
    sql.querySqlite(dbfilePath, model, fback, frep, nboost) # writes the csv files selecting data from db
    with open(f"res_{model}_{nboost}.csv", "w") as fout:
       fout.write("series,attrib,true,fcast_50,fcast_avg,fcast_05,fcast_95,yar,yhw,ysvm,ylstm,ymlp,yrf,yxgb,yarima\n")
@@ -60,10 +59,12 @@ def main_fcast(name, df, idcustomer=0, model='AR', fback=0, frep=1, nboost=125, 
       fcast_all = np.zeros(len(bset))
       look_back = 3 # solo con questo va
 
-      for idserie in range(bset.shape[0]):
+      numserie = bset.shape[0]
+      numserie = 80
+      for idserie in range(numserie):
          ds = np.array(bset.iloc[idserie, 0:])  # one series of bootstrap set, diff log values
-         if(model == "AR"):      fcast = ar.go_AR(ds, look_back=look_back, verbose=False, gridSearch=True) # (idserie==0)) # AR, validazione nel metodo
-         elif(model == "RF"):    fcast = rf.go_rf(ds, look_back=look_back, verbose=False) # (idserie==0)) # random forest, keeping look-back out for validation
+         if(model == "AR" or model == "YW"): fcast = ar.go_AR(ds, look_back=look_back, verbose=False, gridSearch=True) # (idserie==0)) # AR, validazione nel metodo
+         elif(model == "RF"): fcast = rf.go_rf(ds, look_back=look_back, verbose=False) # (idserie==0)) # random forest, keeping look-back out for validation
          elif(model == "ARIMA"): fcast = sar.go_sarima(ds, look_back=look_back, autoArima=True, verbose=False) #(idserie==0))  # ARIMA
 
          trueval = bset.iloc[iboostset,-1] # valore vero
@@ -110,7 +111,7 @@ def main_fcast(name, df, idcustomer=0, model='AR', fback=0, frep=1, nboost=125, 
       fcast_50 = fcast_all[int(len(fcast_all)/100*50)]
 
       # non-bootssrap point forecasts
-      fForeCast = True
+      fForeCast = False
       if fForeCast:
          ds = np.array(bset.iloc[0, 1:])  # one series of bootstrap set, diff log values, remove first one
          yar    = forecast_value(ds,dslog,method="AR",look_back=look_back,verbose=verbose)
@@ -121,9 +122,11 @@ def main_fcast(name, df, idcustomer=0, model='AR', fback=0, frep=1, nboost=125, 
          yrf    = forecast_value(ds,dslog,method="randomf",look_back=look_back,verbose=verbose)
          yxgb   = forecast_value(ds,dslog,method="xgboost",look_back=look_back,verbose=verbose)
          yarima = forecast_value(ds,dslog,method="arima",look_back=look_back,verbose=verbose)
+      else:
+         yar = yhw = ylstm = ymlp = yrf = yxgb = yarima = 0
+         ysvm = [0]
 
       # validazione previsione algoritmi
-
       # distribution of forecasts, plt histogram:
       if verbose:
          plt.hist(fcast_all, color='lightgreen', ec='black', bins=15)
@@ -155,13 +158,13 @@ def main_fcast(name, df, idcustomer=0, model='AR', fback=0, frep=1, nboost=125, 
 
 if __name__ == "__main__":
    name = "dataframe_nocovid_full"
-   df2 = pd.read_csv(f"../{name}.csv", usecols=[i for i in range(1, 53)])
+   df2 = pd.read_csv(f"../data/{name}.csv", usecols=[i for i in range(1, 53)])
    print(f"Boost forecasting {name}")
    attrib = "rf"  # random resampling, only forcast
    distrib = "AR" # "RF" "ARIMA"
-   model="AR"
+   model="YW"
    fback=0
    frep=1
-   nboost=100
+   nboost=300
    attrib+=distrib
-   main_fcast(name, df2.iloc[:-3,:], idcustomer=0, model=model, fback=fback, frep=frep, nboost=175, verbose=False) # actual data only for 45 months
+   main_fcast(name, df2.iloc[:-3,:], idcustomer=0, model=model, fback=fback, frep=frep, nboost=nboost, verbose=False) # actual data only for 45 months

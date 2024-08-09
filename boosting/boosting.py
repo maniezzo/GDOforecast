@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import statsmodels.api as sm
 from statsmodels.tsa.ar_model import AutoReg
 from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
+from statsmodels.regression.linear_model import yule_walker
 from scipy.stats import boxcox
 from scipy.special import inv_boxcox
 import random, copy
@@ -116,6 +117,24 @@ def recolor_check():
       Xnew[i] = Xfor[i] + res_repetition[i]
    return Xnew
 
+# computes AIC
+def aic(y, ar_coeffs, p):
+   # Calculate residuals
+   ypred = np.zeros(len(y))
+   for t in range(p, len(y)):
+      ypred[t] = np.dot(ar_coeffs, y[t-p:t][::-1]) # [::-1] reverses
+   residuals = y[p:] - ypred[p:]
+   # Variance of the residuals
+   varRes = np.var(residuals)
+   # Log-likelihood
+   n = len(y) - p
+   log_likelihood = -n / 2 * (np.log(2 * np.pi * varRes) + 1)
+   # Number of parameters (AR coefficients + variance) - should be +2 if non zero mean
+   k = p + 2
+   # AIC calculation
+   AIC = -2 * log_likelihood + 2*k
+   return AIC
+
 def main_boosting(name,df,backCast = True, repetition=True, nboost=75,p=7,verbose=True,bmodel="AR"):
    recolor_check()
    # plot all series
@@ -143,14 +162,34 @@ def main_boosting(name,df,backCast = True, repetition=True, nboost=75,p=7,verbos
       stdlogdiff = np.std(tslogdiff[1:])
       adflogdiff = sm.tsa.stattools.adfuller(tslogdiff[1:], maxlag=None, regression='ct', autolag='AIC')[1]
       print(f"iter {idserie}: chack ts[0]={np.exp(tslogdiff[0])} (<->{ts[0]}), ts[1]={np.exp(tslogdiff[1]+tslogdiff[0])} (<->{ts[1]})")
+      start = 0  # if no backcasting the first p will be later deleted
+      end = len(tslogdiff) - 1  # + 3  # Predicting 3 steps ahead
+      y = tslogdiff
 
       if(bmodel=='AR'):
          model = AutoReg(tslogdiff, lags=p)
          model_fitted = model.fit()
-
-         start = 0 # if no backcasting the first p will be later deleted
-         end = len(tslogdiff)-1 # + 3  # Predicting 3 steps ahead
-         predictions = model_fitted.predict(start=start, end=end)
+         ypred = model_fitted.predict(start=start, end=end)
+      elif(bmodel=="YW"):
+         intercept = np.mean(y) # should be 0
+         y2 = y - intercept # Center the series in case of non-zero mean
+         if abs(intercept) < 0: # remove check significativiity different p
+            for k in range(2,8):
+               # Estimate AR coefficients using Yule-Walker equations
+               coeff, sigma = yule_walker(y, order=k)
+               # sigma is an estimate of the white noise variance in the time series
+               phi = -coeff # Yule-Walker returns negative coefficients
+               #print(f'phi: {phi}')
+               #print(f'sigma: {sigma}')
+               AIC = aic(y, phi, k)
+               print(f'k: {k} AIC: {AIC}')
+         coeff, _ = yule_walker(y2, order=p, method='mle', df=p+2)
+         phi = -coeff # Yule-Walker returns negative coefficients
+         ypred = np.zeros(len(y))
+         for t in range(p, len(y)):
+            ypred[t] = np.dot(coeff, y[t-p:t][::-1])  # [::-1] reverses
+         ypred[p:] = ypred[p:] + intercept
+         #print(f"ypred {ypred}")
       elif(bmodel=='ARIMA'):
          print("ARIMA")
          model = pm.auto_arima(tslogdiff,
@@ -167,7 +206,6 @@ def main_boosting(name,df,backCast = True, repetition=True, nboost=75,p=7,verbos
          # print(model.summary())
          ypred = fitted.predict_in_sample()
          yfore, confint = fitted.predict(n_periods=3, return_conf_int=True)  # forecast
-
          return
       else:
          print(f"Unavailable model {bmodel}, exiting")
@@ -175,9 +213,9 @@ def main_boosting(name,df,backCast = True, repetition=True, nboost=75,p=7,verbos
 
       if verbose and idserie==0:
          plt.figure(figsize=(12, 6)) # Plot of actual data and predictions
-         plt.plot(tslogdiff[1:], label='Series Data')
-         plt.plot(predictions[1:], label='Predicted Data', color='red')
-         plt.axvline(x=start, color='gray', linestyle='--', label='Prediction Start')
+         plt.plot(range(1,len(y)),y[1:], label='Series Data')
+         plt.plot(range(1,len(y)),ypred[1:], label='Predicted Data', color='red')
+         plt.axvline(x=p-1, color='gray', linestyle='--', label='Prediction Start')
          plt.title("Predicted vs. actual")
          plt.legend()
          plt.show()
@@ -185,11 +223,11 @@ def main_boosting(name,df,backCast = True, repetition=True, nboost=75,p=7,verbos
       # backcasting
       if(backCast):
          head = backcast(tslogdiff,p,verbose)
-         predictions[0:p] = head[0:p]
+         ypred[0:p] = head[0:p]
          if verbose:
             plt.figure(figsize=(12, 6)) # Plot of actual data and predictions
             plt.plot(tslogdiff[1:], label='Actual Data')
-            plt.plot(predictions, label='Predicted Data', color='red')
+            plt.plot(ypred, label='Predicted Data', color='red')
             plt.axvline(x=start, color='gray', linestyle='--', label='Prediction Start')
             plt.title("combined")
             plt.legend()
@@ -200,7 +238,7 @@ def main_boosting(name,df,backCast = True, repetition=True, nboost=75,p=7,verbos
       # residui
       residuals = np.zeros(len(tslogdiff))
       for i in range(0,len(tslogdiff)):
-         residuals[i] = tslogdiff[i] - predictions[i]
+         residuals[i] = tslogdiff[i] - ypred[i]
       if verbose and idserie==0:
          plt.plot(residuals[start:],label="residuals")
          plt.title("residuals")
@@ -221,7 +259,7 @@ def main_boosting(name,df,backCast = True, repetition=True, nboost=75,p=7,verbos
 
       # boost, data generation if residuals are random enough
       denoised = np.array([tslogdiff[i] - residuals[i] for i in range(start,len(residuals))]) # aka predictions
-      predictions = predictions[start:] # in case of no backcasting
+      ypred = ypred[start:] # in case of no backcasting
       residuals   = residuals[start:]
       boost_set   = np.zeros(nboost*len(residuals)).reshape(nboost,len(residuals))
 
@@ -235,7 +273,7 @@ def main_boosting(name,df,backCast = True, repetition=True, nboost=75,p=7,verbos
          if (iboost==0):   # for checking purposes
             randResiduals = residuals
          for j in range(len(randResiduals)):
-            boost_set[iboost,j] = predictions[j] + randResiduals[j]
+            boost_set[iboost,j] = ypred[j] + randResiduals[j]
 
          # Reconstruction, invert preprocessing
          if iboost==0 and idserie==0:
@@ -286,7 +324,7 @@ def main_boosting(name,df,backCast = True, repetition=True, nboost=75,p=7,verbos
             #tscheck[i] = tslogdiff[i] + tscheck[i-1]
             bocheck0[i] = boost_set[0,i] + bocheck0[i - 1]
             bocheck1[i] = boost_set[1,i] + bocheck1[i - 1]
-            prcheck[i]  = predictions[i] + prcheck[i - 1]
+            prcheck[i]  = ypred[i] + prcheck[i - 1]
          #tscheck = np.exp(tscheck)
          bocheck0 = np.exp(bocheck0)
          bocheck1 = np.exp(bocheck1)
@@ -305,7 +343,8 @@ def main_boosting(name,df,backCast = True, repetition=True, nboost=75,p=7,verbos
 
 if __name__ == "__main__":
    name = "dataframe_nocovid_full"
-   df2 = pd.read_csv(f"../{name}.csv", usecols = [i for i in range(1,53)])
+   df2 = pd.read_csv(f"../data/{name}.csv", usecols = [i for i in range(1,53)])
    print(f"Boosting {name}")
    #sql.createSqlite("..\\data\\results.sqlite")
-   main_boosting(name,df2.iloc[:-3,:], backCast=False, repetition=True, nboost = 175, verbose=True, bmodel="AR") # last 3 were original forecasts
+   p = 5
+   main_boosting(name,df2.iloc[:-3,:], backCast=False, repetition=True, nboost = 300, p=p, verbose=True, bmodel="AR") # last 3 were original forecasts
