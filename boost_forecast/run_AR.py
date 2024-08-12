@@ -37,7 +37,7 @@ def go_AR(ds, look_back=3, verbose=False, gridSearch = False):
    if gridSearch:
       bestp = -1
       best_score = float("inf")
-      for p in range(0,5):
+      for p in range(1,5):
          model = AutoReg(y_train, lags=p)
          model_fit = model.fit()
 
@@ -57,7 +57,7 @@ def go_AR(ds, look_back=3, verbose=False, gridSearch = False):
          print("Best score:", best_score)
       p = bestp
    else:
-      p = 7
+      p = 5
 
    model = AutoReg(y_train, lags=p)
    model_fitted = model.fit()
@@ -66,7 +66,7 @@ def go_AR(ds, look_back=3, verbose=False, gridSearch = False):
    pred = model_fitted.predict(start=start, end=end) # prediction and forecast
 
    mse = sk.metrics.mean_absolute_error(y_test, pred[-look_back:])
-   print(f"AR: p={p} MSE={mse}")
+   #print(f"AR: p={p} MSE={mse}")
    ypred = pred[:-look_back]
    yfore = pred[-look_back:]
 

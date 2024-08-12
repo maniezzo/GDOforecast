@@ -33,10 +33,10 @@ def createSqlite(dbfilePath):
    conn.close()
 
 # deletes all previous records from same model and same cardinality
-def deleteSqLite(dbfilePath,model, nboost):
+def deleteSqLite(dbfilePath, model, nboost, frep=1):
    conn = sqlite3.connect(dbfilePath)
    command = conn.cursor()
-   query   = f"delete from boost where (model = '{model}' and nboost = {nboost})"
+   query   = f"delete from boost where (model = '{model}' and nboost = {nboost} and frep = {frep})"
    command.execute(query)
    # Commit changes and close connection
    conn.commit()
@@ -80,17 +80,16 @@ def querySqlite(dbfilePath, model, fback, frep, nboost):
          print("Configuration unavailable. Exiting ...")
          sys.exit(0)
       # got the dataseries
-      print(f"series {i}")
+      #print(f"series {i}")
       fcsv = open(f"../data/boost{i}.csv", mode='w', newline='')
       for row in records:
-         print("Id: ", row[0])
-         print("idrepl: ", row[1])
-         print("series: ", row[2])
-         print("\n")
+         #print("Id: ", row[0]," idrepl: ", row[1])
+         #print("series: ", row[2])
          arr = np.array(json.loads(row[2]))
          writer = csv.writer(fcsv)
          writer.writerow(arr)
       fcsv.close()
+      print(f"Read series {i}")
 
    conn.commit() # useless, no transaction. just to flush memory
    conn.close()

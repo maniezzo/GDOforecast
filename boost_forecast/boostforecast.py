@@ -44,23 +44,23 @@ def forecast_value(ds,dslog,method,look_back = 3, verbose = False):
       plt.show()
    return fvalue
 
-def main_fcast(name, df, idcustomer=0, model='AR', fback=0, frep=1, nboost=125, verbose=True):
+def main_fcast(name, df, idcustomer=0, step = 52, model='AR', fback=0, frep=1, nboost=125, p=7, verbose=True):
    dbfilePath='../data/results.sqlite'
    sys.path.append('../boosting')
    import sqlite101 as sql # path was updated one line above
    sql.querySqlite(dbfilePath, model, fback, frep, nboost) # writes the csv files selecting data from db
    with open(f"res_{model}_{nboost}.csv", "w") as fout:
-      fout.write("series,attrib,true,fcast_50,fcast_avg,fcast_05,fcast_95,yar,yhw,ysvm,ylstm,ymlp,yrf,yxgb,yarima\n")
+      fout.write("series,model,true,fcast_50,fcast_avg,fcast_05,fcast_95,yar,yhw,ysvm,ylstm,ymlp,yrf,yxgb,yarima\n")
 
    # foreach boosted series forecast
    #for iboostset in len(df): # for each block of boosted series
-   for iboostset in range(idcustomer,idcustomer+52):
+   for iboostset in range(idcustomer,idcustomer+step):
       bset = pd.read_csv(f"../data/boost{iboostset}.csv", header=None) # no validation data
       fcast_all = np.zeros(len(bset))
       look_back = 3 # solo con questo va
 
       numserie = bset.shape[0]
-      numserie = 80
+      #numserie = 30 # ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ
       for idserie in range(numserie):
          ds = np.array(bset.iloc[idserie, 0:])  # one series of bootstrap set, diff log values
          if(model == "AR" or model == "YW"): fcast = ar.go_AR(ds, look_back=look_back, verbose=False, gridSearch=True) # (idserie==0)) # AR, validazione nel metodo
@@ -68,10 +68,10 @@ def main_fcast(name, df, idcustomer=0, model='AR', fback=0, frep=1, nboost=125, 
          elif(model == "ARIMA"): fcast = sar.go_sarima(ds, look_back=look_back, autoArima=True, verbose=False) #(idserie==0))  # ARIMA
 
          trueval = bset.iloc[iboostset,-1] # valore vero
-         print(f"idserie,{idserie}, true last {trueval} forecast,{fcast[2]}, error {trueval-fcast[2]}\n")
+         print(f"idserie,{idserie}, true last {trueval} forecast,{fcast[2]}, error {trueval-fcast[2]}")
 
          # forecast: undiff fcast (yfore)
-         seedval = np.log( df.iloc[6,iboostset] ) # cheating a bit, I should have saved this somewhere else, maybe
+         seedval = np.log( df.iloc[p-1,iboostset] ) # cheating a bit, I should have saved this somewhere else, maybe
          dslog = np.zeros(len(ds)-look_back)
          dslog[0] = seedval + ds[0]
          for j in range(1,len(dslog)): dslog[j] = ds[j]+dslog[j-1]
@@ -81,21 +81,23 @@ def main_fcast(name, df, idcustomer=0, model='AR', fback=0, frep=1, nboost=125, 
 
          fvalue = np.exp(fcast[2])
          fcast_all[idserie] = fvalue
-         print(f"forecast value = {fvalue}")
+         ds = np.exp(dslog)
+         print(f"forecast value = {fvalue} actual {ds[-1]} error {fvalue-ds[-1]}")
 
          if idserie == 0:
             if verbose:
                plt.plot(dslog,label="dslog")
-               plt.plot(range(len(dslog),len(dslog)+3),fcast,label="fcast")
+               plt.plot(range(len(dslog)-3,len(dslog)),fcast,label="fcast (model)")
                plt.legend()
                plt.title(f"series {idserie}")
                plt.show()
 
-            ds = np.exp(dslog)
             if verbose:
-               plt.plot(range(7,7+len(ds)),ds,'b:',label="recostruction",linewidth=5)
-               plt.plot(df.iloc[:-look_back,iboostset],'r',label="xtrain",linewidth=2)
-               plt.plot(range(7+len(ds),7+len(ds)+3),np.exp(fcast),"g",label="fcast",linewidth=2)
+               plt.plot(range(p,p+len(ds)),ds,'b:',label="recostruction",linewidth=5)
+               # 2*look_back: uno perchè previsioni vere, l'altro perchè sto validando sui dati letti da boostXX.csv
+               plt.plot(df.iloc[:-2*look_back,iboostset],'r',label="xtrain",linewidth=2)
+               plt.plot(range(p+len(ds)-3,p+len(ds)),np.exp(fcast),"g",label="fcast",linewidth=2)
+               plt.axvline(x=p, color='gray', linestyle='-', label='p')
                plt.legend()
                plt.title(f"Check series {iboostset}")
                plt.show()
@@ -111,7 +113,7 @@ def main_fcast(name, df, idcustomer=0, model='AR', fback=0, frep=1, nboost=125, 
       fcast_50 = fcast_all[int(len(fcast_all)/100*50)]
 
       # non-bootssrap point forecasts
-      fForeCast = False
+      fForeCast = True
       if fForeCast:
          ds = np.array(bset.iloc[0, 1:])  # one series of bootstrap set, diff log values, remove first one
          yar    = forecast_value(ds,dslog,method="AR",look_back=look_back,verbose=verbose)
@@ -149,7 +151,7 @@ def main_fcast(name, df, idcustomer=0, model='AR', fback=0, frep=1, nboost=125, 
          plt.legend()
          plt.show()
 
-      print("series","attrib","true","fcast_50","fcast_avg","fcast_05","fcast_95","yar","yhw","ysvm","ylstm","ymlp","yrf","yxgb","yarima")
+      print("series","model","true","fcast_50","fcast_avg","fcast_05","fcast_95","yar","yhw","ysvm","ylstm","ymlp","yrf","yxgb","yarima")
       print(iboostset, model, df.iloc[-1,iboostset], fcast_50, fcast_avg, fcast_05, fcast_95, yar, yhw, ysvm, ylstm, ymlp, yrf, yxgb, yarima)
       # Append results to res file
       with open(f"res_{model}_{nboost}.csv", "a") as fout:
@@ -160,11 +162,12 @@ if __name__ == "__main__":
    name = "dataframe_nocovid_full"
    df2 = pd.read_csv(f"../data/{name}.csv", usecols=[i for i in range(1, 53)])
    print(f"Boost forecasting {name}")
-   attrib = "rf"  # random resampling, only forcast
    distrib = "AR" # "RF" "ARIMA"
-   model="YW"
-   fback=0
-   frep=1
-   nboost=300
-   attrib+=distrib
-   main_fcast(name, df2.iloc[:-3,:], idcustomer=0, model=model, fback=fback, frep=frep, nboost=nboost, verbose=False) # actual data only for 45 months
+   model = "YW"  # AR YW
+   fback = 0  # flag backcasting
+   frep  = 1  # flag extraction with repetition
+   nboost= 75
+   p     = 5
+   idcustomer = 0 # forecast starting from this customer
+   step = 52        # these many customers after idcustomer
+   main_fcast(name, df2.iloc[:-3,:], idcustomer=idcustomer, step=step, model=model, fback=fback, frep=frep, nboost=nboost, p=p, verbose=False) # actual data only for 45 months hence -3

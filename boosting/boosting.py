@@ -145,7 +145,7 @@ def main_boosting(name,df,backCast = True, repetition=True, nboost=75,p=7,verbos
       plt.show()
 
    tablePreProc(df)
-   sql.deleteSqLite("..\\data\\results.sqlite", bmodel, nboost)
+   sql.deleteSqLite("..\\data\\results.sqlite", bmodel, nboost, (1 if repetition else 0))
 
    for idserie in range(0,52):
       ts = df.iloc[:-3, idserie]
@@ -347,4 +347,4 @@ if __name__ == "__main__":
    print(f"Boosting {name}")
    #sql.createSqlite("..\\data\\results.sqlite")
    p = 5
-   main_boosting(name,df2.iloc[:-3,:], backCast=False, repetition=True, nboost = 300, p=p, verbose=True, bmodel="AR") # last 3 were original forecasts
+   main_boosting(name,df2.iloc[:-3,:], backCast=False, repetition=True, nboost = 75, p=p, verbose=True, bmodel="AR") # last 3 were original forecasts
