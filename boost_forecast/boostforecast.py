@@ -163,10 +163,10 @@ if __name__ == "__main__":
    df2 = pd.read_csv(f"../data/{name}.csv", usecols=[i for i in range(1, 53)])
    print(f"Boost forecasting {name}")
    distrib = "AR" # "RF" "ARIMA"
-   model = "YW"  # AR YW
+   model = "AR"  # AR YW
    fback = 0  # flag backcasting
    frep  = 1  # flag extraction with repetition
-   nboost= 75
+   nboost= 125
    p     = 5
    idcustomer = 0 # forecast starting from this customer
    step = 52        # these many customers after idcustomer
