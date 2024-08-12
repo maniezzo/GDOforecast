@@ -17,7 +17,7 @@ def forecast_accuracy(model,forecast, actual):
            'acf1':acf1, 'corr':corr})
 
 def go_analysis():
-   dataset  = "res_YW_75"
+   dataset  = "res_AR_175"
    fileName = f"../boost_forecast/{dataset}.csv"
    df = pd.read_csv(fileName)
    trueval = df.loc[:,'true']
@@ -29,7 +29,7 @@ def go_analysis():
    df_results.to_csv(f"../results/{dataset}_analysis.csv", index=False)
 
    # critical difference diagram
-   idObjFunc = 2
+   idObjFunc = 1
    if(idObjFunc == 0):   ofName = 'MAE'
    elif(idObjFunc == 1): ofName = 'MSE'
    elif(idObjFunc == 2): ofName = 'BIAS'

@@ -1,0 +1,40 @@
+update boost
+set series=(
+    SELECT series
+    FROM boost, tempind
+    WHERE boost.idseries=29 and boost.model='YW' and boost.nboost=300 and boost.idrepl=tempind.id
+    )
+WHERE boost.idseries=29 and boost.model='YW' and boost.nboost=75 
+
+UPDATE boost
+SET series = (
+    SELECT b2.series
+    FROM boost b2
+    INNER JOIN tempind t ON b2.idrepl = t.id
+    WHERE b2.idseries = 29 AND b2.nboost = 300
+    AND b2.idrepl = boost.idrepl
+)
+WHERE idseries = 29 AND nboost = 75 and model='YW'
+AND EXISTS (
+    SELECT 1
+    FROM tempind t
+    WHERE t.id = boost.idrepl
+);
+
+INSERT INTO table1 (id, data)
+SELECT table2.id, table2.data
+FROM table2
+JOIN tabind ON table2.id = tabind.id;
+
+
+INSERT INTO boost ("model", "fback", "frep", "nboost", "idseries", "idrepl", "series")
+SELECT 'YW', "fback", "frep", 125, "idseries", "idrepl", "series"
+FROM boost
+where nboost=300 and idrepl<125
+
+
+INSERT INTO boost ("model", "fback", "frep", "nboost", "idseries", "idrepl", "series")
+SELECT 'YW', "fback", "frep", "nboost", "idseries", "idrepl", "series"
+FROM boost
+where idseries=29
+JOIN tempind ON boost.idrepl = tempind.id;

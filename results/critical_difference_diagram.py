@@ -15,6 +15,7 @@ import math
 from scipy.stats import wilcoxon
 from scipy.stats import friedmanchisquare
 import networkx
+import scikit_posthocs as sp
 
 matplotlib.rcParams['font.family'] = 'sans-serif'
 matplotlib.rcParams['font.sans-serif'] = 'Arial'
@@ -256,10 +257,10 @@ def draw_cd_diagram(df_perf=None, alpha=0.05, title=None, labels=False, fAscendi
     # Draws the critical difference diagram given the list of pairwise algorithms that are significant or not
     p_values, average_ranks, _ = wilcoxon_holm(df_perf=df_perf, alpha=alpha, fAscending = fAscending)
 
-    print(average_ranks)
+    print(f"average_ranks {average_ranks}")
 
     for p in p_values:
-        print(p)
+        print(f"p values: {p}")
 
     graph_ranks(average_ranks.values, average_ranks.keys(), p_values,
                 cd=None, reverse=not fAscending, width=9, textspace=1.5, labels=labels)
@@ -273,6 +274,32 @@ def draw_cd_diagram(df_perf=None, alpha=0.05, title=None, labels=False, fAscendi
         plt.title(title+" ranks",fontdict=font, y=0.85, x=0.5)
     plt.savefig(f'{title}.eps',bbox_inches='tight')
     plt.show()
+
+    names = df_perf[algonames].unique().tolist()
+    for name in names:
+        p_values.append((name,name,1))
+    # Create the p_values DataFrame
+    dfpval = pd.DataFrame(p_values, columns=['index', 'columns', 'value', "dummy"])
+    # Pivot the DataFrame to get the desired shape
+    dfpval = dfpval.pivot(index='index', columns='columns', values='value')
+    # Copy the upper triangular value to the lower triangular position
+    for i in range(len(dfpval)):
+        for j in range(i):
+            dfpval.iat[i, j] = dfpval.iat[j, i]
+    # Set the index and column names (already correctly set by pivot)
+    dfpval.index.name = None
+    dfpval.columns.name = None
+
+    sp.sign_plot(dfpval)
+    plt.show()
+    plt.figure(figsize=(10, 3), dpi=128)
+    plt.title(f'CDD of avg ranks for {title}, data ')
+    sp.critical_difference_diagram(average_ranks, dfpval,
+                                   text_h_margin=0.8,
+                                   crossbar_props={'color': None, 'marker': 'o'})
+    plt.show()
+
+    return
 
 def wilcoxon_holm(alpha=0.05, df_perf=None, fAscending = False):
     """
