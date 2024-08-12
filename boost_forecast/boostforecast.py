@@ -166,7 +166,7 @@ if __name__ == "__main__":
    model = "AR"  # AR YW
    fback = 0  # flag backcasting
    frep  = 1  # flag extraction with repetition
-   nboost= 125
+   nboost= 175
    p     = 5
    idcustomer = 0 # forecast starting from this customer
    step = 52        # these many customers after idcustomer
