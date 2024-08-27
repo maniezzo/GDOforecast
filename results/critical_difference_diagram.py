@@ -275,6 +275,7 @@ def draw_cd_diagram(df_perf=None, alpha=0.05, title=None, labels=False, fAscendi
     plt.savefig(f'{title}.eps',bbox_inches='tight')
     plt.show()
 
+    # here for the scikit version
     names = df_perf[algonames].unique().tolist()
     for name in names:
         p_values.append((name,name,1))
@@ -293,12 +294,12 @@ def draw_cd_diagram(df_perf=None, alpha=0.05, title=None, labels=False, fAscendi
     sp.sign_plot(dfpval)
     plt.show()
     plt.figure(figsize=(10, 3), dpi=128)
-    plt.title(f'CDD of avg ranks for {title}, data ')
+    plt.title(f'sp CDD of avg ranks for {title}, data')
     sp.critical_difference_diagram(average_ranks, dfpval,
                                    text_h_margin=0.8,
                                    crossbar_props={'color': None, 'marker': 'o'})
+    plt.savefig(f'sp {title}.eps',bbox_inches='tight')
     plt.show()
-
     return
 
 def wilcoxon_holm(alpha=0.05, df_perf=None, fAscending = False):

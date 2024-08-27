@@ -38,20 +38,20 @@ def go_analysis():
    df_results.to_csv(f"../results/{dataset}_analysis.csv", index=False)
 
    # critical difference diagram
-   idObjFunc = 1
-   if(idObjFunc == 0):   ofName = 'MAE'
-   elif(idObjFunc == 1): ofName = 'MSE'
-   elif(idObjFunc == 2): ofName = 'BIAS'
-   df_perf = pd.DataFrame(columns=['algorithm','instance',f'{ofName}'])
-   for j in [3,4,7,8,9,10,11,12,13,14]:
-      colname = df.columns[j]
-      for i in range(df.shape[0]):
-         if (idObjFunc == 0):   ofVal = abs(df.iloc[i,j]-df.iloc[i,2])
-         elif (idObjFunc == 1): ofVal = (df.iloc[i,j]-df.iloc[i,2])**2
-         elif (idObjFunc == 2): ofVal = (df.iloc[i,j]-df.iloc[i,2])
-         df_perf.loc[len(df_perf.index)] = [colname,f"boost{i}",ofVal]
+   for idObjFunc in range(3):
+      if(idObjFunc == 0):   ofName = 'MAE'
+      elif(idObjFunc == 1): ofName = 'MSE'
+      elif(idObjFunc == 2): ofName = 'BIAS'
+      df_perf = pd.DataFrame(columns=['algorithm','instance',f'{ofName}'])
+      for j in [3,4,7,8,9,10,11,12,13,14]:
+         colname = df.columns[j]
+         for i in range(df.shape[0]):
+            if (idObjFunc == 0):   ofVal = abs(df.iloc[i,j]-df.iloc[i,2])
+            elif (idObjFunc == 1): ofVal = (df.iloc[i,j]-df.iloc[i,2])**2
+            elif (idObjFunc == 2): ofVal = (df.iloc[i,j]-df.iloc[i,2])
+            df_perf.loc[len(df_perf.index)] = [colname,f"boost{i}",ofVal]
 
-   draw_diagram(df_perf=df_perf, dfname=dataset)
+      draw_diagram(df_perf=df_perf, dfname=dataset)
    return
 
 if "__main__" == __name__:
