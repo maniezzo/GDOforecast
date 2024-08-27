@@ -2,7 +2,8 @@ import numpy as np, pandas as pd
 import matplotlib.pyplot as plt
 import pmdarima as pm
 
-def go_sarima(ds, look_back=3, autoArima=False,verbose=False):
+# default orders have no particular sense
+def go_sarima(ds, look_back=3, autoArima=False,verbose=False, morder=(0,1,1), mseasorder = (1,1,0,12)):
    print("PMDARIMA: WATCH OUT! needs numpy 1.26.0 or higher")
    if autoArima:
       model = pm.auto_arima(ds,
@@ -10,13 +11,9 @@ def go_sarima(ds, look_back=3, autoArima=False,verbose=False):
                             start_P=0, start_Q=0, max_P=1, max_Q=1,
                             seasonal=True, m=12, d=1, D=None, test='adf',
                             trace=False, error_action='warn', suppress_warnings=True,
-                            maxiter = 50, stepwise=True)
+                            maxiter = 75, stepwise=True)
       morder     = model.order
       mseasorder = model.seasonal_order
-   else:
-      #ARIMA(0,1,1)(1,1,0)[12] intercept
-      morder = (0,1,1) #model.order
-      mseasorder = (1,1,0,12) #model.seasonal_order
 
    model = pm.arima.ARIMA(morder, seasonal_order=mseasorder,  return_conf_int=True)
    fitted = model.fit(ds)
@@ -51,4 +48,4 @@ def go_sarima(ds, look_back=3, autoArima=False,verbose=False):
    plt.title("sklearn")
    plt.show()
    '''
-   return yfore
+   return yfore, morder, mseasorder

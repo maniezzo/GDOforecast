@@ -10,6 +10,7 @@ import run_lstm as lstm
 import run_SVM as svm
 import run_HW as hw
 import sys
+import json
 
 # forecasts a single future value look_back time instant ahead using the specified mathod
 def forecast_value(ds,dslog,method,look_back = 3, verbose = False):
@@ -44,28 +45,35 @@ def forecast_value(ds,dslog,method,look_back = 3, verbose = False):
       plt.show()
    return fvalue
 
-def main_fcast(name, df, idcustomer=0, step = 52, model='AR', fback=0, frep=1, nboost=125, p=7, verbose=True):
+def main_fcast(name, df, idcustomer=0, step = 52, model='AR', distrib='AR', fback=0, frep=1, nboost=125, p=7, verbose=True):
+   resFileName = f"res_{model}_{distrib}_{nboost}.csv"
+   # database: reads the relevant seried from db and writes them in csv
    dbfilePath='../data/results.sqlite'
    sys.path.append('../boosting')
    import sqlite101 as sql # path was updated one line above
    sql.querySqlite(dbfilePath, model, fback, frep, nboost) # writes the csv files selecting data from db
-   with open(f"res_{model}_{nboost}.csv", "w") as fout:
+   with open(resFileName, "w") as fout:
       fout.write("series,model,true,fcast_50,fcast_avg,fcast_05,fcast_95,yar,yhw,ysvm,ylstm,ymlp,yrf,yxgb,yarima\n")
 
-   # foreach boosted series forecast
+   # foreach boosted series forecast (max 52)
    #for iboostset in len(df): # for each block of boosted series
    for iboostset in range(idcustomer,idcustomer+step):
       bset = pd.read_csv(f"../data/boost{iboostset}.csv", header=None) # no validation data
       fcast_all = np.zeros(len(bset))
       look_back = 3 # solo con questo va
 
-      numserie = bset.shape[0]
-      #numserie = 30 # ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ
+      # if arima, I fit on the first series of the set and keep the model on all other ones
+      yarima = -1
+      if(model == "ARIMA"):
+         ds = np.array(bset.iloc[0, 0:])
+         yarima, morder, mseasorder = sar.go_sarima(ds, look_back=look_back, autoArima=True, verbose=verbose)   # ARIMA
+
+      numserie = bset.shape[0] # all boosted series (ex. 175)
       for idserie in range(numserie):
          ds = np.array(bset.iloc[idserie, 0:])  # one series of bootstrap set, diff log values
          if(model == "AR" or model == "YW"): fcast = ar.go_AR(ds, look_back=look_back, verbose=False, gridSearch=True) # (idserie==0)) # AR, validazione nel metodo
          elif(model == "RF"): fcast = rf.go_rf(ds, look_back=look_back, verbose=False) # (idserie==0)) # random forest, keeping look-back out for validation
-         elif(model == "ARIMA"): fcast = sar.go_sarima(ds, look_back=look_back, autoArima=True, verbose=False) #(idserie==0))  # ARIMA
+         elif(model == "ARIMA"): fcast,_,_ = sar.go_sarima(ds, look_back=look_back, autoArima=False, verbose=False, morder=morder, mseasorder=mseasorder) #(idserie==0))  # ARIMA
 
          trueval = bset.iloc[iboostset,-1] # valore vero
          print(f"idserie,{idserie}, true last {trueval} forecast,{fcast[2]}, error {trueval-fcast[2]}")
@@ -119,11 +127,11 @@ def main_fcast(name, df, idcustomer=0, step = 52, model='AR', fback=0, frep=1, n
          yar    = forecast_value(ds,dslog,method="AR",look_back=look_back,verbose=verbose)
          yhw    = forecast_value(ds,dslog,method="HW",look_back=look_back,verbose=verbose)
          ysvm   = forecast_value(ds,dslog,method="svm",look_back=look_back,verbose=verbose)
-         ylstm  = forecast_value(ds,dslog,method="lstm",look_back=look_back,verbose=verbose)
          ymlp   = forecast_value(ds,dslog,method="MLP",look_back=look_back,verbose=verbose)
+         ylstm  = forecast_value(ds,dslog,method="lstm",look_back=look_back,verbose=verbose)
          yrf    = forecast_value(ds,dslog,method="randomf",look_back=look_back,verbose=verbose)
          yxgb   = forecast_value(ds,dslog,method="xgboost",look_back=look_back,verbose=verbose)
-         yarima = forecast_value(ds,dslog,method="arima",look_back=look_back,verbose=verbose)
+         # yarima was already computed before
       else:
          yar = yhw = ylstm = ymlp = yrf = yxgb = yarima = 0
          ysvm = [0]
@@ -154,7 +162,7 @@ def main_fcast(name, df, idcustomer=0, step = 52, model='AR', fback=0, frep=1, n
       print("series","model","true","fcast_50","fcast_avg","fcast_05","fcast_95","yar","yhw","ysvm","ylstm","ymlp","yrf","yxgb","yarima")
       print(iboostset, model, df.iloc[-1,iboostset], fcast_50, fcast_avg, fcast_05, fcast_95, yar, yhw, ysvm, ylstm, ymlp, yrf, yxgb, yarima)
       # Append results to res file
-      with open(f"res_{model}_{nboost}.csv", "a") as fout:
+      with open(resFileName, "a") as fout:
          fout.write(f"{iboostset},{model},{df.iloc[-1,iboostset]},{fcast_50},{fcast_avg},{fcast_05},{fcast_95},{yar},{yhw},{ysvm[-1]},{ylstm},{ymlp},{yrf},{yxgb},{yarima}\n")
    print("finito")
 
@@ -162,12 +170,16 @@ if __name__ == "__main__":
    name = "dataframe_nocovid_full"
    df2 = pd.read_csv(f"../data/{name}.csv", usecols=[i for i in range(1, 53)])
    print(f"Boost forecasting {name}")
-   distrib = "AR" # "RF" "ARIMA"
-   model = "AR"  # AR YW
-   fback = 0  # flag backcasting
-   frep  = 1  # flag extraction with repetition
-   nboost= 175
+
+   with open('config.json') as jconf:
+      conf = json.load(jconf)
+   print(conf)
+   distrib = conf['distrib']
+   model = conf['model']  # AR, YW
+   fback = conf['fback']  # flag backcasting
+   frep  = conf['frep']   # flag extraction with repetition
+   nboost= conf['nboost']
+   idcustomer = conf['firstcust'] # forecast starting from this customer
+   step  = conf['stepcust']       # these many customers after idcustomer
    p     = 5
-   idcustomer = 0 # forecast starting from this customer
-   step = 52        # these many customers after idcustomer
-   main_fcast(name, df2.iloc[:-3,:], idcustomer=idcustomer, step=step, model=model, fback=fback, frep=frep, nboost=nboost, p=p, verbose=False) # actual data only for 45 months hence -3
+   main_fcast(name, df2.iloc[:-3,:], idcustomer=idcustomer, step=step, model=model, distrib=distrib, fback=fback, frep=frep, nboost=nboost, p=p, verbose=False) # actual data only for 45 months hence -3

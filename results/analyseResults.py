@@ -2,6 +2,7 @@ import numpy as np, pandas as pd
 import matplotlib.pyplot as plt
 from statsmodels.tsa.stattools import acf
 from critical_difference_diagram import draw_diagram
+import json
 
 # Accuracy metrics
 def forecast_accuracy(model,forecast, actual):
@@ -17,7 +18,15 @@ def forecast_accuracy(model,forecast, actual):
            'acf1':acf1, 'corr':corr})
 
 def go_analysis():
-   dataset  = "res_AR_175"
+   # file to analize
+   with open('config.json') as jconf:
+      conf = json.load(jconf)
+   print(conf)
+   distrib = conf['distrib']
+   model = conf['model']  # AR, YW
+   nboost= conf['nboost']
+   dataset  = f"res_{model}_{distrib}_{nboost}"
+
    fileName = f"../boost_forecast/{dataset}.csv"
    df = pd.read_csv(fileName)
    trueval = df.loc[:,'true']
