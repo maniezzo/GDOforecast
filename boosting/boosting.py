@@ -347,4 +347,4 @@ if __name__ == "__main__":
    print(f"Boosting {name}")
    #sql.createSqlite("..\\data\\results.sqlite")
    p = 5
-   main_boosting(name,df2.iloc[:-3,:], backCast=False, repetition=True, nboost = 75, p=p, verbose=True, bmodel="AR") # last 3 were original forecasts
+   main_boosting(name,df2.iloc[:-3,:], backCast=False, repetition=True, nboost = 175, p=p, verbose=True, bmodel="YW") # last 3 were original forecasts
