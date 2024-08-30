@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 import matplotlib
 import matplotlib.pyplot as plt
+import seaborn as sns # for heatmap
 import os
 import operator # lt, ge and the like
 import math
@@ -291,13 +292,23 @@ def draw_cd_diagram(df_perf=None, alpha=0.05, title=None, labels=False, fAscendi
     dfpval.index.name = None
     dfpval.columns.name = None
 
-    sp.sign_plot(dfpval)
+    # Create a heatmap with numerical values
+    sns.set(style='white')  # Optional: set the seaborn style
+    plt.figure(figsize=(6, 4))  # Optional: set the size of the figure
+
+    ax = sns.heatmap(dfpval, annot=True, fmt=".2f", cmap="YlGnBu", cbar=True)
+    plt.title('Heatmap with Numerical Values')
+    plt.xlabel('X-axis Label')
+    plt.ylabel('Y-axis Label')
     plt.show()
+
+    # scikit posthocs critical difference diagram
     plt.figure(figsize=(10, 3), dpi=128)
     plt.title(f'sp CDD of avg ranks for {title}, data')
     sp.critical_difference_diagram(average_ranks, dfpval,
                                    text_h_margin=0.8,
-                                   crossbar_props={'color': None, 'marker': 'o'})
+                                   crossbar_props={'color': None, 'marker': '.'})
+    plt.subplots_adjust(top=0.8)
     plt.savefig(f'sp {title}.eps',bbox_inches='tight')
     plt.show()
     return
