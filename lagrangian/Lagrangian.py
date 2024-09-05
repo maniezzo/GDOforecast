@@ -1,5 +1,6 @@
 import numpy as np, pandas as pd, time
 import pulp
+import LocSearch as LS
 
 def makeModel(requests, costs, cap, b):
    ncol = 2*ncli*nser
@@ -200,6 +201,7 @@ def computeZub(sol,costs,requests,cap):
 
    if isFeasible:
       print(f"Feasible solution, cost {zub}")
+      LS.opt10(costs,cap,requests,soliter,requests)
    return isFeasible, soliter, zub
 
 def subgradient(requests,costs,cap,b,alpha=0.1,niter=3,maxuseless=100):
@@ -221,10 +223,10 @@ def subgradient(requests,costs,cap,b,alpha=0.1,niter=3,maxuseless=100):
       if zliter > zlb:   # update lb
          zlb = zliter    # SHOULD SAVE THE BEST LB SOLUTION HERE
          nuseless = 0
-      if zubiter < zub:  # update ub
-         zub = zubiter   # SHOULD SAVE THE BEST UB SOLUTION HERE
-         nuseless = 0
       if(isFeas):        # check for optimality
+         if zubiter < zub:  # update ub
+            zub = zubiter   # SHOULD SAVE THE BEST UB SOLUTION HERE
+            nuseless = 0
          isOpt = True
          for i in np.arange(len(subgrad)):
             if(vlambda[i]!=0 and subgrad[i]!=0):
