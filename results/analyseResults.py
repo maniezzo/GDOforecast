@@ -1,6 +1,7 @@
 import numpy as np, pandas as pd
 import matplotlib.pyplot as plt
 from statsmodels.tsa.stattools import acf
+import statsmodels.api as sm
 from critical_difference_diagram import draw_diagram
 import json
 
@@ -16,6 +17,40 @@ def forecast_accuracy(model,forecast, actual):
    acf1 = acf(forecast-actual)[1]              # ACF1
    return({'model':model, 'bias':bias, 'mape':mape, 'me':me, 'mae': mae, 'mpe': mpe, 'rmse':rmse,
            'acf1':acf1, 'corr':corr})
+
+# check acceptability linear model
+def isLinear():
+   from statsmodels.formula.api import ols
+
+   name = "dataframe_nocovid_full"
+   df = pd.read_csv(f"../data/{name}.csv")
+
+   numrows = 45
+   months = df.iloc[0:45,0]
+   for i in np.arange(1,53):
+      ds = df.iloc[0:numrows,i]
+
+      x = pd.Series(np.arange(len(ds)))
+      # Add a column to the independent variable (x) for the intercept
+      X = sm.add_constant(x)  # This adds an intercept term (a column of 1s)
+
+      # Fit a linear regression model
+      linear_model = sm.OLS(ds, X).fit()
+
+      # Fit a quadratic model
+      ds2 = ds ** 2
+      quadratic_model = sm.OLS(ds2,X).fit()
+
+      # Perform an ANOVA (Analysis of Variance) F-test between the models
+      anova_results = sm.stats.anova_lm(linear_model, quadratic_model)
+      #print(anova_results)
+
+      # Check if the p-value is significant
+      p_value = anova_results['Pr(>F)'][1]
+      if p_value < 0.05:
+          print(f"Series {i}: p={p_value} Significant lack of fit (no linear model).")
+      else:
+          print(f"Series {i}: p={p_value} No significant lack of fit (linear model is ok).")
 
 def go_analysis():
    # file to analize
@@ -55,4 +90,5 @@ def go_analysis():
    return
 
 if "__main__" == __name__:
+   isLinear()
    go_analysis()
