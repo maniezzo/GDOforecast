@@ -1,6 +1,4 @@
 import numpy as np, pandas as pd
-from goto import with_goto
-@with_goto  # You must use this decorator
 
 # tries each allocation (possibly partial) with each other facility
 def opt10(c,cap,req,x,q):
@@ -18,22 +16,24 @@ def opt10(c,cap,req,x,q):
 
    zcurr=z
 
-   label .l0
-   for j in range(n):
-      isol = x[j]
-      for i in range(m):
-         if (i == isol): continue
-         if (c[i][j] < c[isol][j] and capleft[i] >= req[i][j]):
-            # remove from isol and assign to i
-            x[j] = i
-            capleft[i]    -= req[i][j]
-            capleft[isol] += req[isol][j]
-            z -= (c[isol][j] - c[i][j])
-            if(z<zcurr):
-               print(f"[1-0 opt] new z {z}")
-               zcurr = z
+   fRepeat = True
+   while fRepeat:
+      fRepeat = False # l0
+      for j in range(n):
+         isol = x[j]
+         for i in range(m):
+            if (i == isol): continue
+            if (c[i][j] < c[isol][j] and capleft[i] >= req[i][j]):
+               # remove from isol and assign to i
+               x[j] = i
+               capleft[i]    -= req[i][j]
+               capleft[isol] += req[isol][j]
+               z -= (c[isol][j] - c[i][j])
+               if(z<zcurr):
+                  print(f"[1-0 opt] new z {z}")
+                  zcurr = z
 
-            goto .l0 # Jumps back to the l0 label
+               fRepeat=True #goto .l0 # Jumps back to the l0 label
    if(z<zorg):
       print("-- 2opt improved --")
    return z
