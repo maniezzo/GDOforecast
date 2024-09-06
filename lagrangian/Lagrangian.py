@@ -201,7 +201,7 @@ def computeZub(sol,costs,requests,cap):
 
    if isFeasible:
       print(f"Feasible solution, cost {zub}")
-      LS.opt10(costs,cap,requests,soliter)
+      zub = LS.opt10(costs,cap,requests,soliter)
    return isFeasible, soliter, zub
 
 def subgradient(requests,costs,cap,b,alpha=0.1,niter=3,maxuseless=100):
