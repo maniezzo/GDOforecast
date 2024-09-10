@@ -169,8 +169,8 @@ def checkFeas(sol,cap, costs):
 
    return (isFeas, subgrad)
 
-def computeZub(sol,costs,requests,cap):
-   zub = 0
+def computeFOval(sol, costs, requests, cap):
+   z = 0
    freecap = np.array(cap)
    soliter = np.full(ncli,-1)
    indreq = np.argsort(requests)
@@ -183,7 +183,7 @@ def computeZub(sol,costs,requests,cap):
       if(freecap[server] >= requests[i]):
          soliter[i] = server
          freecap[server] -= requests[i]
-         zub += costs[server,i]
+         z += costs[server,i]
          fAssigned = True
       else:
          isFeasible = False
@@ -193,30 +193,31 @@ def computeZub(sol,costs,requests,cap):
             if (freecap[indc[k]] >= requests[i]):
                soliter[i] = indc[k]
                freecap[indc[k]] -= requests[i]
-               zub += costs[indc[k], i]
+               z += costs[indc[k], i]
                fAssigned = True
                break
       if not fAssigned:
          print(">>>>>>>>>>>>>>>>>>>>>>>> ASSIGNMENT ERROR <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 
    if isFeasible:
-      print(f"Feasible solution, cost {zub}")
-      zub = LS.opt10(costs,cap,requests,soliter)
-   return isFeasible, soliter, zub
+      print(f"Feasible solution, cost {z}")
+      z = LS.opt10(costs,cap,requests,soliter)
+      z = LS.opt11(costs,cap,requests,soliter)
+   return isFeasible, soliter, z
 
 def subgradient(requests,costs,cap,b,alpha=0.1,niter=3,maxuseless=100):
+   zub = np.infty
    flog = open("log.csv", "w")
    nuseless  = 0  # number of non improving iterations
    alphainit = alpha
    vlambda   = np.zeros(nser)
    iter = 0
-   zub = 50000
-   zlb = 0
+   zlb  = 0
    while(iter < niter):
       print(f"SUBGR ===================== iter {iter}")
       (zliter,sol) = subProblem(requests,costs,cap,b,vlambda)
       (isFeas, subgrad) = checkFeas(sol,cap, costs)
-      isFeasible, soliter, zubiter = computeZub(sol,costs,requests,cap)
+      isFeasible, soliter, zubiter = computeFOval(sol, costs, requests, cap)
       #fout.write(f"{np.array2string(soliter, max_line_width=10000, separator=',')}\n")
       if isFeasible != isFeas: print(">>>>>>>>>>>>>>>>> FEASIBILITY MISMATCH <<<<<<<<<<<<<<<<<<<")
       nuseless += 1
@@ -227,6 +228,7 @@ def subgradient(requests,costs,cap,b,alpha=0.1,niter=3,maxuseless=100):
          if zubiter < zub:  # update ub
             zub = zubiter   # SHOULD SAVE THE BEST UB SOLUTION HERE
             nuseless = 0
+            print(f" ---- NEW ZUB: {zub}")
          isOpt = True
          for i in np.arange(len(subgrad)):
             if(vlambda[i]!=0 and subgrad[i]!=0):
@@ -236,7 +238,8 @@ def subgradient(requests,costs,cap,b,alpha=0.1,niter=3,maxuseless=100):
             return (zlb,sol)
       sub2 = 0           # not provably optimal
       for i in np.arange(nser): sub2 += subgrad[i]*subgrad[i]
-      step = alpha*(zub - zlb)/sub2
+      zz = zlb*2
+      step = alpha*(min(zub,zz) - zlb)/sub2
       for i in np.arange(nser):
          vlambda[i] += step * subgrad[i]
          if(vlambda[i]<=0): vlambda[i]=0
@@ -258,6 +261,9 @@ def subgradient(requests,costs,cap,b,alpha=0.1,niter=3,maxuseless=100):
    return (zlb,sol)
 
 if __name__ == "__main__":
+   global zub
+   zub = np.infty
+
    dfcosts = pd.read_csv("costs.csv")
    dfreq   = pd.read_csv("requests.csv")
    #fout = open("solutions.txt", "w")

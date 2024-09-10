@@ -1,5 +1,31 @@
 import numpy as np, pandas as pd
 
+def checkSol(sol,cap,req,costs):
+   isFeas = True
+   nser = len(cap)
+   ncli = len(req)
+   subgrad = np.zeros(nser)
+   # capacity constraints Sum qij <= capi
+   for i in np.arange(nser):
+      sum = 0
+      for j in np.arange(ncli):
+         if(sol[j]==i):
+            sum += req[j]
+      subgrad[i] = sum - cap[i]
+      if sum > cap[i]:
+         isFeas = False
+   # assignemtn constraints
+   for j in np.arange(ncli):
+      if(not(sol[j]>=0 and sol[j]<nser)):
+         isFeas = False
+   # check cost
+   z = 0
+   for j in np.arange(ncli):
+      z += costs[sol[j],j]
+   #print(f"Checked cost: {z}")
+
+   return isFeas, z
+
 # tries each allocation (possibly partial) with each other facility
 def opt10(c,cap,req,x):
    z=0
@@ -43,6 +69,7 @@ def opt10(c,cap,req,x):
 
 # scambio assegnamento fra due clienti
 def opt11(c,cap,req,x):
+   EPS = 0.001
    z=0
    zorg=0
    n = len(req)
@@ -58,40 +85,32 @@ def opt11(c,cap,req,x):
    zcurr = z # cost of solution currently in x
    zorg  = z # cost of seed solution
 
-   zcheck = GAP->checkSol(sol)
+   isFeas,zcheck = checkSol(x,cap,req,c)
 
    fRepeat = True
    while fRepeat:
       fRepeat = False  # l0
-         for j1 in range(n):
-            for j2 in range(j1+1,n):
-               delta = (c[x[j1]][j1] + c[x[j2]][j2]) - (c[x[j1]][j2] + c[x[j2]][j1])
-               if(delta > 0):
-                  cap1 = capleft[x[j1]] + req[x[j1]][j1] - req[x[j1]][j2]
-                  cap2 = capleft[x[j2]] + req[x[j2]][j2] - req[x[j2]][j1]
-                  if(cap1>=0 and cap2 >=0):
-                     capleft[x[j1]] += req[x[j1]][j1] - req[x[j1]][j2]
-                     capleft[x[j2]] += req[x[j2]][j2] - req[x[j2]][j1]
-                     temp    = x[j1]
-                     x[j1] = x[j2]
-                     x[j2] = temp
-                     z -= delta
-                     zcheck = GAP->checkSol(sol)
-                     if(isOriginal):
-                        if(abs(z-zcheck) > GAP->EPS):
-                           print("[1-1] ohi")
-                        elif(z<zub):
-                           zub = z
-                           for k in range(n): solbest[k] = x[k]
-                           print(f"[1-1 opt] new zub {zub}")
-                     fRepeat=True #goto .l0 # Jumps back to the l0 label
+      for j1 in range(n):
+         for j2 in range(j1+1,n):
+            delta = (c[x[j1],j1] + c[x[j2],j2]) - (c[x[j1],j2] + c[x[j2],j1])
+            if(delta > 0):
+               cap1 = capleft[x[j1]] + req[j1] - req[j2]
+               cap2 = capleft[x[j2]] + req[j2] - req[j1]
+               if(cap1>=0 and cap2 >=0):
+                  capleft[x[j1]] += req[j1] - req[j2]
+                  capleft[x[j2]] += req[j2] - req[j1]
+                  temp  = x[j1]
+                  x[j1] = x[j2]
+                  x[j2] = temp
+                  z -= delta
+                  isFeas,zcheck = checkSol(x,cap,req,c)
+                  if(abs(z-zcheck) > EPS):
+                     print("[1-1] ohi")
+                  fRepeat=True #goto .l0 # Jumps back to the l0 label
 
-   zcheck = 0
-   for j in range(n):
-      zcheck += c[x[j]][j]
-   if(abs(zcheck - z) > GAP->EPS):
+   isFeas,zcheck = checkSol(x,cap,req,c)
+   if(abs(zcheck - z) > EPS):
       print("[1.1opt] Ahi ahi")
-   zcheck = checkSol(sol)
    if(z<zorg):
       print(f"-- opt11 improved {zorg} -> {z} --")
    return z
