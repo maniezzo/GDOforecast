@@ -1,0 +1,6 @@
+{
+   "niter" : 200, "itcomment": "subgradient iterations",
+   "alpha" : 4,   "acomment": "initial decrease coefficient",
+   "minalpha" : 0.01, "macomment": "minimum alpha value",
+   "maxuseless" : 20, "ucomment" : "no improving iter before restart"
+}

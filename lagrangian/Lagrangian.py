@@ -1,8 +1,9 @@
 import numpy as np, pandas as pd, time
 import pulp
 import LocSearch as LS
+import json, time
 
-def makeModel(requests, costs, cap, b):
+def makeMIPmodel(requests, costs, cap, b):
    ncol = 2*ncli*nser
    nx   = ncli*nser
    categ ='Binary'  # 'Continuous'
@@ -71,7 +72,65 @@ def makeModel(requests, costs, cap, b):
    #fout.write(f"{np.array2string(x, max_line_width=10000,separator=',')}\r\n")
    return (cost,sol)
 
-def subProblem(requests, costs, cap, b, vlambda):
+def checkFeas(sol,cap, costs):
+   isFeas = True
+   subgrad = np.zeros(nser)
+   nx = len(sol)//2
+   # assignment constraints Sum qij = reqj
+   for i in np.arange(nser):
+      sum = 0
+      for j in np.arange(ncli):
+         sum += sol[nx + i * ncli + j]
+      subgrad[i] = sum - cap[i]
+      if sum > cap[i]:
+         isFeas = False
+   # check cost
+   z = 0
+   for i in np.arange(costs.size):
+      ii = i // ncli
+      jj = i % ncli
+      z += sol[i]*costs[ii,jj]
+   #print(f"Checked cost: {z}")
+
+   return (isFeas, subgrad)
+
+def computeFOval(sol, costs, requests, cap):
+   z = 0
+   freecap = np.array(cap)
+   soliter = np.full(ncli,-1)
+   indreq = np.argsort(requests)
+   indreq = np.flip(indreq) # higher to smaller
+   isFeasible = True
+   for ii in np.random.permutation(ncli):
+      fAssigned = False
+      i = indreq[ii]
+      server = int(0*sol[i]+1*sol[ncli+i]+2*sol[2*ncli+i]+3*sol[3*ncli+i])
+      if(freecap[server] >= requests[i]):
+         soliter[i] = server
+         freecap[server] -= requests[i]
+         z += costs[server,i]
+         fAssigned = True
+      else:
+         isFeasible = False
+         srvCosts = costs[:,i]
+         indc = np.argsort(srvCosts)
+         for k in np.random.permutation(len(indc)):
+            if (freecap[indc[k]] >= requests[i]):
+               soliter[i] = indc[k]
+               freecap[indc[k]] -= requests[i]
+               z += costs[indc[k], i]
+               fAssigned = True
+               break
+      if not fAssigned:
+         print(">>>>>>>>>>>>>>>>>>>>>>>> ASSIGNMENT ERROR <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+
+   if isFeasible:
+      print(f"Feasible solution, cost {z}")
+      z = LS.opt10(costs,cap,requests,soliter)
+      z = LS.opt11(costs,cap,requests,soliter)
+   return isFeasible, soliter, z
+
+def subProblemRelaxCap(requests, costs, cap, b, vlambda):
    ncol = 2*ncli*nser
    nx   = ncli*nser
    categ ='Binary'  # 'Continuous'
@@ -147,66 +206,9 @@ def subProblem(requests, costs, cap, b, vlambda):
    #print(f"LR sol: {sol}")
    return (cost,sol)
 
-def checkFeas(sol,cap, costs):
-   isFeas = True
-   subgrad = np.zeros(nser)
-   nx = len(sol)//2
-   # assignment constraints Sum qij = reqj
-   for i in np.arange(nser):
-      sum = 0
-      for j in np.arange(ncli):
-         sum += sol[nx + i * ncli + j]
-      subgrad[i] = sum - cap[i]
-      if sum > cap[i]:
-         isFeas = False
-   # check cost
-   z = 0
-   for i in np.arange(costs.size):
-      ii = i // ncli
-      jj = i % ncli
-      z += sol[i]*costs[ii,jj]
-   #print(f"Checked cost: {z}")
-
-   return (isFeas, subgrad)
-
-def computeFOval(sol, costs, requests, cap):
-   z = 0
-   freecap = np.array(cap)
-   soliter = np.full(ncli,-1)
-   indreq = np.argsort(requests)
-   indreq = np.flip(indreq) # higher to smaller
-   isFeasible = True
-   for ii in np.random.permutation(ncli):
-      fAssigned = False
-      i = indreq[ii]
-      server = int(0*sol[i]+1*sol[ncli+i]+2*sol[2*ncli+i]+3*sol[3*ncli+i])
-      if(freecap[server] >= requests[i]):
-         soliter[i] = server
-         freecap[server] -= requests[i]
-         z += costs[server,i]
-         fAssigned = True
-      else:
-         isFeasible = False
-         srvCosts = costs[:,i]
-         indc = np.argsort(srvCosts)
-         for k in np.random.permutation(len(indc)):
-            if (freecap[indc[k]] >= requests[i]):
-               soliter[i] = indc[k]
-               freecap[indc[k]] -= requests[i]
-               z += costs[indc[k], i]
-               fAssigned = True
-               break
-      if not fAssigned:
-         print(">>>>>>>>>>>>>>>>>>>>>>>> ASSIGNMENT ERROR <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-
-   if isFeasible:
-      print(f"Feasible solution, cost {z}")
-      z = LS.opt10(costs,cap,requests,soliter)
-      z = LS.opt11(costs,cap,requests,soliter)
-   return isFeasible, soliter, z
-
-def subgradient(requests,costs,cap,b,alpha=0.1,niter=3,maxuseless=100):
+def subgradientRelaxCap(requests, costs, cap, b, alpha=0.1, niter=3, maxuseless=100, minalpha = 0.01):
    zub = np.infty
+   tstart = time.time()
    flog = open("log.csv", "w")
    nuseless  = 0  # number of non improving iterations
    alphainit = alpha
@@ -215,7 +217,7 @@ def subgradient(requests,costs,cap,b,alpha=0.1,niter=3,maxuseless=100):
    zlb  = 0
    while(iter < niter):
       print(f"SUBGR ===================== iter {iter}")
-      (zliter,sol) = subProblem(requests,costs,cap,b,vlambda)
+      (zliter,sol) = subProblemRelaxCap(requests, costs, cap, b, vlambda)
       (isFeas, subgrad) = checkFeas(sol,cap, costs)
       isFeasible, soliter, zubiter = computeFOval(sol, costs, requests, cap)
       #fout.write(f"{np.array2string(soliter, max_line_width=10000, separator=',')}\n")
@@ -228,7 +230,8 @@ def subgradient(requests,costs,cap,b,alpha=0.1,niter=3,maxuseless=100):
          if zubiter < zub:  # update ub
             zub = zubiter   # SHOULD SAVE THE BEST UB SOLUTION HERE
             nuseless = 0
-            print(f" ---- NEW ZUB: {zub}")
+            tnow = time.time()
+            print(f" ---- NEW ZUB: {zub} time {tnow - tstart}")
          isOpt = True
          for i in np.arange(len(subgrad)):
             if(vlambda[i]!=0 and subgrad[i]!=0):
@@ -243,15 +246,16 @@ def subgradient(requests,costs,cap,b,alpha=0.1,niter=3,maxuseless=100):
       for i in np.arange(nser):
          vlambda[i] += step * subgrad[i]
          if(vlambda[i]<=0): vlambda[i]=0
-      print(f"subgr, iter {iter} zlb= {zlb} zliter={zliter} zubiter={zubiter} zub={zub} step = {step}")
+      tnow = time.time()
+      print(f"subgr, iter {iter} zlb= {zlb} zliter={zliter} zubiter={zubiter} zub={zub} step = {step} time {tnow - tstart}")
       #print(f"Lambda {vlambda}")
       #print(f"Subgr  {subgrad}")
       flog.write(f"{iter},{zlb},{zliter},{zubiter},{zub}\n")
       iter += 1
       if(iter%100 == 0):
          alpha = 0.8*alpha
-         if alpha < 0.01:
-            alpha = 0.01
+         if alpha < minalpha:
+            alpha = minalpha
       if nuseless > maxuseless:
          nuseless = 0
          alpha = alphainit
@@ -260,9 +264,38 @@ def subgradient(requests,costs,cap,b,alpha=0.1,niter=3,maxuseless=100):
    flog.close()
    return (zlb,sol)
 
+def subProblemRelaxCap(requests, costs, cap, b, vlambda):
+   print(f"Subpr. objective: {cost} qcost {qcost} add2 {add2}")
+   print(f"LR sol: {sol}")
+   return (cost,sol)
+
+def subgradientRelaxAss(requests, costs, cap, b, alpha=0.1, niter=3, maxuseless=100, minalpha = 0.01):
+   zub = np.infty
+   tstart = time.time()
+   flog = open("log.csv", "w")
+   nuseless  = 0  # number of non improving iterations
+   alphainit = alpha
+   vlambda   = np.zeros(nser)
+   iter = 0
+   zlb  = 0
+   while(iter < niter):
+      print(f"SUBGR ===================== iter {iter}")
+      (zliter,sol) = subProblemRelaxAss(requests, costs, cap, b, vlambda)
+      (isFeas, subgrad) = checkFeas(sol,cap, costs)
+
+   flog.close()
+   return (zlb,sol)
+
 if __name__ == "__main__":
    global zub
    zub = np.infty
+   with open('config.json') as jconf:
+      conf = json.load(jconf)
+   print(conf)
+   niter = conf['niter']
+   alpha = conf['alpha']
+   minalpha   = conf['minalpha']
+   maxuseless = conf['maxuseless']
 
    dfcosts = pd.read_csv("costs.csv")
    dfreq   = pd.read_csv("requests.csv")
@@ -276,19 +309,16 @@ if __name__ == "__main__":
 
    fOptimal = True
    if fOptimal:
-      (cost,sol) =  makeModel(dfreq.iloc[0,0:ncli].values,
+      (cost,sol) =  makeMIPmodel(dfreq.iloc[0, 0:ncli].values,
                               dfcosts.iloc[0:nser,0:ncli].values,
                               dfreq.iloc[0:nser,ncli].values,
-                              b)
+                                 b)
       print(f"IP model, cost {cost}")
 
-   niter = 1000
-   alpha = 4
-   maxuseless = 100
-   (zLR,sol) =  subgradient(dfreq.iloc[0,0:ncli].values,
+   (zLR,sol) =  subgradientRelaxCap(dfreq.iloc[0, 0:ncli].values,
                            dfcosts.iloc[0:nser,0:ncli].values,
                            dfreq.iloc[0:nser,ncli].values,
-                           b,alpha=alpha, niter = niter, maxuseless=maxuseless)
+                                    b, alpha=alpha, niter = niter, maxuseless=maxuseless, minalpha=minalpha)
    print(f"lagrangian model, cost {zLR}")
 
    tend = time.process_time()

@@ -53,7 +53,6 @@ def isLinear():
           print(f"Series {i}: p={p_value} No significant lack of fit (linear model is ok).")
 
 def go_analysis():
-   # file to analize
    with open('config.json') as jconf:
       conf = json.load(jconf)
    print(conf)
