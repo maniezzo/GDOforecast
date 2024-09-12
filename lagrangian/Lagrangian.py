@@ -1,7 +1,7 @@
 import numpy as np, pandas as pd, time
 import pulp
 import LocSearch as LS
-import json, time
+import json, time, random
 
 def makeMIPmodel(requests, costs, cap, b):
    ncol = 2*ncli*nser
@@ -264,7 +264,7 @@ def subgradientRelaxCap(requests, costs, cap, b, alpha=0.1, niter=3, maxuseless=
    flog.close()
    return (zlb,sol)
 
-def subProblemRelaxCap(requests, costs, cap, b, vlambda):
+def subProblemRelaxAss(requests, costs, cap, b, vlambda):
    print(f"Subpr. objective: {cost} qcost {qcost} add2 {add2}")
    print(f"LR sol: {sol}")
    return (cost,sol)
@@ -296,6 +296,7 @@ if __name__ == "__main__":
    alpha = conf['alpha']
    minalpha   = conf['minalpha']
    maxuseless = conf['maxuseless']
+   numdouble  = conf["numdouble"]
 
    dfcosts = pd.read_csv("costs.csv")
    dfreq   = pd.read_csv("requests.csv")
@@ -305,20 +306,24 @@ if __name__ == "__main__":
    ncli = dfcosts.shape[1]
    nser = dfcosts.shape[0]
    b = np.ones(ncli)
-   b[1] = 1
+   # generate numdouble double assignment requests
+   for i in range(numdouble):
+      while True:
+         id = random.randint(0,ncli)
+         if b[id] == 1: break
+      b[id] = 2
 
    fOptimal = True
    if fOptimal:
       (cost,sol) =  makeMIPmodel(dfreq.iloc[0, 0:ncli].values,
                               dfcosts.iloc[0:nser,0:ncli].values,
-                              dfreq.iloc[0:nser,ncli].values,
-                                 b)
+                              dfreq.iloc[0:nser,ncli].values,b)
       print(f"IP model, cost {cost}")
 
    (zLR,sol) =  subgradientRelaxCap(dfreq.iloc[0, 0:ncli].values,
                            dfcosts.iloc[0:nser,0:ncli].values,
-                           dfreq.iloc[0:nser,ncli].values,
-                                    b, alpha=alpha, niter = niter, maxuseless=maxuseless, minalpha=minalpha)
+                           dfreq.iloc[0:nser,ncli].values,b,
+                           alpha=alpha, niter = niter, maxuseless=maxuseless, minalpha=minalpha)
    print(f"lagrangian model, cost {zLR}")
 
    tend = time.process_time()

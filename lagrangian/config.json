@@ -2,5 +2,6 @@
    "niter" : 200, "itcomment": "subgradient iterations",
    "alpha" : 4,   "acomment": "initial decrease coefficient",
    "minalpha" : 0.01, "macomment": "minimum alpha value",
-   "maxuseless" : 20, "ucomment" : "no improving iter before restart"
+   "maxuseless" : 20, "ucomment" : "no improving iter before restart",
+   "numdouble"  :  3, "dcomment" : "num of stores assigned to 2 DCs"
 }
