@@ -3,5 +3,6 @@
    "alpha" : 4,   "acomment": "initial decrease coefficient",
    "minalpha" : 0.01, "macomment": "minimum alpha value",
    "maxuseless" : 20, "ucomment" : "no improving iter before restart",
-   "numdouble"  :  3, "dcomment" : "num of stores assigned to 2 DCs"
+   "numdouble"  :  3, "dcomment" : "num of stores assigned to 2 DCs",
+   "fCapAss"    :  1, "scomment" : "0 relax capacities, 1 relax assignments"
 }
