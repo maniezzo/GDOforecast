@@ -99,8 +99,10 @@ def checkFeas(sol,cap,req,costs):
       if sum != b[i]:
          isFeas = False
    # linking constraints
+   subgradLink = np.zeros(nser*ncli)
    for i in np.arange(nser):
       for j in np.arange(ncli):
+         subgradLink[i*ncli + j] = sol[nx + i * ncli + j] - req[j]*sol[i*ncli + j]
          if(sol[nx + i*ncli + j] > req[j]*sol[i*ncli + j]):
             isFeas = False
    # check cost
@@ -113,7 +115,7 @@ def checkFeas(sol,cap,req,costs):
          z += sol[i]*costs[ii,jj]
       #print(f"Checked cost: {z}")
 
-   return (isFeas, subgradCap)
+   return (isFeas, subgradCap, subgradLink, z)
 
 def computeFOval(sol, costs, requests, cap):
    z = 0
@@ -126,22 +128,24 @@ def computeFOval(sol, costs, requests, cap):
       fAssigned = False
       i = indreq[ii]
       server = int(0*sol[i]+1*sol[ncli+i]+2*sol[2*ncli+i]+3*sol[3*ncli+i])
-      if(freecap[server] >= requests[i]):
+      if(server > nser and freecap[server] >= requests[i]):
          soliter[i] = server
          freecap[server] -= requests[i]
          z += costs[server,i]
          fAssigned = True
-      else:
-         isFeasible = False
-         srvCosts = costs[:,i]
-         indc = np.argsort(srvCosts)
-         for k in np.random.permutation(len(indc)):
-            if (freecap[indc[k]] >= requests[i]):
-               soliter[i] = indc[k]
-               freecap[indc[k]] -= requests[i]
-               z += costs[indc[k], i]
-               fAssigned = True
-               break
+         break
+
+      # trying to patch things up
+      isFeasible = False
+      srvCosts = costs[:,i]
+      indc = np.argsort(srvCosts)
+      for k in np.random.permutation(len(indc)):
+         if (freecap[indc[k]] >= requests[i]):
+            soliter[i] = indc[k]
+            freecap[indc[k]] -= requests[i]
+            z += costs[indc[k], i]
+            fAssigned = True
+            break
       if not fAssigned:
          print(">>>>>>>>>>>>>>>>>>>>>>>> ASSIGNMENT ERROR <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 
@@ -239,7 +243,7 @@ def subgradientRelaxCap(requests, costs, cap, b, alpha=0.1, niter=3, maxuseless=
    while(iter < niter):
       print(f"SUBGR ===================== iter {iter}")
       (zliter,sol) = subProblemRelaxCap(requests, costs, cap, b, vlambda)
-      (isFeas, subgrad) = checkFeas(sol,cap, costs)
+      (isFeas, subgrad, _ , z) = checkFeas(sol,cap,requests,costs)
       isFeasible, soliter, zubiter = computeFOval(sol, costs, requests, cap)
       #fout.write(f"{np.array2string(soliter, max_line_width=10000, separator=',')}\n")
       if isFeasible != isFeas: print(">>>>>>>>>>>>>>>>> FEASIBILITY MISMATCH <<<<<<<<<<<<<<<<<<<")
@@ -333,7 +337,7 @@ def subProblemRelaxAss(req, costs, cap, b, lmbda):
       nrows += 1
 
    # save the model in a lp file
-   probl.writeLP("subr2.lp")
+   #probl.writeLP("subr2.lp")
 
    # solve the model
    probl.solve(pulp.PULP_CBC_CMD(msg=0))
@@ -360,13 +364,19 @@ def subgradientRelaxAss(requests, costs, cap, b, alpha=0.1, niter=3, maxuseless=
    nuseless  = 0  # number of non improving iterations
    alphainit = alpha
    lmbda   = np.zeros(ncli*nser).reshape(nser,ncli)
+   for i in range(nser):
+      for j in range(ncli):
+         r = np.random.random()
+         if(r>0.1): lmbda[i,j] = 1
    iter = 0
    zlb  = 0
    while(iter < niter):
       print(f"SUBGR ===================== iter {iter}")
+      zubiter = np.infty
       (zliter,sol) = subProblemRelaxAss(requests, costs, cap, b, lmbda)
-      (isFeas, subgrad) = checkFeas(sol,cap,requests,costs)
-      isFeasible, soliter, zubiter = computeFOval(sol, costs, requests, cap)
+      (isFeas, _, subgrad, z) = checkFeas(sol,cap,requests,costs)
+      if(isFeas):
+         isFeasible, soliter, zubiter = computeFOval(sol, costs, requests, cap)
 
       # update of lb,ub
       nuseless += 1
@@ -391,16 +401,31 @@ def subgradientRelaxAss(requests, costs, cap, b, alpha=0.1, niter=3, maxuseless=
 
       # penalty update
       sub2 = 0           # not provably optimal
-      for i in np.arange(nser): sub2 += subgrad[i]*subgrad[i]
-      zz = zlb*2
+      for i in range(len(subgrad)): sub2 += subgrad[i]*subgrad[i]
+      zz = zlb*1.5 #2
       step = alpha*(min(zub,zz) - zlb)/sub2
       for i in np.arange(nser):
-         vlambda[i] += step * subgrad[i]
-         if(vlambda[i]<=0): vlambda[i]=0
+         for j in np.arange(ncli):
+            lmbda[i,j] += step * subgrad[i*ncli + j]
+            if(lmbda[i,j]<=0): lmbda[i,j]=0
       tnow = time.time()
       print(f"subgr, iter {iter} zlb= {zlb} zliter={zliter} zubiter={zubiter} zub={zub} step = {step} time {tnow - tstart}")
       #print(f"Lambda {vlambda}")
       #print(f"Subgr  {subgrad}")
+      flog.write(f"{iter},{zlb},{zliter},{zubiter},{zub}\n")
+      iter += 1
+      if(iter%100 == 0):
+         alpha = 0.8*alpha
+         if alpha < minalpha:
+            alpha = minalpha
+      if nuseless > maxuseless:
+         nuseless = 0
+         alpha = alphainit
+         lmbda = np.zeros(ncli * nser).reshape(nser, ncli)
+         for i in range(nser):
+            for j in range(ncli):
+               r = np.random.random()
+               if (r > 0.1): lmbda[i, j] = 1
 
    flog.close()
    return (zlb,sol)
