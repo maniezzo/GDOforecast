@@ -4,6 +4,11 @@ import LocSearch as LS
 import json, time, random
 
 def makeMIPmodel(requests, costs, cap, b):
+   solver_list = pulp.listSolvers(onlyAvailable=True)
+   print(solver_list)
+   if "CPLEX_CMD" in solver_list:
+         solver = pulp.getSolver('CPLEX_CMD')
+   else: solver = pulp.getSolver('PULP_CBC_CMD')
    ncol = 2*ncli*nser
    nx   = ncli*nser
    categ ='Binary'  # 'Continuous'
@@ -53,7 +58,7 @@ def makeMIPmodel(requests, costs, cap, b):
    # print(probl)
 
    # solve the model
-   probl.solve()
+   probl.solve(solver=solver)
    print("Status:", pulp.LpStatus[probl.status])
    cost = pulp.value(probl.objective)
    print("Objective: ", cost)
@@ -323,7 +328,7 @@ def subProblemRelaxAss(req, costs, cap, b, lmbda):
    nrows = 0
    # amount constraint Sum xij leq bj
    for j in np.arange(ncli):
-      probl += sum(X[i*ncli+j] for i in np.arange(0,nser)) <= b[j], f"b{nrows}"
+      probl += sum(X[i*ncli+j] for i in np.arange(0,nser)) == b[j], f"b{nrows}"
       nrows += 1
 
    # client request constraints Sum qij = reqj
@@ -364,10 +369,6 @@ def subgradientRelaxAss(requests, costs, cap, b, alpha=0.1, niter=3, maxuseless=
    nuseless  = 0  # number of non improving iterations
    alphainit = alpha
    lmbda   = np.zeros(ncli*nser).reshape(nser,ncli)
-   for i in range(nser):
-      for j in range(ncli):
-         r = np.random.random()
-         if(r>0.1): lmbda[i,j] = 1
    iter = 0
    zlb  = 0
    while(iter < niter):
@@ -410,7 +411,7 @@ def subgradientRelaxAss(requests, costs, cap, b, alpha=0.1, niter=3, maxuseless=
             if(lmbda[i,j]<=0): lmbda[i,j]=0
       tnow = time.time()
       print(f"subgr, iter {iter} zlb= {zlb} zliter={zliter} zubiter={zubiter} zub={zub} step = {step} time {tnow - tstart}")
-      #print(f"Lambda {vlambda}")
+      #print(f"Lambda {lmbda}")
       #print(f"Subgr  {subgrad}")
       flog.write(f"{iter},{zlb},{zliter},{zubiter},{zub}\n")
       iter += 1

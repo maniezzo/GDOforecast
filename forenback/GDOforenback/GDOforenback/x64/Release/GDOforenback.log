@@ -1,0 +1,7 @@
+﻿  GDOforenback.cpp
+  json.cpp
+  Generating code
+  Previous IPDB not found, fall back to full compilation.
+  All 998 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+  GDOforenback.vcxproj -> C:\git\GDOforecast\forenback\GDOforenback\x64\Release\GDOforenback.exe
