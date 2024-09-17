@@ -5,6 +5,7 @@
 #include <sstream>   // stringstream
 #include <iomanip>
 #include <limits>
+#include <climits>
 #include <cmath>
 #include <string>
 #include <vector>
