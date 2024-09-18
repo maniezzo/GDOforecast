@@ -67,11 +67,11 @@ int expandNode(ofstream& flog, int iter, vector<vector<int>> c, int j, int jlev,
       goto end;
    }
 
-   //if (!isForward && j < 0)           // reached complete solutions (no dad)
-   //{  if (stack[currNode].z < zub)
-   //      z = readSolutionB(flog, currNode, indCost);
-   //   goto end;
-   //}
+   if (!isForward && j < 0)           // reached complete solutions (no dad)
+   {  if (stack[currNode].z < zub)
+         z = readSolutionB(flog, currNode, indCost);
+      goto end;
+   }
 
    // cost of expansions
    for (i = 0; i < m; i++)
@@ -99,13 +99,13 @@ int expandNode(ofstream& flog, int iter, vector<vector<int>> c, int j, int jlev,
          indLastNode++;
          if (isForward)
          {  insertInOrder(fList[jlev+1], indLastNode);   // inserts the index of the node in the level list
-            //checkMatch(flog, iter, jlev + 1, indLastNode, isForward, indCost);       // check for feasible completion
+            checkMatch(flog, iter, jlev + 1, indLastNode, isForward, indCost);       // check for feasible completion
             if(isVerbose)   
                flog << "lev." << jlev+1 << " fromnode " << currNode << " tonode " << indLastNode << " cost " << newNode.z << endl;
          }
          else
          {  insertInOrder(bList[jlev-1], indLastNode);   // inserts the index of the node in the level list
-            //checkMatch(flog, iter, jlev - 1, indLastNode, isForward, indCost);       // check for feasible completion
+            checkMatch(flog, iter, jlev - 1, indLastNode, isForward, indCost);       // check for feasible completion
             if(isVerbose)
                flog << "lev." << jlev-1 << " fromnode " << currNode << " tonode " << indLastNode << " cost " << newNode.z << endl;
          }
@@ -153,6 +153,71 @@ int readSolutionF(ofstream& flog, int currNode, vector<int> indCost)
    }
 
    return res;
+}
+
+// reads the solutions from a last node of the backward tree
+int readSolutionB(ofstream& flog, int currNode, vector<int> indCost)
+{  int res = 0, j, jlev, solNode;
+
+   if (stack[currNode].z < zub)
+   {  zub = stack[currNode].z;
+      // reconstruction of the solution
+      solNode = currNode;
+      jlev = 0;
+      while (jlev < n)
+      {  j = indCost[jlev];
+         sol[j] = solbest[j] = stack[solNode].server;
+         //cout << "node " << solNode << " j " << j << " i " << sol[j] << " c " << GAP->c[sol[j]][j] << " z " << stack[solNode].z << endl;
+         solNode = stack[solNode].dad;
+         jlev++;
+      }
+      cout << "New zub: " << zub << endl;
+      flog << "BNew zub: " << zub << " "; fprintIntArray(flog, solbest, n);
+   }
+
+   return res;
+}
+
+// reads a solution as a mix of forw and a backw partials, jLevF last level of forward tree
+int readSolutionFB(ofstream& flog, int jLevF, int fNode, int bNode, vector<int> indCost)
+{  int res = 0, z = 0, j, jlev, solNode;
+   int zsol;
+
+   zsol = stack[fNode].z + stack[bNode].z;
+
+   // reconstruction of the forward part of the solution
+   solNode = fNode;
+   jlev = jLevF;
+   while (jlev > -1 && stack[solNode].server >= 0)
+   {  j = indCost[jlev];
+      sol[j] = stack[solNode].server;
+      z += c[sol[j]][j];
+      if(isVerbose) cout << "node " << solNode << " lev " << jlev << " j " << j << " i " << sol[j] << " c " << c[sol[j]][j] << " z " << stack[solNode].z << " ztot " << z << endl;
+      solNode = stack[solNode].dad;
+      jlev--;
+   }
+
+   // reconstruction of the backward part of the solution
+   solNode = bNode;
+   jlev = jLevF + 1;
+   while (jlev < n && stack[solNode].server >= 0)
+   {  j = indCost[jlev];
+      sol[j] = stack[solNode].server;
+      z += c[sol[j]][j];
+      if(isVerbose) cout << "node " << solNode << " lev " << jlev << " j " << j << " i " << sol[j] << " c " << c[sol[j]][j] << " z " << stack[solNode].z << " ztot " << z << endl;
+      solNode = stack[solNode].dad;
+      jlev++;
+   }
+
+   flog << "zsol " << zsol << " "; fprintIntArray(flog, sol, n);
+
+   if (z < zub)
+   {  zub = z;
+      cout << "New zub: " << zub << endl;
+      for (j = 0; j < n; j++) solbest[j] = sol[j];
+   }
+
+   return z;
 }
 
 // insert in list (for- or back-ward). level: level where to insert; elem: element to insert (key: node cost)
@@ -231,6 +296,53 @@ int sweepForward(ofstream& flog, int iter, vector<vector<int>> c, int delta, int
    }
 end:
    return openNodes;
+}
+
+// check for matching partial solutions, jlev level of indLastNode
+int checkMatch(ofstream& flog, int iter, int jlev, int indLastNode, bool isForward, vector<int> indCost)
+{  int i, z = -1, res = 0;
+   list<int>* lstCompletions;
+   std::list<int>::const_iterator iterator;
+
+   if (jlev == n - 1 || jlev == 0) goto end;
+
+   if (isForward)
+      lstCompletions = &bTree[jlev + 1];
+   else
+      lstCompletions = &fTree[jlev - 1];
+
+   // Iterate and print values of the completion list
+   for (iterator = (*lstCompletions).begin(); iterator != (*lstCompletions).end(); ++iterator)
+   {  if (stack[*iterator].server < 0)
+         continue;
+      for (i = 0; i < m; i++)
+         if (stack[indLastNode].capused[i] + stack[*iterator].capused[i] >cap[i])
+            goto next;
+      z = stack[indLastNode].z + stack[*iterator].z;
+      if (isVerbose)
+      {  cout << "MATCHING FEASIBLE! cost " << z << endl;
+         flog << (isForward ? "forw" : "backw") << " iter " << iter << " level " << jlev << " node_compl " << *iterator;
+         flog << " cost " << z << " zub " << zub << " ";
+      }
+
+      //if(z < zub)
+      {  int jLevF = (isForward ? jlev : jlev - 1);
+         int fNode = (isForward ? indLastNode : *iterator);
+         int bNode = (isForward ? *iterator : indLastNode);
+
+         z = readSolutionFB(flog, jLevF, fNode, bNode, indCost); // with fprintarray
+         if (isVerbose)
+         {  cout << "f node " << indLastNode << " z_f " << stack[indLastNode].z <<
+               " b node " << *iterator << " z_b " << stack[*iterator].z << " zub " << zub << endl;
+            flog << "f_node " << indLastNode << " z_f " << stack[indLastNode].z <<
+               " b_node " << *iterator << " z_b " << stack[*iterator].z << endl;
+         }
+      }
+   next:;
+   }
+
+end:
+   return z;
 }
 
 int goFnB()
@@ -352,8 +464,8 @@ lend:
 int main()
 {
    isVerbose = false;
-   maxNodes  = 10000000;
-   maxIter   = 1000;
+   maxNodes  = 1000000;
+   maxIter   = 100; 
    delta     = 5;    // num offspring
    read_data();
    goFnB();
