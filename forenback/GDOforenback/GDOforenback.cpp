@@ -525,7 +525,7 @@ lend:
 int main()
 {
    isVerbose = false;
-   maxNodes  = 1000000;
+   maxNodes  = 10000000;
    maxIter   = 100; 
    delta     = 5;    // num offspring
    read_data();
