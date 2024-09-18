@@ -8,11 +8,9 @@ void fprintIntArray(ofstream& flog, vector<int> a, int n)
    flog << endl;
 }
 
-int read_data()
+int read_data(string infile)
 {  int i,j;
-   string infile, line;
-
-   infile = "milanoGAP_1.json";
+   string line;
 
    try
    {
@@ -33,18 +31,20 @@ int read_data()
    string name = JSV["name"];
    n = JSV["numcli"];
    m = JSV["numserv"];
+
    for (i = 0; i < JSV["cap"].size(); i++)
       cap.push_back(JSV["cap"][i]);
+
+   for (j = 0; j < n; j++)
+      req.push_back(JSV["req"][j]);
+
+   for (j = 0; j < n; j++)
+      b.push_back(JSV["split"][j]);
 
    c = vector<vector<int>>(m, vector<int> (n,0));
    for (i = 0; i < m; i++)
       for (j = 0; j < n; j++)
          c[i][j] = JSV["cost"][i][j];
-
-   req = vector<vector<int>>(m, vector<int>(n, 0));
-   for (i = 0; i < m; i++)
-      for (j = 0; j < n; j++)
-         req[i][j] = JSV["req"][i][j];
 
    zub = INT32_MAX;
    sol     = vector<int>(n, -1);
@@ -84,16 +84,17 @@ int expandNode(ofstream& flog, int iter, vector<vector<int>> c, int j, int jlev,
    while (ii < m)
    {  i = indReq[ii];
 
-      if ((stack[currNode].capused[i] + req[i][j]) <= cap[i] &&
+      if ((stack[currNode].capused[i] + req[j]) <= cap[i] &&
          (stack[currNode].z + c[i][j]) < zub)
       {
          node newNode;
          for (int ii = 0; ii < m; ii++) newNode.capused.push_back(stack[currNode].capused[ii]);
-         newNode.capused[i] = stack[currNode].capused[i] + req[i][j];
+         newNode.capused[i] = stack[currNode].capused[i] + req[j];
          newNode.dad = currNode;
          newNode.client = j;
          newNode.server = i;
          newNode.z = stack[currNode].z + c[i][j];
+         newNode.expanded = false;
          stack.push_back(newNode);
          indLastNode++;
          if (isForward)
@@ -112,6 +113,7 @@ int expandNode(ofstream& flog, int iter, vector<vector<int>> c, int j, int jlev,
       }
       ii++;
    }
+   stack[currNode].expanded = true;
 end:
    return numNewNodes;  // new nodes opened at the level 
 }
@@ -405,6 +407,58 @@ end:
    return z;
 }
 
+// computes the lower bound at the iteration
+int computeLB()
+{  int i,j,k,z,zb,zlbiter=0;
+   list<int>::iterator it;
+
+   // forward pass
+   for (j=0; j<n-1; j++)
+   {  // at each level, sum of the cost of the most expensive expanded and least expensive unexpanded backward
+      z = 0;
+      it = fTree[j].begin();  // initialize the iterator for the list
+      for(k=0;k<fTree[j].size();k++)
+      {  i = *it;             // get the k-th element of the lsit
+         if(stack[i].expanded && stack[i].z > z)
+            z = stack[i].z;
+         advance(it,1);       // move the iterator one position
+      }
+      zb = INT_MAX;
+      it = bTree[j+1].begin();  // initialize the iterator for the list
+      for(k=0;k<bTree[j+1].size();k++)
+      {  i = *it;             // get the k-th element of the lsit
+         if (!stack[i].expanded && stack[i].z < zb)
+            zb = stack[i].z;
+         advance(it, 1);       // move the iterator one position
+      }
+      if(zb<INT_MAX) z += zb; // lower bound forward at this level
+
+      if(z>zlbiter) zlbiter = z;
+   }
+
+   // backwardpass
+   for (j=n-1; j>0; j--)
+   {  // at each level, sum of the cost of the most expensive expanded and least expensive unexpanded forward
+      z = 0;
+      //for (k = 0; k < bTree[j].size(); k++)
+      //{  i = bTree[j][k];
+      //   if (stack[i].expanded && stack[i].z > z)
+      //      z = stack[i].z;
+      //}
+      //for (k = 0; k < fTree[j-1].size(); k++)
+      //{  i = fTree[j-1][k];
+      //   zb = INT_MAX;
+      //   if (!stack[i].expanded && stack[i].z < zb)
+      //      zb = stack[i].z;
+      //}
+      if (zb < INT_MAX) z += zb; // lower bound backward at this level
+
+      if (z > zlbiter) zlbiter = z;
+   }
+
+   return zlbiter;
+}
+
 int goFnB()
 {  int i,j;
    int zub0, openNodesF,openNodesB,nNoImproved;
@@ -474,6 +528,8 @@ int goFnB()
       openNodesF = sweepForward(flog, iter, c, delta, maxNodes, openNodesF, indCost);
       cout << " <---------- BACKWARD ------------ " << endl;
       openNodesB = sweepBackward(flog, iter, c, delta, maxNodes, openNodesB, indCost);
+
+      computeLB();
       iter++;
       if (zub < zub0) nNoImproved = 0; // zub improved in current iteration
    }
@@ -493,26 +549,32 @@ int goFnB()
    return 0;
 }
 
-
 // controllo ammissibilità soluzione
 int checkSol(vector<int> sol)
 {  int cost = 0;
    int i, j;
    vector<int> capused(m);
-   for (i = 0; i < m; i++) capused[i] = 0;
+   vector<int> bsol(n);
+   for (i=0; i<m; i++) capused[i] = 0;
+   for (j=0; j<n; j++) bsol[j] = 0;
 
    // controllo assegnamenti
    for (j = 0; j < n; j++)
-      if (sol[j] < 0 || sol[j] >= m)
+      for(i=0;i<m;i++)
+         if (sol[j] == i)
+         {  bsol[i]++;
+            cost += c[sol[j]][j];
+         }
+
+   for (j = 0; j < n; j++)
+      if(bsol[j]!=b[j])
       {  cost = INT_MAX;
          goto lend;
       }
-      else
-         cost += c[sol[j]][j];
 
    // controllo capacità
    for (j = 0; j < n; j++)
-   {  capused[sol[j]] += req[sol[j]][j];
+   {  capused[sol[j]] += req[j];
       if (capused[sol[j]] > cap[sol[j]])
       {  cost = INT_MAX;
          goto lend;
@@ -524,12 +586,13 @@ lend:
 
 int main()
 {
+   string inFile = "GDO_52_0.json";
    isVerbose = false;
    maxNodes  = 10000000;
    maxIter   = 100; 
    delta     = 5;    // num offspring
-   read_data();
+   read_data(inFile);
    goFnB();
 
-   cout << "<ENTER> to exit ..." << endl;
+   cout << "<ENTER> to exit ..." << endl;  cin.get();
 }

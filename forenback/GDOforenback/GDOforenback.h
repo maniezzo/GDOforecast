@@ -21,10 +21,9 @@ using namespace std;
 
 int m,n,zub,maxNodes,maxIter,delta;
 bool isVerbose;
-vector<int> cap, capleft;
-vector<int> sol,solbest;
+vector<int> b, cap, req;
+vector<int> sol, solbest, capleft;
 vector<vector<int>> c;
-vector<vector<int>> req;
 
 // the state of each partial solution
 struct node
@@ -33,6 +32,7 @@ struct node
    int client; // the assigned client
    int server; // who the client is assigned to
    int dad;    // which sol was expanded into this
+   bool expanded;        // node already expanded
    vector<int> capused;  // array of used capacities
 };
 
@@ -57,3 +57,4 @@ int sweepBackward(ofstream& flog, int iter, vector<vector<int>> c, int delta, in
 int findNextNodeF(int jlev, int newNodes, int openNodes);
 int findNextNodeB(int jlev, int newNodes, int openNodes);
 int checkMatch(ofstream& flog, int iter, int jlev, int indLastNode, bool isForward, vector<int> indCost);
+int computeLB();
