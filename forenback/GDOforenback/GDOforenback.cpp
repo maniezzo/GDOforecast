@@ -1,6 +1,5 @@
 #include "GDOforenback.h"
 
-
 // file print a 1D array of ints
 void fprintIntArray(ofstream& flog, vector<int> a, int n)
 {  int i;
@@ -402,9 +401,10 @@ int goFnB()
 
    // ---------------------------------------------- tree expansions, search
    while ((openNodesF + openNodesB) > 0 &&
-      indLastNode < maxNodes &&
-      iter < maxIter &&
-      nNoImproved < 2)
+      indLastNode < maxNodes
+      && iter < maxIter 
+//      && nNoImproved < 2
+      )
    {
       zub0 = zub;
       nNoImproved++; // iterations without zub improvement
@@ -418,7 +418,7 @@ int goFnB()
    }
    if (indLastNode >= maxNodes) cout << "maxNodes exceeded" << endl;
    if (iter >= maxIter) cout << "maxIter exceeded" << endl;
-   if (nNoImproved >= 2) cout << "no improvements for 2 iterations, no hope" << endl;
+//   if (nNoImproved >= 2) cout << "no improvements for 2 iterations, no hope" << endl;
 
    if (abs(checkSol(solbest) - zub) > 0)
    {  cout << "[forwardBackward]: Error, solution cost mismatch" << endl;
