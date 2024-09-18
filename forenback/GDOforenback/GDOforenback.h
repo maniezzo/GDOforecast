@@ -53,5 +53,7 @@ int insertInOrder(list<int>& lst, int elem);
 int read_data();
 int checkSol(vector<int> sol);
 int sweepForward(ofstream& flog, int iter, vector<vector<int>> c, int delta, int maxNodes, int openNodes, vector<int> indCost);
+int sweepBackward(ofstream& flog, int iter, vector<vector<int>> c, int delta, int maxNodes, int openNodes, vector<int> indCost);
 int findNextNodeF(int jlev, int newNodes, int openNodes);
+int findNextNodeB(int jlev, int newNodes, int openNodes);
 int checkMatch(ofstream& flog, int iter, int jlev, int indLastNode, bool isForward, vector<int> indCost);

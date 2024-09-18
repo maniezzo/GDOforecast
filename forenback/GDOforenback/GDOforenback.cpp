@@ -250,6 +250,24 @@ int findNextNodeF(int jlev, int newNodes, int openNodes)
    return jlev;
 }
 
+// finds the next node to expand backward
+int findNextNodeB(int jlev, int newNodes, int openNodes)
+{  int jmin;
+
+   if (newNodes > 0 || jlev == 0)    // if there were expansions, go on
+      jlev--;
+   else              // find the lowest level with unexpanded nodes
+   {  for (jmin = n - 1; jmin > 0; jmin--)
+         if (bList[jmin].size() > 0)
+            break;
+      if (jlev < n - 1)
+         jlev = -1;
+      else
+         jlev = jmin;
+   }
+   return jlev;
+}
+
 // one run of forward beam search
 int sweepForward(ofstream& flog, int iter, vector<vector<int>> c, int delta, int maxNodes, int openNodes, vector<int> indCost)
 {  int j, jlev, k;
@@ -291,6 +309,49 @@ int sweepForward(ofstream& flog, int iter, vector<vector<int>> c, int delta, int
       if (isVerbose)
       {  cout << "[sweepForward] iter " << iter << " Level " << jlev << " expanded " << k << " new nodes " << newNodes << " open nodes " << openNodes << " tot nodes " << indLastNode << " top cost " << fTopCost[jlev] << " zub " << zub << endl;
          flog << "[sweepForward] iter " << iter << " Level " << jlev << " expanded " << k << " new " << newNodes << " open " << openNodes << " tot " << indLastNode << " topcost " << fTopCost[jlev] << " fathomed " << numFathomed << endl;
+      }
+   }
+end:
+   return openNodes;
+}
+
+// one run of backward beam search
+int sweepBackward(ofstream& flog, int iter, vector<vector<int>> c, int delta, int maxNodes, int openNodes, vector<int> indCost)
+{  int j, jlev, k;
+   int currNode, newNodes = 0, numExp;
+
+   jlev = n - 1;
+   while (jlev >= 0)                                // main construction loop
+   {  jlev = findNextNodeB(jlev, newNodes, openNodes); // backjunmping!
+      if (jlev < 0)
+      {  break;
+         flog << "[sweepBackward] Level " << jlev << " expanded " << k << " new nodes " << newNodes << " open nodes " << openNodes << " tot nodes " << indLastNode << " top cost " << bTopCost[jlev] << endl;
+      }
+
+      newNodes = 0;
+      for (k = 0; k < delta && bList[jlev].size()>0; k++)
+      {  currNode = bList[jlev].front();               // gets the first element
+         if (jlev >= 0 && stack[currNode].z < zub)
+         {  j = (jlev == 0 ? -1 : indCost[jlev - 1]);    // client order by regrets
+            numExp = expandNode(flog, iter, c, j, jlev, currNode, indCost, false);
+            openNodes += numExp;
+            newNodes += numExp;
+         }
+         else
+            numFathomed++;
+         if (indLastNode > maxNodes) goto end;   // node limit reached
+         bTree[jlev].push_back(currNode);       // append to list of expanded nodes
+         bList[jlev].pop_front();               // remove from list of nodes to expand
+         openNodes--;
+         if (stack[currNode].z > bTopCost[jlev])
+            bTopCost[jlev] = stack[currNode].z; // update max cost of expanded node at the level
+         else
+            if (isVerbose)
+               if (stack[currNode].z < bTopCost[jlev]) cout << "[sweepBackward] inner cost insertion" << endl;
+      }
+      if (isVerbose)
+      {  cout << "[sweepBackward] iter " << iter << " Level " << jlev << " expanded " << k << " new nodes " << newNodes << " open nodes " << openNodes << " tot nodes " << indLastNode << " top cost " << bTopCost[jlev] << endl;
+         flog << "[sweepBackward] iter " << iter << " Level " << jlev << " expanded " << k << " new " << newNodes << " open " << openNodes << " tot " << indLastNode << " topcost " << bTopCost[jlev] << " numfathomed " << numFathomed << endl;
       }
    }
 end:
@@ -412,7 +473,7 @@ int goFnB()
       cout << " ---------- FORWARD -------------> " << endl;
       openNodesF = sweepForward(flog, iter, c, delta, maxNodes, openNodesF, indCost);
       cout << " <---------- BACKWARD ------------ " << endl;
-      //openNodesB = sweepBackward(flog, iter, c, delta, maxNodes, openNodesB, indCost);
+      openNodesB = sweepBackward(flog, iter, c, delta, maxNodes, openNodesB, indCost);
       iter++;
       if (zub < zub0) nNoImproved = 0; // zub improved in current iteration
    }
