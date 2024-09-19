@@ -134,23 +134,18 @@ int readSolutionF(ofstream& flog, int currNode, vector<int> indCost)
          j = indCost[jlev];
          if (j != stack[solNode].client)
             cout << "ouch!" << endl;
-         sol[j] = stack[solNode].server;
+         sol[j] = solbest[j] = stack[solNode].server;
          zsol += c[sol[j]][j];   // for checking
-         flog << "node " << solNode << " j " << j << " i " << sol[j] << " c " << c[sol[j]][j] << " z " << stack[solNode].z;
-         flog << " jlev " << jlev << " zsol " << zsol << endl;
          solNode = stack[solNode].dad;
          jlev--;
       }
-      fprintIntArray(flog, sol, n);
 
-      if (stack[currNode].z < zub)
-      {
-         zub = z;
-         cout << "New zub: " << zub << endl;
-         flog << "FNew zub: " << zub << endl;
-         for (j = 0; j < n; j++)
-            solbest[j] = sol[j];
-      }
+      zub = z;
+      cout << ">>> New zub: " << zub << endl;
+      flog << ">>> FNew zub: " << zub << endl;
+      flog << "node " << solNode << " j " << j << " i " << sol[j] << " c " << c[sol[j]][j] << " z " << stack[solNode].z;
+      flog << " jlev " << jlev << " zsol " << zsol << endl;
+      fprintIntArray(flog, sol, n);
    }
 
    return res;
@@ -172,8 +167,9 @@ int readSolutionB(ofstream& flog, int currNode, vector<int> indCost)
          solNode = stack[solNode].dad;
          jlev++;
       }
-      cout << "New zub: " << zub << endl;
-      flog << "BNew zub: " << zub << " "; fprintIntArray(flog, solbest, n);
+      cout << ">>> BNew zub: " << zub << endl;
+      flog << ">>> BNew zub: " << zub << " "; 
+      fprintIntArray(flog, solbest, n);
    }
 
    return res;
@@ -210,12 +206,11 @@ int readSolutionFB(ofstream& flog, int jLevF, int fNode, int bNode, vector<int> 
       jlev++;
    }
 
-   flog << "zsol " << zsol << " "; fprintIntArray(flog, sol, n);
-
    if (z < zub)
    {  zub = z;
       cout << "New zub: " << zub << endl;
       for (j = 0; j < n; j++) solbest[j] = sol[j];
+      flog << ">>> new FB zub. zsol " << zsol << " "; fprintIntArray(flog, sol, n);
    }
 
    return z;
@@ -272,14 +267,14 @@ int findNextNodeB(int jlev, int newNodes, int openNodes)
 
 // one run of forward beam search
 int sweepForward(ofstream& flog, int iter, vector<vector<int>> c, int delta, int maxNodes, int openNodes, vector<int> indCost)
-{  int j, jlev, k;
+{  int j, jlev, k, cont=0;
    int currNode, newNodes, numExp;
    int nNodes0 = numNodes;
 
    jlev = newNodes = currNode = 0;             // got to initialize them 
-   while (jlev < n)                            // main construction loop, could be while true
-   {
-      jlev = findNextNodeF(jlev, newNodes, openNodes);     // backjunmping!
+   while (jlev < n && cont < 10000)             // main construction loop
+   {  cont++;
+      jlev = findNextNodeF(jlev, newNodes, openNodes);     // possible backjunmping!
       if (jlev == n || (numNodes - nNodes0) > (maxNodes / 10))
          break;
 
@@ -322,9 +317,9 @@ int sweepBackward(ofstream& flog, int iter, vector<vector<int>> c, int delta, in
 {  int j, jlev, k;
    int currNode, newNodes = 0, numExp;
 
-   jlev = n - 1;
+   jlev = n-1;
    while (jlev >= 0)                                // main construction loop
-   {  jlev = findNextNodeB(jlev, newNodes, openNodes); // backjunmping!
+   {  jlev = findNextNodeB(jlev, newNodes, openNodes); // possible backjunmping!
       if (jlev < 0)
       {  break;
          flog << "[sweepBackward] Level " << jlev << " expanded " << k << " new nodes " << newNodes << " open nodes " << openNodes << " tot nodes " << numNodes << " top cost " << bTopCost[jlev] << endl;
@@ -341,9 +336,9 @@ int sweepBackward(ofstream& flog, int iter, vector<vector<int>> c, int delta, in
          }
          else
             numFathomed++;
-         if (numNodes > maxNodes) goto end;   // node limit reached
+         if (numNodes > maxNodes) goto end;     // node limit reached
          bTree[jlev].push_back(currNode);       // append to list of expanded nodes
-         bLstUnexp[jlev].pop_front();               // remove from list of nodes to expand
+         bLstUnexp[jlev].pop_front();           // remove from list of nodes to expand
          openNodes--;
          if (stack[currNode].z > bTopCost[jlev])
             bTopCost[jlev] = stack[currNode].z; // update max cost of expanded node at the level
@@ -409,7 +404,7 @@ end:
 
 // computes the lower bound at the iteration
 int computeLB()
-{  int i,j,k,z,zb,zlbiter=0;
+{  int i,j,k,z,zb,zlbiter=INT_MAX;
    list<int>::iterator it;
 
    // forward pass
@@ -428,7 +423,7 @@ int computeLB()
          if(zb<INT_MAX) z += zb; // lower bound forward at this level
       }
 
-      if(z>zlbiter) zlbiter = z;
+      if(z<zlbiter) zlbiter = z;
    }
 
    // backwardpass
@@ -447,7 +442,7 @@ int computeLB()
          if (zb < INT_MAX) z += zb; // lower bound forward at this level
       }
 
-      if (z > zlbiter) zlbiter = z;
+      if (z<zlbiter) zlbiter = z;
    }
 
    return zlbiter;
@@ -455,7 +450,7 @@ int computeLB()
 
 int goFnB()
 {  int i,j;
-   int zub0, openNodesF,openNodesB,nNoImproved;
+   int openNodesF,openNodesB,nNoImproved;
    int z,iter,zlbIter,currNode;
 
    // -------------------- log file
@@ -490,7 +485,7 @@ int goFnB()
    stack.push_back(rootF);
    stack.push_back(rootB);
    numNodes = 1;
-   zub = zub0 = INT_MAX;
+   zub = INT_MAX;
    zlb = 0;
    openNodesF = openNodesB = nNoImproved = 0;
 
@@ -516,7 +511,6 @@ int goFnB()
 //      && nNoImproved < 2
       )
    {
-      zub0 = zub;
       nNoImproved++; // iterations without zub improvement
       cout << " ---------- FORWARD -------------> " << endl;
       openNodesF = sweepForward(flog, iter, c, delta, maxNodes, openNodesF, indCost);
@@ -524,13 +518,10 @@ int goFnB()
       openNodesB = sweepBackward(flog, iter, c, delta, maxNodes, openNodesB, indCost);
 
       zlbIter = computeLB();
-      if (zub < zub0) 
-      {  nNoImproved = 0; // zub improved in current iteration
-         zub = zub0;
-      }
       if (zlbIter > zlb) 
       {  nNoImproved = 0; // zlb improved in current iteration
          zlb = zlbIter;
+         cout << "New zlb: " << zlb << endl;
       }
       cout << "Iter " << iter << " Num nodes: " << numNodes << " open forw." << openNodesF << " open backw." << openNodesB << " zlb " << zlb << " zub " << zub << endl;
       iter++;
@@ -551,7 +542,7 @@ int goFnB()
    return 0;
 }
 
-// controllo ammissibilità soluzione
+// controllo ammissibilitï¿½ soluzione
 int checkSol(vector<int> sol)
 {  int cost = 0;
    int i, j;
@@ -574,7 +565,7 @@ int checkSol(vector<int> sol)
          goto lend;
       }
 
-   // controllo capacità
+   // controllo capacitï¿½
    for (j = 0; j < n; j++)
    {  capused[sol[j]] += req[j];
       if (capused[sol[j]] > cap[sol[j]])
@@ -592,7 +583,7 @@ int main()
    isVerbose = false;
    maxNodes  = 10000000;
    maxIter   = 100; 
-   delta     = 5;    // num offspring
+   delta     = 3;    // num offspring
    read_data(inFile);
    goFnB();
 

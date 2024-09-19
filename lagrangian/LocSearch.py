@@ -1,4 +1,5 @@
 import numpy as np, pandas as pd
+import copy
 
 def checkSol(sol,cap,req,costs):
    isFeas = True
@@ -114,3 +115,55 @@ def opt11(c,cap,req,x):
    if(z<zorg):
       print(f"-- opt11 improved {zorg} -> {z} --")
    return z
+
+# recovers feasibility in case of partial or overassigned solution
+def fixSol(infeasSol, zsol, c, cap, req):
+   imin=-1
+   n = len(req)
+   m = len(cap)
+
+   capres = copy.deepcopy(cap)
+   sol    = copy.deepcopy(infeasSol)
+
+   # ricalcolo capacità residue. Se sovrassegnato, metto a sol a -1
+   for j in range(n):
+      if(sol[j]>=0 and (capres[sol[j]] >= req[sol[j]][j])):
+         capres[sol[j]] -= req[sol[j]][j]
+      else:
+         sol[j] = -1
+
+   zsol = 0
+   for j in range(n):
+      if(sol[j]>=0):              # correct, do nothing
+         zsol += c[sol[j]][j]
+         continue
+
+      # reassign i -1
+      minreq = INT_MAX
+      imin = -1
+      for(i=0;i<m;i++)
+         if(capres[i]>=req[i][j] && req[i][j] < minreq)
+         {  minreq = req[i][j]
+            imin    = i
+         }
+
+      if(imin<0)
+      {  *zsol = INT_MAX
+         goto lend           # could not recover feasibility
+      }
+      sol[j]=imin
+      capres[imin] -= req[imin][j]
+      *zsol += c[imin][j]
+   }
+
+   if(*zsol<zub)
+   {  for(i=0i<ni++) solbest[i]=sol[i]
+      zub = zub = *zsol
+      cout << "[fixSol] -------- zub improved! " << zub << endl
+   }
+   for(i=0;i<n;i++) infeasSol[i]=sol[i]
+
+lend:
+   return zsol
+
+
