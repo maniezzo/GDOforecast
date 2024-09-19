@@ -9,6 +9,9 @@
     {
       "AbsoluteMoniker": "D:0:0:{80F43762-2C91-43CE-B70B-B57B1529CDD6}|GDOforenback.vcxproj|C:\\git\\GDOforecast\\forenback\\GDOforenback\\GDOforenback.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{80F43762-2C91-43CE-B70B-B57B1529CDD6}|GDOforenback.vcxproj|solutionrelative:GDOforenback.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\VC\\Tools\\MSVC\\14.41.34120\\include\\list||{3B902123-F8A7-4915-9F01-361F908088D0}|"
     }
   ],
   "DocumentGroupContainers": [
@@ -18,8 +21,21 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 1,
           "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "list",
+              "DocumentMoniker": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\VC\\Tools\\MSVC\\14.41.34120\\include\\list",
+              "RelativeDocumentMoniker": "..\\..\\..\\..\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\VC\\Tools\\MSVC\\14.41.34120\\include\\list",
+              "ToolTip": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\VC\\Tools\\MSVC\\14.41.34120\\include\\list",
+              "RelativeToolTip": "..\\..\\..\\..\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\VC\\Tools\\MSVC\\14.41.34120\\include\\list",
+              "ViewState": "AgIAAKoEAAAAAAAAAAAewLgEAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2024-09-19T10:25:49.625Z",
+              "EditorCaption": ""
+            },
             {
               "$type": "Document",
               "DocumentIndex": 0,
@@ -28,7 +44,7 @@
               "RelativeDocumentMoniker": "GDOforenback.cpp",
               "ToolTip": "C:\\git\\GDOforecast\\forenback\\GDOforenback\\GDOforenback.cpp",
               "RelativeToolTip": "GDOforenback.cpp",
-              "ViewState": "AgIAAJsBAAAAAAAAAAAQwLMBAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAABUBAAAAAAAAAAAewCkBAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2024-09-17T13:21:33.949Z",
               "EditorCaption": ""
@@ -41,7 +57,7 @@
               "RelativeDocumentMoniker": "GDOforenback.h",
               "ToolTip": "C:\\git\\GDOforecast\\forenback\\GDOforenback\\GDOforenback.h",
               "RelativeToolTip": "GDOforenback.h",
-              "ViewState": "AgIAABYAAAAAAAAAAAAgwCEAAAAyAAAAAAAAAA==",
+              "ViewState": "AgIAAAQAAAAAAAAAAAAgwBUAAAAnAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
               "WhenOpened": "2024-09-17T13:45:09.074Z",
               "EditorCaption": ""

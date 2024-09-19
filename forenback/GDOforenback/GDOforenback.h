@@ -19,7 +19,7 @@
 
 using namespace std;
 
-int m,n,zub,maxNodes,maxIter,delta;
+int m,n,zlb,zub,maxNodes,maxIter,delta;
 bool isVerbose;
 vector<int> b, cap, req;
 vector<int> sol, solbest, capleft;
@@ -37,15 +37,15 @@ struct node
 };
 
 vector<node> stack;   // stack all nodes expanded during search
-vector<list<int>> fTree;   // forward tree, one list for each level / customer
-vector<list<int>> bTree;   // backward tree, one list for each level / customer
-vector<list<int>> fList;   // the list of still unexpanded nodes at each level of the forward tree
-vector<list<int>> bList;   // the list of still unexpanded nodes at each level of the backward tree
+vector<list<int>> fTree;   // forward tree, one list for each level / customer (pointers to stack)
+vector<list<int>> bTree;   // backward tree, one list for each level / customer (pointers to stack)
+vector<list<int>> fLstUnexp;   // the list of still unexpanded nodes at each level of the forward tree, increasing costs
+vector<list<int>> bLstUnexp;   // the list of still unexpanded nodes at each level of the backward tree, increasing costs
 vector<int> fTopCost; // max cost of expanded node at each level of the forward tree
 vector<int> bTopCost; // max cost of expanded node at each level of the backward tree
 
-int indLastNode;  // aka stack.size(). just it
-int numFathomed;  // num fahtomed nodes
+int numNodes;     // aka stack.size(). just it
+int numFathomed;  // num fathomed nodes
 int expandNode(ofstream& flog, int iter, vector<vector<int>> c, int j, int jlev, int currNode, vector<int> indCost, bool isForward);
 int readSolutionF(ofstream& flog, int currNode, vector<int> indCost);
 int readSolutionB(ofstream& flog, int currNode, vector<int> indCost);
