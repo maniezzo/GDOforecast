@@ -157,7 +157,7 @@ hyperbox/[Bb]in/
 hyperbox/[Oo]bj/
 hyperbox/[Ll]og/
 .vscode/
-x64/
+**/x64/
 [Dd]ebug/
 [Rr]elease/
 
