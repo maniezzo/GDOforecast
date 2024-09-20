@@ -1,5 +1,6 @@
 ﻿  GDOforenback.cpp
-C:\git\GDOforecast\forenback\GDOforenback\GDOforenback.cpp(407,12): warning C4101: 'k': unreferenced local variable
+C:\git\GDOforecast\GDOforecast\forenback\GDOforenback\GDOforenback.cpp(407,12): warning C4101: 'k': unreferenced local variable
   json.cpp
   Generating Code...
-  GDOforenback.vcxproj -> C:\git\GDOforecast\forenback\GDOforenback\x64\Debug\GDOforenback.exe
+  LINK : C:\git\GDOforecast\GDOforecast\forenback\GDOforenback\x64\Debug\GDOforenback.exe not found or not built by the last incremental link; performing full link
+  GDOforenback.vcxproj -> C:\git\GDOforecast\GDOforecast\forenback\GDOforenback\x64\Debug\GDOforenback.exe
