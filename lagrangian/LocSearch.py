@@ -117,53 +117,51 @@ def opt11(c,cap,req,x):
    return z
 
 # recovers feasibility in case of partial or overassigned solution
-def fixSol(infeasSol, zsol, c, cap, req):
+def fixSol(infeasSol, zsol, c, cap, req, zub, solbest):
    imin=-1
    n = len(req)
    m = len(cap)
 
    capres = copy.deepcopy(cap)
    sol    = copy.deepcopy(infeasSol)
-
-   # ricalcolo capacità residue. Se sovrassegnato, metto a sol a -1
-   for j in range(n):
-      if(sol[j]>=0 and (capres[sol[j]] >= req[sol[j]][j])):
-         capres[sol[j]] -= req[sol[j]][j]
-      else:
-         sol[j] = -1
-
    zsol = 0
-   for j in range(n):
-      if(sol[j]>=0):              # correct, do nothing
-         zsol += c[sol[j]][j]
-         continue
 
-      # reassign i -1
-      minreq = INT_MAX
-      imin = -1
-      for(i=0;i<m;i++)
-         if(capres[i]>=req[i][j] && req[i][j] < minreq)
-         {  minreq = req[i][j]
-            imin    = i
-         }
+   while(zsol <= 0):  # to mimik goto end
+      # ricalcolo capacità residue. Se sovrassegnato, metto a sol a -1
+      for j in range(n):
+         if(sol[j]>=0 and (capres[sol[j]] >= req[sol[j]][j])):
+            capres[sol[j]] -= req[sol[j]][j]
+         else:
+            sol[j] = -1
 
-      if(imin<0)
-      {  *zsol = INT_MAX
-         goto lend           # could not recover feasibility
-      }
-      sol[j]=imin
-      capres[imin] -= req[imin][j]
-      *zsol += c[imin][j]
-   }
+      for j in range(n):
+         if(sol[j]>=0):              # correct, do nothing
+            zsol += c[sol[j]][j]
+            continue
 
-   if(*zsol<zub)
-   {  for(i=0i<ni++) solbest[i]=sol[i]
-      zub = zub = *zsol
-      cout << "[fixSol] -------- zub improved! " << zub << endl
-   }
-   for(i=0;i<n;i++) infeasSol[i]=sol[i]
+         # reassign i -1
+         minreq = np.infty
+         imin = -1
+         for i in range(m):
+            if(capres[i]>=req[i][j] and req[i][j] < minreq):
+               minreq = req[i][j]
+               imin    = i
 
-lend:
+         if(imin<0):
+            zsol = np.infty
+            break           # could not recover feasibility
+
+         sol[j]=imin
+         capres[imin] -= req[imin][j]
+         zsol += c[imin][j]
+
+      if(zsol<zub):
+         for i in range(n): solbest[i]=sol[i]
+         zub = zub = zsol
+         print(f"[fixSol] -------- zub improved! {zub}")
+
+      for i in range(n): infeasSol[i]=sol[i]
+
    return zsol
 
 

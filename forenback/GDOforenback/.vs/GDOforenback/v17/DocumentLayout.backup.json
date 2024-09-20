@@ -21,8 +21,12 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 2,
           "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{e506b91c-c606-466a-90a9-123d1d1e12b3}"
+            },
             {
               "$type": "Document",
               "DocumentIndex": 2,
@@ -33,8 +37,7 @@
               "RelativeToolTip": "..\\..\\..\\..\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\VC\\Tools\\MSVC\\14.41.34120\\include\\list",
               "ViewState": "AgIAAKoEAAAAAAAAAAAewLgEAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2024-09-19T10:25:49.625Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-09-19T10:25:49.625Z"
             },
             {
               "$type": "Document",
@@ -44,7 +47,7 @@
               "RelativeDocumentMoniker": "GDOforenback.cpp",
               "ToolTip": "C:\\git\\GDOforecast\\forenback\\GDOforenback\\GDOforenback.cpp",
               "RelativeToolTip": "GDOforenback.cpp",
-              "ViewState": "AgIAAAYCAAAAAAAAAAAQwBQCAAAXAAAAAAAAAA==",
+              "ViewState": "AgIAAJYAAAAAAAAAAAAmwKAAAAAZAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2024-09-17T13:21:33.949Z",
               "EditorCaption": ""
@@ -59,8 +62,7 @@
               "RelativeToolTip": "GDOforenback.h",
               "ViewState": "AgIAAAQAAAAAAAAAAAAgwBUAAAAnAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2024-09-17T13:45:09.074Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-09-17T13:45:09.074Z"
             }
           ]
         }
