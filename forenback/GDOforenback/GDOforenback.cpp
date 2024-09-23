@@ -234,14 +234,19 @@ int insertInOrder(list<int>& lst, int elem)
 
 // finds the next node to expand forward (first level with unexpanded nodes)
 int findNextNodeF(int jlev, int newNodes, int openNodes)
-{  int jmin;
+{  int j,jmin,zmin=INT_MAX;
 
    if (newNodes > 0 || jlev == n-1)    // if tree height can be increased, go on
       jlev++;
    else              // find the highest level with unexpanded nodes
-   {  for (jmin = 0; jmin < n; jmin++)
-         if (fLstUnexp[jmin].size() > 0)
+   {  for (j = 0; j < n; j++)
+         if (fLstUnexp[j].size() > 0)
+         {  if (stack[fLstUnexp[j], 0].z < zmin)
+            {  jmin = j;
+               zmin = stack[fLstUnexp[j],0].z;
+            }
             break;
+         }
       jlev = jmin;
    }
    return jlev;
