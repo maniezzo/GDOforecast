@@ -1,6 +1,73 @@
 import numpy as np, pandas as pd
 import copy
 
+import hexaly.optimizer
+import sys
+
+def hexalyTest():
+   n = 5 # clients
+   m = 3 # servers
+   numVar = n*m
+   cost = np.arange(numVar).reshape(m,n)
+   req  = np.array([10,9,8,7,6])
+   cap  = np.array([20,20,20])
+   b    = np.array([1,2,1,2,1])
+   time_limit = 60 # seconds???
+   with hexaly.optimizer.HexalyOptimizer() as optimizer:
+      # Declare the optimization model
+      lsModel = optimizer.model
+
+      # decision: assignments: client j assigned to server i
+      x = [[lsModel.bool() for j in range(n)] for i in range(m)] # assignment client / server
+      q = [[lsModel.int(0,req[j])  for j in range(n)] for i in range(m)] # quantity shipped
+
+      # client requests satisfied
+      quant = [None] * n # delivered quantities
+      for j in range(n):
+         quant[j] = lsModel.sum(q[i][j] for i in range(m))
+         lsModel.constraint(quant[j] == req[j])
+
+      # assignment
+      nass = [None] * n
+      for j in range(n):
+         nass[j] = lsModel.sum(x[i][j] for i in range(m))
+         lsModel.constraint(nass[j] == b[j])
+
+      # server capacities
+      usedcap = [None] * m
+      for i in range(m):
+         usedcap[i] = lsModel.sum([q[i][j] for j in range(n)])
+         lsModel.constraint(usedcap[i] <= cap[i])
+
+      # objective function
+      total_cost = lsModel.sum(cost[i][j]*x[i][j] for i in range(m) for j in range(n))
+      lsModel.minimize(total_cost)
+
+      #link x - q
+      for i in range(m):
+         for j in range(n):
+            lsModel.constraint(q[i][j] - req[j]*x[i][j] <= 0)
+
+      lsModel.close()
+      optimizer.save_environment("lmModel.hxm")
+
+      # ----------------------------------------- go solve!
+      optimizer.param.time_limit = time_limit
+      optimizer.solve()
+      print(f"Solution status: {optimizer.solution.status.name}")
+      sol = optimizer.get_solution()
+      lb = sol.get_objective_bound(0)
+      gap = sol.get_objective_gap(0)
+      print(f"Bound {lb} gap {gap}")
+
+      # Write the solution
+      print(f"Hexaly: cost {total_cost.value}\nSolution:")
+      for i in range(m):
+         for j in range(n):
+            if x[i][j].value == 1:
+               print(f"i:{i} j:{j} x {x[i][j].value} q {q[i][j].value} cost: {cost[i][j]} req: {req[j]}")
+   return
+
 def checkSol(sol,cap,req,costs):
    isFeas = True
    nser = len(cap)

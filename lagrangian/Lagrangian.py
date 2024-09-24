@@ -459,6 +459,10 @@ if __name__ == "__main__":
          if b[id] == 1: break
       b[id] = 2
 
+   fHexaly = True    # use hexaly local solver
+   if fHexaly:
+      LS.hexalyTest()
+
    fOptimal = True
    if fOptimal:
       (cost,sol) =  makeMIPmodel(dfreq.iloc[0, 0:ncli].values,
