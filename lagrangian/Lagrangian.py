@@ -3,24 +3,29 @@ import pulp
 import LocSearch as LS
 import json, time, random
 
-def makeMIPmodel(requests, costs, cap, b):
+def makeMIPmodel(requests, costs, cap, b, isInteger=True):
    solver_list = pulp.listSolvers(onlyAvailable=True)
    print(solver_list)
    if "CPLEX_CMD" in solver_list:
-         solver = pulp.getSolver('CPLEX_CMD')
+         solver = pulp.getSolver('CPLEX_CMD',msg=False)
    else: solver = pulp.getSolver('PULP_CBC_CMD')
    ncol = 2*ncli*nser
    nx   = ncli*nser
-   categ ='Binary'  # 'Continuous'
+   if(isInteger):
+      categX = 'Binary' # 'Binary'  'Continuous'
+      categQ = 'Integer' # 'Integer'  'Continuous'
+   else:
+      categX = 'Continuous' # 'Binary'  'Continuous'
+      categQ = 'Continuous' # 'Integer'  'Continuous'
    X = pulp.LpVariable.dicts('X%s', (range(nx)),
-                        cat=categ,
+                        cat=categX,
                         lowBound=0,
                         upBound=1)
 
    Q = pulp.LpVariable.dicts('Q%s', (range(nx,ncol)),
-                        cat='Integer',
+                        cat=categQ,
                         lowBound=0,
-                        upBound=50)
+                        upBound=max(requests))
    X.update(Q) # append Q to X
 
    # create the LP object and set up as a MINIMIZATION problem
@@ -448,7 +453,6 @@ if __name__ == "__main__":
    dfreq   = pd.read_csv("requests.csv")
    #fout = open("solutions.txt", "w")
 
-   tstart = time.process_time()
    ncli = dfcosts.shape[1]
    nser = dfcosts.shape[0]
    b = np.ones(ncli)
@@ -459,27 +463,46 @@ if __name__ == "__main__":
          if b[id] == 1: break
       b[id] = 2
 
+   tstart = time.process_time()
    fHexaly = True    # use hexaly local solver
    if fHexaly:
-      LS.hexalyTest()
+      hexlb,hexub = LS.hexalyLocSearch(dfcosts.iloc[0:nser, 0:ncli].values,
+                    dfreq.iloc[0,0:ncli].values,
+                    dfreq.iloc[0:nser,ncli].values,
+                         b)
+   thex = time.process_time()
+   print("hexaly tcpu in seconds:", thex - tstart)
 
    fOptimal = True
    if fOptimal:
       (cost,sol) =  makeMIPmodel(dfreq.iloc[0, 0:ncli].values,
                               dfcosts.iloc[0:nser,0:ncli].values,
-                              dfreq.iloc[0:nser,ncli].values,b)
-      print(f"IP model, cost {cost}")
-   if(fCapAss==0):
-      (zLR,sol) =  subgradientRelaxCap(dfreq.iloc[0, 0:ncli].values,
+                              dfreq.iloc[0:nser,ncli].values,b,
+                              isInteger=False)
+      print(f"LP model, cost {cost}")
+      tlp = time.process_time()
+      print("cplex LP tcpu in seconds:", tlp - thex)
+
+      (cost,sol) =  makeMIPmodel(dfreq.iloc[0, 0:ncli].values,
                               dfcosts.iloc[0:nser,0:ncli].values,
                               dfreq.iloc[0:nser,ncli].values,b,
-                              alpha=alpha, niter = niter, maxuseless=maxuseless, minalpha=minalpha)
-   else:
-      (zLR, sol) = subgradientRelaxAss(dfreq.iloc[0, 0:ncli].values,
-                                       dfcosts.iloc[0:nser, 0:ncli].values,
-                                       dfreq.iloc[0:nser, ncli].values, b,
-                                       alpha=alpha, niter=niter, maxuseless=maxuseless, minalpha=minalpha)
-   print(f"lagrangian model, cost {zLR}")
+                              isInteger=True)
+      print(f"IP model, cost {cost}")
+      tmip = time.process_time()
+      print("cplex IP tcpu in seconds:", tmip - tlp)
+
+   if(niter>0):
+      if(fCapAss==0):
+         (zLR,sol) =  subgradientRelaxCap(dfreq.iloc[0, 0:ncli].values,
+                                 dfcosts.iloc[0:nser,0:ncli].values,
+                                 dfreq.iloc[0:nser,ncli].values,b,
+                                 alpha=alpha, niter = niter, maxuseless=maxuseless, minalpha=minalpha)
+      else:
+         (zLR, sol) = subgradientRelaxAss(dfreq.iloc[0, 0:ncli].values,
+                                          dfcosts.iloc[0:nser, 0:ncli].values,
+                                          dfreq.iloc[0:nser, ncli].values, b,
+                                          alpha=alpha, niter=niter, maxuseless=maxuseless, minalpha=minalpha)
+      print(f"lagrangian model, cost {zLR}")
 
    tend = time.process_time()
    print("tcpu in seconds:", tend - tstart)

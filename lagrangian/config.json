@@ -1,5 +1,5 @@
 {
-   "niter" : 200, "itcomment": "subgradient iterations",
+   "niter" : 0, "itcomment": "subgradient iterations",
    "alpha" : 1,   "acomment": "initial decrease coefficient (4 cap)",
    "minalpha" : 0.01, "macomment": "minimum alpha value",
    "maxuseless" : 50, "ucomment" : "no improving iter before restart",
