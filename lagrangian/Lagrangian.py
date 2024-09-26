@@ -436,6 +436,25 @@ def subgradientRelaxAss(requests, costs, cap, b, alpha=0.1, niter=3, maxuseless=
    flog.close()
    return (zlb,sol)
 
+def readData():
+   name = "../generator/inst_52_4_0_0"
+   with open(f'{name}.json', 'r') as file:
+      dct = json.load(file)
+
+   name = dct["name"]
+   n = dct["n"]
+   m = dct["m"]
+   cols = dct["cols"]
+   rows = dct["rows"]
+   req = dct["req"]
+   cap = dct["cap"]
+   b   = dct["b"]
+   df2 = pd.read_csv('../generator/seedMatrix.csv',header=None, skiprows=1)
+   df3 = df2.T.loc[rows,cols]
+   df3 = df3.reset_index(drop=True)
+   df3.columns = range(df3.shape[1])
+   return
+
 if __name__ == "__main__":
    global zub
    zub = np.infty
@@ -448,6 +467,8 @@ if __name__ == "__main__":
    maxuseless = conf['maxuseless']
    numdouble  = conf["numdouble"]
    fCapAss    = conf["fCapAss"]
+
+   readData()
 
    dfcosts = pd.read_csv("costs.csv")
    dfreq   = pd.read_csv("requests.csv")
@@ -463,10 +484,12 @@ if __name__ == "__main__":
          if b[id] == 1: break
       b[id] = 2
 
+   req = dfcosts.iloc[0:nser, 0:ncli].values
+
    tstart = time.process_time()
    fHexaly = True    # use hexaly local solver
    if fHexaly:
-      hexlb,hexub = LS.hexalyLocSearch(dfcosts.iloc[0:nser, 0:ncli].values,
+      hexlb,hexub = LS.hexalyLocSearch(req,
                     dfreq.iloc[0,0:ncli].values,
                     dfreq.iloc[0:nser,ncli].values,
                          b)
@@ -476,7 +499,7 @@ if __name__ == "__main__":
    fOptimal = True
    if fOptimal:
       (cost,sol) =  makeMIPmodel(dfreq.iloc[0, 0:ncli].values,
-                              dfcosts.iloc[0:nser,0:ncli].values,
+                              req,
                               dfreq.iloc[0:nser,ncli].values,b,
                               isInteger=False)
       print(f"LP model, cost {cost}")
@@ -484,7 +507,7 @@ if __name__ == "__main__":
       print("cplex LP tcpu in seconds:", tlp - thex)
 
       (cost,sol) =  makeMIPmodel(dfreq.iloc[0, 0:ncli].values,
-                              dfcosts.iloc[0:nser,0:ncli].values,
+                              req,
                               dfreq.iloc[0:nser,ncli].values,b,
                               isInteger=True)
       print(f"IP model, cost {cost}")
@@ -494,12 +517,12 @@ if __name__ == "__main__":
    if(niter>0):
       if(fCapAss==0):
          (zLR,sol) =  subgradientRelaxCap(dfreq.iloc[0, 0:ncli].values,
-                                 dfcosts.iloc[0:nser,0:ncli].values,
+                                 req,
                                  dfreq.iloc[0:nser,ncli].values,b,
                                  alpha=alpha, niter = niter, maxuseless=maxuseless, minalpha=minalpha)
       else:
          (zLR, sol) = subgradientRelaxAss(dfreq.iloc[0, 0:ncli].values,
-                                          dfcosts.iloc[0:nser, 0:ncli].values,
+                                          req,
                                           dfreq.iloc[0:nser, ncli].values, b,
                                           alpha=alpha, niter=niter, maxuseless=maxuseless, minalpha=minalpha)
       print(f"lagrangian model, cost {zLR}")
