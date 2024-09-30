@@ -4,7 +4,7 @@ import copy
 import hexaly.optimizer
 import sys
 
-def hexalyLocSearch(cost, req, cap, b, time_limit = 60):
+def hexalyLocSearch(cost, qcost, req, cap, b, time_limit = 60):
    n = len(req) # clients
    m = len(cap) # servers
    numVar = n*m
@@ -14,7 +14,7 @@ def hexalyLocSearch(cost, req, cap, b, time_limit = 60):
 
       # decision: assignments: client j assigned to server i
       x = [[lsModel.bool() for j in range(n)] for i in range(m)] # assignment client / server
-      q = [[lsModel.int(0,req[j])  for j in range(n)] for i in range(m)] # quantity shipped
+      q = [[lsModel.int(0,int(req[j]))  for j in range(n)] for i in range(m)] # quantity shipped
 
       # client requests satisfied
       quant = [None] * n # delivered quantities
@@ -26,7 +26,7 @@ def hexalyLocSearch(cost, req, cap, b, time_limit = 60):
       nass = [None] * n
       for j in range(n):
          nass[j] = lsModel.sum(x[i][j] for i in range(m))
-         lsModel.constraint(nass[j] == b[j])
+         lsModel.constraint(nass[j] <= b[j])
 
       # server capacities
       usedcap = [None] * m
@@ -35,7 +35,7 @@ def hexalyLocSearch(cost, req, cap, b, time_limit = 60):
          lsModel.constraint(usedcap[i] <= cap[i])
 
       # objective function
-      total_cost = lsModel.sum(cost[i][j]*x[i][j] for i in range(m) for j in range(n))
+      total_cost = lsModel.sum((cost[i][j]*x[i][j]+qcost[i]*q[i][j]) for i in range(m) for j in range(n))
       lsModel.minimize(total_cost)
 
       #link x - q
@@ -49,10 +49,13 @@ def hexalyLocSearch(cost, req, cap, b, time_limit = 60):
          optimizer.save_environment("lmModel.hxm")
 
       # ----------------------------------------- go solve!
-      optimizer.param.time_limit = time_limit
+      optimizer.param.set_time_limit(time_limit)
       optimizer.param.set_verbosity(0)
       optimizer.solve()
-      print(f"Solution status: {optimizer.solution.status.name}")
+      status = optimizer.solution.status.name
+      print(f"Solution status: {status}")
+      if(status!="OPTIMAL" and status!="FEASIBLE"):
+         return -1,-1
       sol = optimizer.get_solution()
       ub  = total_cost.value
       lb  = sol.get_objective_bound(0)

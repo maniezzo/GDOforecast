@@ -2,12 +2,8 @@ import numpy as np
 import pandas as pd
 import json,random
 
+# capacities and requests
 def computeCapReq(cost):
-   '''
-   aij = 1 - 10 ln e2, where e2 are random numbers from (0,1],
-   cij = 1000 / aij - 10e3, where e3 are random numbers from [0,1], and bi = 0.8 Sum_j aij/m
-   '''
-
    m = cost.shape[0]
    n = cost.shape[1]
 
@@ -52,15 +48,28 @@ def computeCapReq(cost):
 
    return cap,req
 
+# cost for storing one unit of good. Assuming transportation and storage costs are compatible
+def computeQcosts(cost):
+   m = cost.shape[0]
+   n = cost.shape[1]
+   qcost = np.zeros(m)
+   for i in range(m):
+      sum = 0
+      for j in range(n):
+         sum += cost.iloc[i,j]/req[j]
+      qcost[i] = np.round(sum/n)
+
+   return qcost
+
 if __name__ == "__main__":
    # row: server, col: client
    df = pd.read_csv('seedMatrix.csv',header=None, skiprows=1)
 
    # Randomly select a subset of rows and columns
-   num_rows    = 10  # Number of rows to sample
-   num_columns = 50  # Number of columns to sample
-   num_mult    = 5   # number of allowed multiple assignments
-   max_mult    = 2   # max num of multiple assignments
+   num_rows    = 50  # Number of rows to sample
+   num_columns = 300  # Number of columns to sample
+   num_mult    = 50   # number of allowed multiple assignments
+   max_mult    = 5   # max num of multiple assignments
 
    isOrg = False # non servirà più
    if isOrg:
@@ -69,15 +78,17 @@ if __name__ == "__main__":
       dforg.to_csv("cost1.csv", header=False, index=False)
       req  = [27,23,28,23,19,17,19,14,28,17,20,15,27,26,29,23,21,14,18,12,28,30,34,18,17,20,17,19,11,28,11,14,16,29,12,18,29,25,20,26,14,9,17,26,14,17,20,5,14,21,32,16]
       cap  = [120,1000,300,180]
+      qcost= [0,0,0,0]
       cols = np.arange(3)
       rows = np.arange(52)
 
    for k in range(5):
       # Randomly select rows
-      instance_rows = df.T.sample(n=num_rows, random_state=42)  # Set random_state for reproducibility
+      instance_rows = df.T.sample(n=num_rows) #, random_state=42)  # Set random_state for reproducibility
       # Randomly select columns
-      cost = instance_rows.sample(n=num_columns, axis=1, random_state=42)
+      cost = instance_rows.sample(n=num_columns, axis=1) #, random_state=42)
       cap, req = computeCapReq(cost)
+      qcost    = computeQcosts(cost)
       b = np.ones(num_columns).astype(int)
       id_to_change = random.sample(range(0, num_columns), num_mult)
       for id in id_to_change:
@@ -91,6 +102,7 @@ if __name__ == "__main__":
                "m"    : len(cost.index),
                "cols" : cost.columns.tolist(),
                "rows" : cost.index.tolist(),
+               "qcost": qcost.tolist(),
                "req"  : req.tolist(),
                "cap"  : cap.tolist(),
                "b"    : b.tolist(),

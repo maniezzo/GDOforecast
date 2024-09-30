@@ -3,11 +3,11 @@ import pulp
 import LocSearch as LS
 import json, time, random
 
-def makeMIPmodel(requests, costs, cap, b, isInteger=True):
+def makeMIPmodel(costs, qcost, requests, cap, b, isInteger=True):
    solver_list = pulp.listSolvers(onlyAvailable=True)
    print(solver_list)
    if "CPLEX_CMD" in solver_list:
-         solver = pulp.getSolver('CPLEX_CMD',msg=False)
+         solver = pulp.getSolver('CPLEX_CMD',timeLimit=600,msg=False)
    else: solver = pulp.getSolver('PULP_CBC_CMD')
    ncol = 2*ncli*nser
    nx   = ncli*nser
@@ -33,7 +33,8 @@ def makeMIPmodel(requests, costs, cap, b, isInteger=True):
    # cost function
    c = np.zeros(ncol)
    c[0:nx] = [costs[i,j] for i in np.arange(nser) for j in np.arange(ncli)]
-   probl += sum(c[i] * X[i] for i in range(nx))
+   c[nx:ncol] = [qcost[i] for i in np.arange(nser) for j in np.arange(ncli)]
+   probl += sum(c[i] * X[i] for i in range(ncol))
 
    # knapsack constraints Sum qij leq Qi
    nrows = 0
@@ -68,18 +69,19 @@ def makeMIPmodel(requests, costs, cap, b, isInteger=True):
    cost = pulp.value(probl.objective)
    print("Objective: ", cost)
    sol = []
-   x = np.full(ncli,-1)
-   for i in np.arange(ncol):
-      v = probl.variables()[i]
-      ind = int(v.name[1:])
-      cli = ind%ncli
-      ser = (ind//ncli)%nser # X and Q, repetition
-      if(v.name[0]=='X' and v.varValue>0):
-         x[cli]=ser
-      sol.append(f"name {v.name} i {i} val {v.varValue}")
-      #print(f"{v} = {v.varValue}  i: {cli}, ser: {ser}")
-   #fout.write(str(sol))
-   #fout.write(f"{np.array2string(x, max_line_width=10000,separator=',')}\r\n")
+   if(ncol<1000):
+      x = np.full(ncli,-1)
+      for i in np.arange(ncol):
+         v = probl.variables()[i]
+         ind = int(v.name[1:])
+         cli = ind%ncli
+         ser = (ind//ncli)%nser # X and Q, repetition
+         if(v.name[0]=='X' and v.varValue>0):
+            x[cli]=ser
+         sol.append(f"name {v.name} i {i} val {v.varValue}")
+         #print(f"{v} = {v.varValue}  i: {cli}, ser: {ser}")
+      #fout.write(str(sol))
+      #fout.write(f"{np.array2string(x, max_line_width=10000,separator=',')}\r\n")
    return (cost,sol)
 
 def checkFeas(sol,cap,req,costs):
@@ -436,8 +438,8 @@ def subgradientRelaxAss(requests, costs, cap, b, alpha=0.1, niter=3, maxuseless=
    flog.close()
    return (zlb,sol)
 
-def readData():
-   name = "../generator/inst_52_4_0_0"
+def readData(name):
+   name = f"../generator/{name}"
    with open(f'{name}.json', 'r') as file:
       dct = json.load(file)
 
@@ -448,86 +450,88 @@ def readData():
    rows = dct["rows"]
    req = dct["req"]
    cap = dct["cap"]
+   qcost = dct["qcost"]
    b   = dct["b"]
    df2 = pd.read_csv('../generator/seedMatrix.csv',header=None, skiprows=1)
    df3 = df2.T.loc[rows,cols]
    df3 = df3.reset_index(drop=True)
    df3.columns = range(df3.shape[1])
-   return
+   return df3.values,qcost,req,cap,b
 
 if __name__ == "__main__":
    global zub
-   zub = np.infty
-   with open('config.json') as jconf:
-      conf = json.load(jconf)
-   print(conf)
-   niter = conf['niter']
-   alpha = conf['alpha']
-   minalpha   = conf['minalpha']
-   maxuseless = conf['maxuseless']
-   numdouble  = conf["numdouble"]
-   fCapAss    = conf["fCapAss"]
+   zub   = np.infty
+   niter = 0
 
-   readData()
+   # old code, calls the lagrangian heuristic. To be updated, in case of use
+   isOld = False
+   if(isOld):
+      with open('config.json') as jconf:
+         conf = json.load(jconf)
+      print(conf)
+      niter = conf['niter']
+      alpha = conf['alpha']
+      minalpha = conf['minalpha']
+      maxuseless = conf['maxuseless']
+      numdouble = conf["numdouble"]
+      fCapAss = conf["fCapAss"]
 
-   dfcosts = pd.read_csv("costs.csv")
-   dfreq   = pd.read_csv("requests.csv")
-   #fout = open("solutions.txt", "w")
+      dfcosts = pd.read_csv("costs.csv")
+      dfreq   = pd.read_csv("requests.csv")
 
-   ncli = dfcosts.shape[1]
-   nser = dfcosts.shape[0]
-   b = np.ones(ncli)
-   # generate numdouble double assignment requests
-   for i in range(numdouble):
-      while True:
-         id = random.randint(0,ncli-1)
-         if b[id] == 1: break
-      b[id] = 2
+      ncli = dfcosts.shape[1]
+      nser = dfcosts.shape[0]
+      b = np.ones(ncli)
+      # generate numdouble double assignment requests
+      for i in range(numdouble):
+         while True:
+            id = random.randint(0,ncli-1)
+            if b[id] == 1: break
+         b[id] = 2
 
-   req = dfcosts.iloc[0:nser, 0:ncli].values
+      costs = dfcosts.iloc[0:nser, 0:ncli].values
+      req   = dfreq.iloc[0,0:ncli].values
+      cap   = dfreq.iloc[0:nser,ncli].values
 
-   tstart = time.process_time()
-   fHexaly = True    # use hexaly local solver
-   if fHexaly:
-      hexlb,hexub = LS.hexalyLocSearch(req,
-                    dfreq.iloc[0,0:ncli].values,
-                    dfreq.iloc[0:nser,ncli].values,
-                         b)
-   thex = time.process_time()
-   print("hexaly tcpu in seconds:", thex - tstart)
+      if(niter>0):
+         if(fCapAss==0):
+            (zLR,sol) =  subgradientRelaxCap(req,costs,cap,b,
+                                    alpha=alpha, niter = niter, maxuseless=maxuseless, minalpha=minalpha)
+         else:
+            (zLR, sol) = subgradientRelaxAss(req,costs,cap, b,
+                                             alpha=alpha, niter=niter, maxuseless=maxuseless, minalpha=minalpha)
+         print(f"lagrangian model, cost {zLR}")
 
-   fOptimal = True
-   if fOptimal:
-      (cost,sol) =  makeMIPmodel(dfreq.iloc[0, 0:ncli].values,
-                              req,
-                              dfreq.iloc[0:nser,ncli].values,b,
-                              isInteger=False)
-      print(f"LP model, cost {cost}")
-      tlp = time.process_time()
-      print("cplex LP tcpu in seconds:", tlp - thex)
+   for inst in range(5):
+      name = f"inst_100_50_25_{inst}"
+      costs,qcost,req,cap,b = readData(name)
+      ncli = len(req)
+      nser = len(cap)
+      nmult = np.sum(b != 1)
 
-      (cost,sol) =  makeMIPmodel(dfreq.iloc[0, 0:ncli].values,
-                              req,
-                              dfreq.iloc[0:nser,ncli].values,b,
-                              isInteger=True)
-      print(f"IP model, cost {cost}")
-      tmip = time.process_time()
-      print("cplex IP tcpu in seconds:", tmip - tlp)
+      tstart = time.process_time()
 
-   if(niter>0):
-      if(fCapAss==0):
-         (zLR,sol) =  subgradientRelaxCap(dfreq.iloc[0, 0:ncli].values,
-                                 req,
-                                 dfreq.iloc[0:nser,ncli].values,b,
-                                 alpha=alpha, niter = niter, maxuseless=maxuseless, minalpha=minalpha)
-      else:
-         (zLR, sol) = subgradientRelaxAss(dfreq.iloc[0, 0:ncli].values,
-                                          req,
-                                          dfreq.iloc[0:nser, ncli].values, b,
-                                          alpha=alpha, niter=niter, maxuseless=maxuseless, minalpha=minalpha)
-      print(f"lagrangian model, cost {zLR}")
+      fOptimal = True
+      if fOptimal:
+         (lbcost,sol) =  makeMIPmodel(costs,qcost,req,cap,b,isInteger=False)
+         print(f"LP model, cost {lbcost}")
+         tlp = time.process_time()
+         print("cplex LP tcpu in seconds:", tlp - tstart)
 
-   tend = time.process_time()
-   print("tcpu in seconds:", tend - tstart)
-   #fout.close()
-   pass
+         (optcost,sol) =  makeMIPmodel(costs,qcost,req,cap,b,isInteger=True)
+         print(f"IP model, cost {optcost}")
+         tmip = time.process_time()
+         print("cplex IP tcpu in seconds:", tmip - tlp)
+
+      fHexaly = True    # use hexaly local solver
+      if fHexaly:
+         hexlb,hexub = LS.hexalyLocSearch(costs,qcost,req,cap,b,time_limit = int(tmip - tlp + 1))
+      thex = time.process_time()
+      print("hexaly tcpu in seconds:", thex - tmip)
+
+      tend = time.process_time()
+      print("tcpu in seconds:", tend - tstart)
+      fout = open("solutions.txt", "a")
+      fout.write(f"{name},{ncli},{nser},{nmult},{hexlb},{hexub},{thex-tmip},{lbcost},{tlp-tstart},{optcost},{tmip-tlp}\n")
+      fout.close()
+   print("fine")
