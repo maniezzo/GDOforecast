@@ -49,7 +49,9 @@ def hexalyLocSearch(cost, qcost, req, cap, b, time_limit = 60):
          optimizer.save_environment("lmModel.hxm")
 
       # ----------------------------------------- go solve!
-      optimizer.param.set_time_limit(time_limit)
+      optimizer.param.time_limit = time_limit
+      tl = optimizer.param.get_time_limit()
+      print(f"Hexaly time limit: {tl}")
       optimizer.param.set_verbosity(0)
       optimizer.solve()
       status = optimizer.solution.status.name

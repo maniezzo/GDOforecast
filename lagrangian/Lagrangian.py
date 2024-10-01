@@ -503,7 +503,8 @@ if __name__ == "__main__":
          print(f"lagrangian model, cost {zLR}")
 
    for inst in range(5):
-      name = f"inst_100_50_25_{inst}"
+      print(f"-------------------------- solving inst = {inst}")
+      name = f"inst_200_50_25_{inst}"
       costs,qcost,req,cap,b = readData(name)
       ncli = len(req)
       nser = len(cap)
