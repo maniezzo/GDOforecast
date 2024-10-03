@@ -115,6 +115,11 @@ def main_fcast(name, df, idcustomer=0, step = 52, model='AR', distrib='AR', fbac
       fcast_all = np.sort(fcast_all)
       fcast_avg = np.average(fcast_all)
 
+      distrFileName = resFileName.replace("res","distr")
+      # il reshape di fcast_all da 1D a una riga di un 2D è una assurdità di savetxt
+      with open(distrFileName, "a") as f:
+         np.savetxt(f, fcast_all.reshape(1, -1), fmt='%.2f', delimiter=',')
+
       # intervallo = 5 - 95
       fcast_05 = fcast_all[int(len(fcast_all)/100*5)]   # 125/100*5
       fcast_95 = fcast_all[int(len(fcast_all)/100*95)]  #

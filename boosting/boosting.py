@@ -11,6 +11,11 @@ import random, copy
 import sqlite101 as sql
 import pmdarima as pm
 
+'''
+This code generates the bbosted time series and stores them in sqlite.
+Forecasting of these series in in boostforecast
+'''
+
 # backcast the first 6 data
 def backcast(ts,p,verbose=True):
    # Reverse the time series data

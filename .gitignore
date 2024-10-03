@@ -140,6 +140,7 @@ venv.bak/
 *.sln.docstates
 *.tlog
 *.idb
+*.pdb
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

@@ -1,1 +1,0 @@
-gcc -ggdb -o main.exe main.c
