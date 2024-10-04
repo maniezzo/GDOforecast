@@ -1,9 +1,9 @@
-#ifndef STOCHASTIC_H
-#define STOCHASTIC_H
+#ifndef DETEQ_H
+#define DETEQ_H
 
 #include "common.h"
 
-class SingleMIP
+class StochMIP
 {
 public:
    string name;
@@ -19,9 +19,9 @@ public:
    vector<int> qcost;   // DC rental cost
 
    vector<vector<int>> xAssCost; // assignment costs
+   vector<vector<int>> boostFcasts;
 
-   int populateTableau(CPXENVptr env, CPXLPptr lp);
-   int solveMIP(int timeLimit);
    void readInstance(string& fileName);
+   int readBoostForecasts(string filePath,int nboost);
 };
-#endif // STOCHASTIC_H
+#endif // DETEQ_H

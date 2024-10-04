@@ -1,8 +1,8 @@
 #include "stochastic.h"
-
+#include "detequiv.h"
 
 // Read instance data
-void readInstance(string& fileName) 
+void SingleMIP::readInstance(string& fileName) 
 {  string line;
    int i,j;
 
@@ -76,7 +76,7 @@ void readInstance(string& fileName)
 }
 
 // To populate by row, we first create the columns, and then add the rows.
-int populateTableau(CPXENVptr env, CPXLPptr lp)
+int SingleMIP::populateTableau(CPXENVptr env, CPXLPptr lp)
 {  int status,numrows,numcols,numnz;
    int i,j,currMatBeg;
    vector<double> obj;
@@ -260,7 +260,7 @@ TERMINATE:
    return (status);
 } 
 
-int solveMIP(int timeLimit)
+int SingleMIP::solveMIP(int timeLimit)
 {  int      solstat;
    double   objval;
    vector<double> x;
@@ -325,14 +325,15 @@ int solveMIP(int timeLimit)
    cur_numrows = CPXgetnumrows(env, lp);
    cur_numcols = CPXgetnumcols(env, lp);
 
+   // save solutions
    for(int j=0;j<cur_numcols;j++)
-   {  x.push_back(0);
-      dj.push_back(0);
+   {  x.push_back(0);   // primal variables
+      dj.push_back(0);  // reduced costs
    }
 
    for (int i = 0; i < cur_numrows; i++)
-   {  pi.push_back(0);
-      slack.push_back(0);
+   {  pi.push_back(0);     // dual variables
+      slack.push_back(0);  // constraint slacks
    }
 
    status = CPXsolution(env, lp, &solstat, &objval, &x[0], &pi[0], &slack[0], &dj[0]);
@@ -344,11 +345,12 @@ int solveMIP(int timeLimit)
    // Write the output to the screen.
    cout << "\nSolution status = " << solstat << endl;
    cout << "Solution value  = "   << objval << endl;
-   for (i = 0; i < cur_numrows; i++) 
-      cout << "Row "<< i << ":  Slack = "<< slack[i] <<"  Pi = " << pi[i] << endl;
+   //for (i = 0; i < cur_numrows; i++) 
+   //   cout << "Row "<< i << ":  Slack = "<< slack[i] <<"  Pi = " << pi[i] << endl;
 
    for (j = 0; j < cur_numcols; j++) 
-      cout << "Column " << j << ":  Value = " << x[j] <<"  Reduced cost = " << dj[j] << endl;
+      if(x[j] > 0.01)
+         cout << "Column " << j << ":  Value = " << x[j] <<"  Reduced cost = " << dj[j] << endl;
 
    // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> MIP <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
    // Now copy the ctype array
@@ -396,17 +398,20 @@ int solveMIP(int timeLimit)
       goto TERMINATE;
    }
 
-   for (i = 0; i < cur_numrows; i++) 
-      cout << "Row " << i << ":  Slack = " << slack[i] << endl;
+   //for (i = 0; i < cur_numrows; i++) 
+   //   cout << "Row " << i << ":  Slack = " << slack[i] << endl;
 
    for (j = 0; j < cur_numcols; j++) 
-      cout << "Column " << j << ":  Value = " << x[j] << endl;
+      if(x[j]>0.01)
+         cout << "Column " << j << ":  Value = " << x[j] << endl;
 
    // Finally, write a copy of the problem to a file
-   status = CPXwriteprob(env, lp, "problem.lp", NULL);
-   if (status) 
-   {  cout << "Failed to write model to disk." << endl;
-      goto TERMINATE;
+   if(cur_numcols < 200)
+   {  status = CPXwriteprob(env,lp,"problem.lp",NULL);
+      if (status) 
+      {  cout << "Failed to write model to disk." << endl;
+         goto TERMINATE;
+      }
    }
 
 TERMINATE:
@@ -432,12 +437,18 @@ TERMINATE:
 }  /* END main */
 
 int main()
-{
+{  StochMIP Stoch;
+   SingleMIP MIP;
    string instanceFile = "c:/git/GDOforecast/generator/inst_52_4_0_0.json";
    string solFile = "results.txt";
    int TimeLimit = 60;
 
-   readInstance(instanceFile);
-   int status = solveMIP(TimeLimit);
+   MIP.readInstance(instanceFile);
+   int status = MIP.solveMIP(TimeLimit);
+
+   instanceFile = "c:/git/GDOforecast/generator/inst_52_4_0_0.json";
+   string distribFile = "c:/git/GDOforecast/boost_forecast/distr_YW_AR_75.csv";
+   Stoch.readInstance(instanceFile);
+   Stoch.readBoostForecasts(distribFile,75);
    cout << "<ENTER> to exit ..."; getchar();
 }
