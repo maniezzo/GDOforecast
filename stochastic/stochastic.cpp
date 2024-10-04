@@ -75,7 +75,7 @@ void SingleMIP::readInstance(string& fileName)
    infile.close();
 }
 
-// To populate by row, we first create the columns, and then add the rows.
+// The tableu for the basic, non scenario case.
 int SingleMIP::populateTableau(CPXENVptr env, CPXLPptr lp)
 {  int status,numrows,numcols,numnz;
    int i,j,currMatBeg;
@@ -442,13 +442,20 @@ int main()
    string instanceFile = "c:/git/GDOforecast/generator/inst_52_4_0_0.json";
    string solFile = "results.txt";
    int TimeLimit = 60;
+   srand(666);
 
-   MIP.readInstance(instanceFile);
-   int status = MIP.solveMIP(TimeLimit);
+   // non stochastic, just a test
+   //MIP.readInstance(instanceFile);
+   //int status = MIP.solveMIP(TimeLimit);
 
    instanceFile = "c:/git/GDOforecast/generator/inst_52_4_0_0.json";
    string distribFile = "c:/git/GDOforecast/boost_forecast/distr_YW_AR_75.csv";
-   Stoch.readInstance(instanceFile);
-   Stoch.readBoostForecasts(distribFile,75);
+   int numScen = 2;                                // numero d iscenari da generare
+   int nboost = 75;
+   Stoch.readInstance(instanceFile, numScen,nboost);
+   Stoch.readBoostForecasts(distribFile,nboost,numScen);
+   bool isVerbose = false;
+   int status = Stoch.solveDetEq(TimeLimit,numScen,isVerbose);
+
    cout << "<ENTER> to exit ..."; getchar();
 }
