@@ -324,6 +324,7 @@ int SingleMIP::solveMIP(int timeLimit)
    }
    cur_numrows = CPXgetnumrows(env, lp);
    cur_numcols = CPXgetnumcols(env, lp);
+   cout << "LP model; ncol=" << cur_numcols << " nrows=" << cur_numrows << endl;
 
    // save solutions
    for(int j=0;j<cur_numcols;j++)
@@ -441,7 +442,8 @@ int main()
    SingleMIP MIP;
    string instanceFile = "c:/git/GDOforecast/generator/inst_52_4_0_0.json";
    string solFile = "results.txt";
-   int TimeLimit = 60;
+   int TimeLimit = 1800;
+   double epsCost;
    srand(666);
 
    // non stochastic, just a test
@@ -450,12 +452,13 @@ int main()
 
    instanceFile = "c:/git/GDOforecast/generator/inst_52_4_0_0.json";
    string distribFile = "c:/git/GDOforecast/boost_forecast/distr_YW_AR_75.csv";
-   int numScen = 2;                                // numero d iscenari da generare
+   int numScen = 20;                                // numero d iscenari da generare
    int nboost = 75;
+   epsCost = 100000;
    Stoch.readInstance(instanceFile, numScen,nboost);
    Stoch.readBoostForecasts(distribFile,nboost,numScen);
-   bool isVerbose = false;
-   int status = Stoch.solveDetEq(TimeLimit,numScen,isVerbose);
+   bool isVerbose = true;
+   int status = Stoch.solveDetEq(TimeLimit,numScen,isVerbose, epsCost);
 
    cout << "<ENTER> to exit ..."; getchar();
 }

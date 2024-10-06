@@ -24,8 +24,8 @@ public:
 
    void readInstance(string& fileName, int numScen, int nboost);
    int readBoostForecasts(string filePath,int nboost,int numScen);
-   int populateTableau(CPXENVptr env, CPXLPptr lp, int numScen);
-   int solveDetEq(int timeLimit, int numScen, bool isVerbose);
+   int populateTableau(CPXENVptr env, CPXLPptr lp, int numScen, double epsCost);
+   int solveDetEq(int timeLimit, int numScen, bool isVerbose, double epsCost);
    int generateReq(int j, int nboost);
 };
 #endif // DETEQ_H

@@ -100,7 +100,7 @@ int StochMIP::readBoostForecasts(string filePath,int nboost,int numScen)
 
       // Split the line by commas
       j=0;
-      while (getline(ss, value, ',') && j<n) 
+      while (getline(ss, value, ',') && j<nboost) 
       {  boostFcasts[i][j] = round(stof(value)); // Convert to integer and add to row
          j++;
       }
@@ -123,204 +123,218 @@ int StochMIP::readBoostForecasts(string filePath,int nboost,int numScen)
 }
 
 // The tableu for the bscenario case.
-int StochMIP::populateTableau(CPXENVptr env, CPXLPptr lp, int numScen)
+int StochMIP::populateTableau(CPXENVptr env, CPXLPptr lp, int numScen, double epsCost)
 {  int status,numrows,numcols,numnz;
-int i,j,s,currMatBeg,index,qbeg;
-vector<double> obj;
-vector<double> lb;
-vector<double> ub;
-vector<string> colname;
-vector<int>    rmatbeg;
-vector<int>    rmatind;
-vector<double> rmatval;
-vector<double> rhs;
-vector<char>   sense;
-vector<string> rowname;
+   int i,j,s,currMatBeg,index,qbeg,epsbeg;
+   vector<double> obj;
+   vector<double> lb;
+   vector<double> ub;
+   vector<string> colname;
+   vector<int>    rmatbeg;
+   vector<int>    rmatind;
+   vector<double> rmatval;
+   vector<double> rhs;
+   vector<char>   sense;
+   vector<string> rowname;
 
-status = CPXchgobjsen(env, lp, CPX_MIN);  // Problem is minimization
+   status = CPXchgobjsen(env, lp, CPX_MIN);  // Problem is minimization
 
-// ------------------------------------------------------ variables section
+   // ------------------------------------------------------ variables section
 
-// Create the columns for x variables
-numcols = 0;
-for(s=0;s<numScen;s++)
+   // Create the columns for x variables
+   numcols = 0;
    for(i=0;i<m;i++)
       for(j=0;j<n;j++)
       {  obj.push_back(xAssCost[i][j]); numcols++;  
          lb.push_back(0.0);  
          ub.push_back(1.0); 
-         colname.push_back("x"+to_string(s)+"_"+to_string(i)+"_"+to_string(j));
+         colname.push_back("x"+to_string(i)+"_"+to_string(j));
       }
 
-qbeg = numcols; // index of first q variabla
+   epsbeg = numcols; // index of first eps variable
 
-// Create the columns for q variables
-for(s=0;s<numScen;s++)
-   for(i=0;i<m;i++)
+   // Create columns for eps variables
+   for(s=0;s<numScen;s++)
       for(j=0;j<n;j++)
-      {  obj.push_back(qcost[i]); numcols++;  
+      {  obj.push_back(epsCost); numcols++;  
          lb.push_back(0.0);  
          ub.push_back(maxReq); 
-         colname.push_back("q"+to_string(s)+"_"+to_string(i)+"_"+to_string(j));
+         colname.push_back("eps"+to_string(s)+"_"+to_string(j));
       }
 
-char** cname = new char* [colname.size()];
-for (int index = 0; index < colname.size(); index++)
-   cname[index] = const_cast<char*>(colname[index].c_str());
-status = CPXnewcols(env, lp, numcols, &obj[0], &lb[0], &ub[0], NULL, cname);
-delete[] cname;
+   qbeg = numcols; // index of first q variabla
 
-if (status)  cout << "ERROR" << endl;
-
-// ------------------------------------------------------ constraints section
-
-// quantity q constraints.
-{
-   currMatBeg = 0;
-   numrows = numnz = 0;
-
-   for(s=0;s<numScen;s++)   
-      for(j=0;j<n;j++)
-      {  rmatbeg.push_back(currMatBeg);
-         rowname.push_back("q"+to_string(s)+"_"+to_string(j)); numrows++;
-         for(i=0;i<m;i++)
-         {  index = qbeg + s*n*m +i*n +j;  // int q vars + scenario vars + server offset + client within server
-            rmatind.push_back(index); 
-            rmatval.push_back(1.0); 
-            numnz++;
-         }
-         sense.push_back('E');
-         rhs.push_back(req[s][j]);
-         currMatBeg+=m;
-      }
-
-   // vector<string> to char**
-   char** rname = new char* [rowname.size()];
-   for (int index = 0; index < rowname.size(); index++) {
-      rname[index] = const_cast<char*>(rowname[index].c_str());
-
-   }
-   status = CPXaddrows(env, lp, 0, numrows, numnz, &rhs[0], &sense[0], &rmatbeg[0], &rmatind[0], &rmatval[0], NULL, rname);
-   delete[] rname;
-   if (status)  goto TERMINATE;
-}
-
-// num assignments x constraints.
-{
-   currMatBeg = 0;
-   numrows = numnz = 0;
-   rmatbeg.clear();
-   rowname.clear();
-   rmatind.clear();
-   rmatval.clear();
-   sense.clear();
-   rhs.clear();
-   for(s=0;s<numScen;s++)
-      for(j=0;j<n;j++)
-      {  rmatbeg.push_back(currMatBeg);
-         rowname.push_back("b"+to_string(s)+"_"+to_string(j)); numrows++;
-         for(i=0;i<m;i++)
-         {
-            index = s*n*m +i*n +j;  // scenario vars + server offset + client within server
-            rmatind.push_back(index); 
-            rmatval.push_back(1.0); 
-            numnz++;
-         }
-         sense.push_back('L');
-         rhs.push_back(b[j]);
-         currMatBeg+=m;
-      }
-
-   // vector<string> to char**
-   char** rname = new char* [rowname.size()];
-   for (int index = 0; index < rowname.size(); index++) 
-      rname[index] = const_cast<char*>(rowname[index].c_str());
-
-   status = CPXaddrows(env, lp, 0, numrows, numnz, &rhs[0], &sense[0], &rmatbeg[0], &rmatind[0], &rmatval[0], NULL, rname);
-   delete[] rname;
-   if (status)  goto TERMINATE;
-}
-
-// capacity constraints
-{
-   currMatBeg = 0;
-   numrows = numnz = 0;
-   rmatbeg.clear();
-   rowname.clear();
-   rmatind.clear();
-   rmatval.clear();
-   sense.clear();
-   rhs.clear();
-   for(s=0;s<numScen;s++)
-      for(i=0;i<m;i++)
-      {  rmatbeg.push_back(currMatBeg);
-         rowname.push_back("cap"+to_string(s)+"_"+to_string(i)); numrows++;
-         for(j=0;j<n;j++)
-         {
-            index = qbeg + s*n*m +i*n +j;  // int q vars + scenario vars + server offset + client within server
-            rmatind.push_back(index); 
-            rmatval.push_back(1.0); 
-            numnz++;
-         }
-         sense.push_back('L');
-         rhs.push_back(cap[i]);
-         currMatBeg+=n;
-      }
-
-   // vector<string> to char**
-   char** rname = new char* [rowname.size()];
-   for (int index = 0; index < rowname.size(); index++) {
-      rname[index] = const_cast<char*>(rowname[index].c_str());
-   }
-   status = CPXaddrows(env, lp, 0, numrows, numnz, &rhs[0], &sense[0], &rmatbeg[0], &rmatind[0], &rmatval[0], NULL, rname);
-   delete[] rname;
-   if (status)  goto TERMINATE;
-}
-
-// q-x linking ocnstraints
-{
-   currMatBeg = 0;
-   numrows = numnz = 0;
-   rmatbeg.clear();
-   rowname.clear();
-   rmatind.clear();
-   rmatval.clear();
-   sense.clear();
-   rhs.clear();
+   // Create the columns for q variables
    for(s=0;s<numScen;s++)
       for(i=0;i<m;i++)
          for(j=0;j<n;j++)
-         {
-            rmatbeg.push_back(currMatBeg);
-            rowname.push_back("xq"+to_string(s)+"_"+to_string(i)+"_"+to_string(j)); numrows++;
-            index = qbeg + s*n*m +i*n +j;  // int q vars + scenario vars + server offset + client within server
-            rmatind.push_back(index); 
+         {  obj.push_back(qcost[i]); numcols++;  
+            lb.push_back(0.0);  
+            ub.push_back(maxReq); 
+            colname.push_back("q"+to_string(s)+"_"+to_string(i)+"_"+to_string(j));
+         }
+
+   char** cname = new char* [colname.size()];
+   for (int index = 0; index < colname.size(); index++)
+      cname[index] = const_cast<char*>(colname[index].c_str());
+   status = CPXnewcols(env, lp, numcols, &obj[0], &lb[0], &ub[0], NULL, cname);
+   delete[] cname;
+
+   if (status)  cout << "ERROR" << endl;
+
+   // ------------------------------------------------------ constraints section
+
+   // quantity q constraints.
+   {
+      currMatBeg = 0;
+      numrows = numnz = 0;
+
+      for(s=0;s<numScen;s++)   
+         for(j=0;j<n;j++)
+         {  rmatbeg.push_back(currMatBeg);
+            rowname.push_back("q"+to_string(s)+"_"+to_string(j)); numrows++;
+            // eps variable
+            rmatind.push_back(epsbeg+s*n+j); 
             rmatval.push_back(1.0); 
             numnz++;
-            index = s*n*m +i*n +j;  // int q vars + scenario vars + server offset + client within server
-            rmatind.push_back(index); 
-            rmatval.push_back(-req[s][j]); 
-            numnz++;
+            // q variables
+            for(i=0;i<m;i++)
+            {  index = qbeg + s*n*m +i*n +j;  // int q vars + scenario vars + server offset + client within server
+               rmatind.push_back(index); 
+               rmatval.push_back(1.0); 
+               numnz++;
+            }
+
+            sense.push_back('E');
+            rhs.push_back(req[s][j]);
+            currMatBeg+=m+1;  // m q vars and one eps
+         }
+
+      // vector<string> to char**
+      char** rname = new char* [rowname.size()];
+      for (int index = 0; index < rowname.size(); index++) 
+         rname[index] = const_cast<char*>(rowname[index].c_str());
+
+      status = CPXaddrows(env, lp, 0, numrows, numnz, &rhs[0], &sense[0], &rmatbeg[0], &rmatind[0], &rmatval[0], NULL, rname);
+      delete[] rname;
+      if (status)  goto TERMINATE;
+   }
+
+   // num assignments x constraints.
+   {
+      currMatBeg = 0;
+      numrows = numnz = 0;
+      rmatbeg.clear();
+      rowname.clear();
+      rmatind.clear();
+      rmatval.clear();
+      sense.clear();
+      rhs.clear();
+      for(s=0;s<numScen;s++)
+         for(j=0;j<n;j++)
+         {  rmatbeg.push_back(currMatBeg);
+            rowname.push_back("b"+to_string(s)+"_"+to_string(j)); numrows++;
+            for(i=0;i<m;i++)
+            {  index = i*n +j;  // x vars, server offset + client within server
+               rmatind.push_back(index); 
+               rmatval.push_back(1.0); 
+               numnz++;
+            }
             sense.push_back('L');
-            rhs.push_back(0);
-            currMatBeg+=2;
+            rhs.push_back(b[j]);
+            currMatBeg+=m;
          }
 
-   // vector<string> to char**
-   char** rname = new char* [rowname.size()];
-   for (int index = 0; index < rowname.size(); index++) {
-      rname[index] = const_cast<char*>(rowname[index].c_str());
+      // vector<string> to char**
+      char** rname = new char* [rowname.size()];
+      for (int index = 0; index < rowname.size(); index++) 
+         rname[index] = const_cast<char*>(rowname[index].c_str());
+
+      status = CPXaddrows(env, lp, 0, numrows, numnz, &rhs[0], &sense[0], &rmatbeg[0], &rmatind[0], &rmatval[0], NULL, rname);
+      delete[] rname;
+      if (status)  goto TERMINATE;
    }
-   status = CPXaddrows(env, lp, 0, numrows, numnz, &rhs[0], &sense[0], &rmatbeg[0], &rmatind[0], &rmatval[0], NULL, rname);
-   delete[] rname;
-   if (status)  goto TERMINATE;
-}
+
+   // capacity constraints
+   {
+      currMatBeg = 0;
+      numrows = numnz = 0;
+      rmatbeg.clear();
+      rowname.clear();
+      rmatind.clear();
+      rmatval.clear();
+      sense.clear();
+      rhs.clear();
+      for(s=0;s<numScen;s++)
+         for(i=0;i<m;i++)
+         {  rmatbeg.push_back(currMatBeg);
+            rowname.push_back("cap"+to_string(s)+"_"+to_string(i)); numrows++;
+            for(j=0;j<n;j++)
+            {
+               index = qbeg + s*n*m +i*n +j;  // int q vars + scenario vars + server offset + client within server
+               rmatind.push_back(index); 
+               rmatval.push_back(1.0); 
+               numnz++;
+            }
+            sense.push_back('L');
+            rhs.push_back(cap[i]);
+            currMatBeg+=n;
+         }
+
+      // vector<string> to char**
+      char** rname = new char* [rowname.size()];
+      for (int index = 0; index < rowname.size(); index++) 
+         rname[index] = const_cast<char*>(rowname[index].c_str());
+
+      status = CPXaddrows(env, lp, 0, numrows, numnz, &rhs[0], &sense[0], &rmatbeg[0], &rmatind[0], &rmatval[0], NULL, rname);
+      delete[] rname;
+      if (status)  goto TERMINATE;
+   }
+
+   // q-x linking ocnstraints
+   {
+      currMatBeg = 0;
+      numrows = numnz = 0;
+      rmatbeg.clear();
+      rowname.clear();
+      rmatind.clear();
+      rmatval.clear();
+      sense.clear();
+      rhs.clear();
+      for(s=0;s<numScen;s++)
+         for(i=0;i<m;i++)
+            for(j=0;j<n;j++)
+            {
+               rmatbeg.push_back(currMatBeg);
+               rowname.push_back("xq"+to_string(s)+"_"+to_string(i)+"_"+to_string(j)); numrows++;
+               index = qbeg + s*n*m +i*n +j;  // int q vars + scenario vars + server offset + client within server
+               rmatind.push_back(index); 
+               rmatval.push_back(1.0); 
+               numnz++;
+               index = i*n +j;  // x vars + server offset + client within server
+               rmatind.push_back(index); 
+               rmatval.push_back(-req[s][j]); 
+               numnz++;
+               sense.push_back('L');
+               rhs.push_back(0);
+               currMatBeg+=2;
+            }
+
+      // vector<string> to char**
+      char** rname = new char* [rowname.size()];
+      for (int index = 0; index < rowname.size(); index++) 
+         rname[index] = const_cast<char*>(rowname[index].c_str());
+
+      status = CPXaddrows(env, lp, 0, numrows, numnz, &rhs[0], &sense[0], &rmatbeg[0], &rmatind[0], &rmatval[0], NULL, rname);
+      delete[] rname;
+      if (status)  goto TERMINATE;
+   }
 
 TERMINATE:
    return (status);
 } 
 
-int StochMIP::solveDetEq(int timeLimit, int numScen, bool isVerbose)
+int StochMIP::solveDetEq(int timeLimit, int numScen, bool isVerbose, double epsCost)
 {  int      solstat;
    double   objval;
    vector<double> x;
@@ -364,16 +378,27 @@ int StochMIP::solveDetEq(int timeLimit, int numScen, bool isVerbose)
    {  cout << "Failed to create LP." << endl; goto TERMINATE; }
 
    // Now populate the problem with the data.
-   status = populateTableau(env, lp, numScen);
+   status = populateTableau(env, lp, numScen, epsCost);
    if (status) 
    {  cout <<"Failed to populate problem." << endl; goto TERMINATE; }
+
+   cur_numrows = CPXgetnumrows(env, lp);
+   cur_numcols = CPXgetnumcols(env, lp);
+   cout << "LP model; ncol=" << cur_numcols << " nrows=" << cur_numrows << endl;
+
+   // Finally, write a copy of the problem to a file
+   if(cur_numcols < 1000)
+   {  status = CPXwriteprob(env,lp,"problem.lp",NULL);
+      if (status) 
+      {  cout << "Failed to write model to disk." << endl;
+         goto TERMINATE;
+      }
+   }
 
    // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> LP <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
    status = CPXlpopt(env, lp);
    if (status) 
    {  cout << "Failed to optimize LP." << endl; goto TERMINATE; }
-   cur_numrows = CPXgetnumrows(env, lp);
-   cur_numcols = CPXgetnumcols(env, lp);
 
    // save solutions
    for(int j=0;j<cur_numcols;j++)
@@ -410,6 +435,9 @@ int StochMIP::solveDetEq(int timeLimit, int numScen, bool isVerbose)
          for(j=0;j<n;j++)
             ctype.push_back('I');   // x vars
    for(s=0;s<numScen;s++)
+      for(j=0;j<n;j++)
+         ctype.push_back('I');      // eps vars
+   for(s=0;s<numScen;s++)
       for(i=0;i<m;i++)
          for(j=0;j<n;j++)
             ctype.push_back('I');   // q vars
@@ -417,7 +445,7 @@ int StochMIP::solveDetEq(int timeLimit, int numScen, bool isVerbose)
    if (status)
    {  cout << "Failed to copy ctype" << endl; goto TERMINATE; }
 
-   // ---------------------------- Optimize to integrality
+   // -------------------------------------------------- Optimize to integrality
    status = CPXmipopt(env, lp);
    if (status) 
    {  cout << "Failed to optimize MIP" << endl; goto TERMINATE; }
@@ -448,15 +476,6 @@ int StochMIP::solveDetEq(int timeLimit, int numScen, bool isVerbose)
       for (j = 0; j<cur_numcols; j++)
          if (x[j]>0.01)
             cout<<"Column "<<j<<":  Value = "<<x[j]<<endl;
-   }
-
-   // Finally, write a copy of the problem to a file
-   if(cur_numcols < 1000)
-   {  status = CPXwriteprob(env,lp,"problem.lp",NULL);
-      if (status) 
-      {  cout << "Failed to write model to disk." << endl;
-         goto TERMINATE;
-      }
    }
 
 TERMINATE:
