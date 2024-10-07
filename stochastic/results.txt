@@ -1,2 +1,6 @@
 Instance inst_52_4_0_0 num.boost 75 status 0 cur_numcols 728 cur_numrows 632 numInfeasibilities 0 objval 14592 total_time 0.51
 Instance inst_52_4_0_0 num.boost 75 status 0 cur_numcols 728 cur_numrows 632 numInfeasibilities 0 objval 14592 total_time 0.298
+Instance inst_52_4_0_0 num.boost 125 status 0 cur_numcols 728 cur_numrows 632 numInfeasibilities 0 objval 15050 total_time 0.426
+Instance inst_52_4_0_0 num.boost 125 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 objval 16796 total_time 230.099
+Instance inst_52_4_0_0 num.boost 175 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 objval 17931 total_time 600.186
+Instance inst_52_4_0_0 num.boost 175 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 objval 17889 total_time 1200.33

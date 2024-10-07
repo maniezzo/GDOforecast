@@ -1,10 +1,10 @@
 { 
    "instanceFile" : "c:/git/GDOforecast/generator/inst_52_4_0_0.json",
-   "distribFile"  : "c:/git/GDOforecast/boost_forecast/distr_YW_AR_75.csv",
+   "distribFile"  : "c:/git/GDOforecast/boost_forecast/distr_YW_AR_175.csv",
    "solFile"   : "results.txt",
-   "numScen"   : 2,
+   "numScen"   : 100,
    "epsCost"   : 1000,
-   "TimeLimit" : 600,
+   "TimeLimit" : 1200,
    "isVerbose" : false,
    "isDetmnst" : false
 }
