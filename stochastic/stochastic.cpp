@@ -1,5 +1,4 @@
 #include "stochastic.h"
-#include "detequiv.h"
 
 // Read instance data
 void SingleMIP::readInstance(string& fileName) 
@@ -7,7 +6,7 @@ void SingleMIP::readInstance(string& fileName)
    int i,j;
 
    ifstream infile;
-   cout << "Opening " << fileName << endl;
+   cout << "Non stochastic: opening " << fileName << endl;
    infile.exceptions(ifstream::failbit | ifstream::badbit);
    infile.open(fileName.c_str());
 
@@ -50,10 +49,10 @@ void SingleMIP::readInstance(string& fileName)
    for (i = 0; i < JSV["qcost"].size(); i++)
       qcost[i] = JSV["qcost"][i];
 
-   fileName = "c:/git/GDOforecast/generator/seedMatrix.csv";
-   cout << "Opening " << fileName << endl;
+   string matrixFile = "c:/git/GDOforecast/generator/seedMatrix.csv";
+   cout << "Opening matrix file " << matrixFile << endl;
    infile.exceptions(ifstream::failbit | ifstream::badbit);
-   infile.open(fileName);
+   infile.open(matrixFile);
    // Read the file line by line
    getline(infile, line);   // headers
    xAssCost.resize(m);
@@ -435,30 +434,4 @@ TERMINATE:
    }
 
    return (status);
-}  /* END main */
-
-int main()
-{  StochMIP Stoch;
-   SingleMIP MIP;
-   string instanceFile = "c:/git/GDOforecast/generator/inst_52_4_0_0.json";
-   string solFile = "results.txt";
-   int TimeLimit = 1800;
-   double epsCost;
-   srand(666);
-
-   // non stochastic, just a test
-   //MIP.readInstance(instanceFile);
-   //int status = MIP.solveMIP(TimeLimit);
-
-   instanceFile = "c:/git/GDOforecast/generator/inst_52_4_0_0.json";
-   string distribFile = "c:/git/GDOforecast/boost_forecast/distr_YW_AR_75.csv";
-   int numScen = 20;                                // numero d iscenari da generare
-   int nboost = 75;
-   epsCost = 100000;
-   Stoch.readInstance(instanceFile, numScen,nboost);
-   Stoch.readBoostForecasts(distribFile,nboost,numScen);
-   bool isVerbose = true;
-   int status = Stoch.solveDetEq(TimeLimit,numScen,isVerbose, epsCost);
-
-   cout << "<ENTER> to exit ..."; getchar();
 }

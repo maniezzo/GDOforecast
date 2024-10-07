@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <vector>
+#include <tuple>
 #include <time.h>
 #include "json.h"
 

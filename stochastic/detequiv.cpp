@@ -13,7 +13,6 @@ void StochMIP::readInstance(string& fileName, int numScen, int nboost)
    std::stringstream buffer;
    buffer << infile.rdbuf();
    line = buffer.str();
-   //std::getline(jData,line);
    infile.close();
 
    json::Value JSV = json::Deserialize(line);
@@ -49,10 +48,10 @@ void StochMIP::readInstance(string& fileName, int numScen, int nboost)
    for (i = 0; i < JSV["qcost"].size(); i++)
       qcost[i] = JSV["qcost"][i];
 
-   fileName = "c:/git/GDOforecast/generator/seedMatrix.csv";
-   cout << "Opening " << fileName << endl;
+   string matrixFile = "c:/git/GDOforecast/generator/seedMatrix.csv";
+   cout << "Opening matrix file " << matrixFile << endl;
    infile.exceptions(ifstream::failbit | ifstream::badbit);
-   infile.open(fileName);
+   infile.open(matrixFile);
    // Read the file line by line
    getline(infile, line);   // headers
    xAssCost.resize(m);
@@ -334,8 +333,8 @@ TERMINATE:
    return (status);
 } 
 
-int StochMIP::solveDetEq(int timeLimit, int numScen, bool isVerbose, double epsCost)
-{  int      solstat;
+tuple<int,int,int,int,float,double> StochMIP::solveDetEq(int timeLimit, int numScen, bool isVerbose, double epsCost)
+{  int      solstat, numInfeasibilities = 0;
    double   objval;
    vector<double> x;
    vector<double> pi;
@@ -343,11 +342,13 @@ int StochMIP::solveDetEq(int timeLimit, int numScen, bool isVerbose, double epsC
    vector<double> dj;
    vector<char>   ctype;
 
-   CPXENVptr     env = NULL;
-   CPXLPptr      lp  = NULL;
-   int           status = 0;
-   int           i,j,s;
-   int           cur_numrows, cur_numcols;
+   CPXENVptr  env = NULL;
+   CPXLPptr  lp  = NULL;
+   int       status = 0;
+   int       i,j,s;
+   int       cur_numrows, cur_numcols;
+   time_t    tstart, tend;
+   double    total_time;
 
    // Initialize the CPLEX environment
    env = CPXopenCPLEX(&status);
@@ -429,6 +430,7 @@ int StochMIP::solveDetEq(int timeLimit, int numScen, bool isVerbose, double epsC
    }
 
    // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> MIP <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
    // Now copy the ctype array
    for(s=0;s<numScen;s++)
       for(i=0;i<m;i++)
@@ -446,12 +448,16 @@ int StochMIP::solveDetEq(int timeLimit, int numScen, bool isVerbose, double epsC
    {  cout << "Failed to copy ctype" << endl; goto TERMINATE; }
 
    // -------------------------------------------------- Optimize to integrality
+   tstart = clock();
    status = CPXmipopt(env, lp);
    if (status) 
    {  cout << "Failed to optimize MIP" << endl; goto TERMINATE; }
+   tend = clock();
+   total_time = (double)( tend - tstart )/(double)CLK_TCK ;
+   cout << "Elapsed time :" << total_time << endl;
 
    solstat = CPXgetstat(env, lp);
-   cout << "Solution status = " << solstat << endl;
+   cout << "Solution status = " << solstat << endl; // 101 CPXMIP_OPTIMAL,  102 CPXMIP_OPTIMAL_TOL (opt within tolerance)
 
    status = CPXgetobjval(env, lp, &objval);
    if (status) 
@@ -460,23 +466,30 @@ int StochMIP::solveDetEq(int timeLimit, int numScen, bool isVerbose, double epsC
    cout << "Solution value  = " << objval << endl;
    cur_numrows = CPXgetnumrows(env, lp);
    cur_numcols = CPXgetnumcols(env, lp);
+   status = CPXgetx(env,lp,&x[0],0,cur_numcols-1);
+   if (status)
+   { cout<<"Failed to get optimal integer x."<<endl; goto TERMINATE; }
 
    if(isVerbose)
-   {  status = CPXgetx(env,lp,&x[0],0,cur_numcols-1);
-      if (status)
-      { cout<<"Failed to get optimal integer x."<<endl; goto TERMINATE; }
-
-      status = CPXgetslack(env,lp,&slack[0],0,cur_numrows-1);
+   {  status = CPXgetslack(env,lp,&slack[0],0,cur_numrows-1);
       if (status)
       { cout<<"Failed to get optimal slack values."<<endl; goto TERMINATE; }
 
       //for (i = 0; i < cur_numrows; i++) 
       //   cout << "Row " << i << ":  Slack = " << slack[i] << endl;
-
-      for (j = 0; j<cur_numcols; j++)
-         if (x[j]>0.01)
-            cout<<"Column "<<j<<":  Value = "<<x[j]<<endl;
+      //
+      //for (j = 0; j<cur_numcols; j++)
+      //   if (x[j]>0.01)
+      //      cout<<"Column "<<j<<":  Value = "<<x[j]<<endl;
    }
+
+   // eps variables, infeasibilities
+   for(j=n*m;j<(n*m+n*numScen);j++)
+      if (x[j]>0.01)
+      {  cout<<"Eps "<<j<<":  Value = "<<x[j]<<endl;
+         numInfeasibilities++;
+      }
+   cout << "Number of infeasibilities: " << numInfeasibilities << endl;
 
 TERMINATE:
    // Free up the problem as allocated by CPXcreateprob, if necessary
@@ -497,7 +510,8 @@ TERMINATE:
       }
    }
 
-   return (status);
+   tuple<int,int,int,int,float,double> res = make_tuple(status,cur_numcols,cur_numrows,numInfeasibilities,objval,total_time);
+   return res;
 }  /* END main */
 
 // random quantity in the boosted series according to empyrical distrib

@@ -1,0 +1,2 @@
+Instance inst_52_4_0_0 num.boost 75 status 0 cur_numcols 728 cur_numrows 632 numInfeasibilities 0 objval 14592 total_time 0.51
+Instance inst_52_4_0_0 num.boost 75 status 0 cur_numcols 728 cur_numrows 632 numInfeasibilities 0 objval 14592 total_time 0.298

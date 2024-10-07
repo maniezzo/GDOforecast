@@ -135,6 +135,7 @@
   <ItemGroup>
     <ClCompile Include="detequiv.cpp" />
     <ClCompile Include="json.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="stochastic.cpp" />
   </ItemGroup>
   <ItemGroup>
