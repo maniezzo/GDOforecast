@@ -48,7 +48,7 @@ void StochMIP::readInstance(string& fileName, int numScen, int nboost)
    for (i = 0; i < JSV["qcost"].size(); i++)
       qcost[i] = JSV["qcost"][i];
 
-   string matrixFile = "c:/git/GDOforecast/generator/seedMatrix.csv";
+   string matrixFile = "../generator/seedMatrix.csv";
    cout << "Opening matrix file " << matrixFile << endl;
    infile.exceptions(ifstream::failbit | ifstream::badbit);
    infile.open(matrixFile);

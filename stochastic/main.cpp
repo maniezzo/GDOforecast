@@ -55,8 +55,9 @@ int main()
       ostringstream osString;
       osString<<"Instance "<<strInst;
       osString<<" num.scen. "<<numScen;
-      osString<<" num.boost "<<nboost;
-      osString<<" status "<<get<0>(res);
+      osString<<" num.boost " << nboost;
+      osString<<" repet. " << irep;
+      osString<<" status " << get<0>(res);
       osString<<" cur_numcols "<<get<1>(res);
       osString<<" cur_numrows "<<get<2>(res);
       osString<<" numInfeasibilities "<<get<3>(res);
