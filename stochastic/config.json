@@ -4,7 +4,7 @@
    "solFile"   : "results.txt",
    "numScen"   : 100,
    "epsCost"   : 1000,
-   "TimeLimit" : 1200,
+   "TimeLimit" : 600,
    "isVerbose" : false,
    "isDetmnst" : false
 }

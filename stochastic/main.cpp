@@ -8,7 +8,8 @@ int main()
    string instanceFile,distribFile,solFile;
    string line;
    int status;
-   srand(666);
+   //srand(666);
+   srand(time(NULL));
 
    ifstream infile;
    cout<<"Opening config.json"<<endl;
@@ -51,6 +52,7 @@ int main()
    string strInst = instanceFile.substr(slashPos + 1, dotPos - slashPos - 1);
    ostringstream osString;
    osString << "Instance "     << strInst;
+   osString << " num.scen. "   << numScen;
    osString << " num.boost "   << nboost;
    osString << " status "      << get<0>(res);
    osString << " cur_numcols " << get<1>(res);

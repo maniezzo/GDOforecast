@@ -88,6 +88,7 @@ def tablePreProc(df):
    dfTable.to_csv('tab_preproc.csv')
    return
 
+# alcune prove iniziali, ininfluenti sul risultato
 def recolor_check():
    p = 3 # only 3 for check
    ts = np.array([1.4,1,1.9,1.6,1.3,1.4,1.9,1.2])
@@ -178,7 +179,7 @@ def main_boosting(name,df,backCast = True, repetition=True, nboost=75,p=7,verbos
       elif(bmodel=="YW"):
          intercept = np.mean(y) # should be 0
          y2 = y - intercept # Center the series in case of non-zero mean
-         if abs(intercept) < 0: # remove check significativiity different p
+         if abs(intercept) < 0: # remove check significance different p
             for k in range(2,8):
                # Estimate AR coefficients using Yule-Walker equations
                coeff, sigma = yule_walker(y, order=k)
@@ -352,4 +353,4 @@ if __name__ == "__main__":
    print(f"Boosting {name}")
    #sql.createSqlite("..\\data\\results.sqlite")
    p = 5
-   main_boosting(name,df2.iloc[:-3,:], backCast=False, repetition=True, nboost = 175, p=p, verbose=True, bmodel="YW") # last 3 were original forecasts
+   main_boosting(name,df2.iloc[:-3,:], backCast=False, repetition=True, nboost = 75, p=p, verbose=True, bmodel="YW") # last 3 were original forecasts
