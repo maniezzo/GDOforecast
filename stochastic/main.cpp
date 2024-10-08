@@ -7,7 +7,7 @@ int main()
    SingleMIP MIP;
    string instanceFile,distribFile,solFile;
    string line;
-   int status;
+   int status,irep;
    //srand(666);
    srand(time(NULL));
 
@@ -44,33 +44,35 @@ int main()
    }
 
    // stochastic, deterministic equivalent
-   Stoch.readInstance(instanceFile, numScen,nboost);
-   Stoch.readBoostForecasts(distribFile,nboost,numScen);
-   tuple<int,int,int,int,float,double> res = Stoch.solveDetEq(TimeLimit,numScen,isVerbose, epsCost);
-   size_t slashPos = instanceFile.rfind('/');
-   dotPos = instanceFile.rfind('.');
-   string strInst = instanceFile.substr(slashPos + 1, dotPos - slashPos - 1);
-   ostringstream osString;
-   osString << "Instance "     << strInst;
-   osString << " num.scen. "   << numScen;
-   osString << " num.boost "   << nboost;
-   osString << " status "      << get<0>(res);
-   osString << " cur_numcols " << get<1>(res);
-   osString << " cur_numrows " << get<2>(res);
-   osString << " numInfeasibilities " << get<3>(res);
-   osString << " objval "      << get<4>(res);
-   osString << " total_time "  << get<5>(res) << endl;
-   string outStr = osString.str();
-   cout << outStr << endl;
+   for(irep=0;irep<10;irep++)
+   {
+      Stoch.readInstance(instanceFile,numScen,nboost);
+      Stoch.readBoostForecasts(distribFile,nboost,numScen);
+      tuple<int,int,int,int,float,double> res = Stoch.solveDetEq(TimeLimit,numScen,isVerbose,epsCost);
+      size_t slashPos = instanceFile.rfind('/');
+      dotPos = instanceFile.rfind('.');
+      string strInst = instanceFile.substr(slashPos+1,dotPos-slashPos-1);
+      ostringstream osString;
+      osString<<"Instance "<<strInst;
+      osString<<" num.scen. "<<numScen;
+      osString<<" num.boost "<<nboost;
+      osString<<" status "<<get<0>(res);
+      osString<<" cur_numcols "<<get<1>(res);
+      osString<<" cur_numrows "<<get<2>(res);
+      osString<<" numInfeasibilities "<<get<3>(res);
+      osString<<" objval "<<get<4>(res);
+      osString<<" total_time "<<get<5>(res)<<endl;
+      string outStr = osString.str();
+      cout<<outStr<<endl;
 
-   // Open the file in append mode (std::ios::app)
-   std::ofstream outFile(solFile, std::ios::app);
-   if (!outFile) 
-   {  cout << "Error opening output file: " << solFile << std::endl;
-   }
-   else
-   {  outFile<<outStr;
-      outFile.close();
+      // Open the file in append mode (std::ios::app)
+      std::ofstream outFile(solFile,std::ios::app);
+      if (!outFile)
+         cout<<"Error opening output file: "<<solFile<<std::endl;
+      else
+      {  outFile<<outStr;
+         outFile.close();
+      }
    }
    cout << "<ENTER> to exit ..."; getchar();
 }
