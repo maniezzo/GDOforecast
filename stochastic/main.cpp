@@ -44,7 +44,7 @@ int main()
    }
 
    // stochastic, deterministic equivalent
-   for(irep=0;irep<10;irep++)
+   for(irep=0;irep<20;irep++)
    {
       Stoch.readInstance(instanceFile,numScen,nboost);
       Stoch.readBoostForecasts(distribFile,nboost,numScen);

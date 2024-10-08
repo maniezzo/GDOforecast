@@ -14,11 +14,31 @@ Instance inst_52_4_0_0 num.scen. 100 num.boost 75 repet.12 status 0 cur_numcols 
 Instance inst_52_4_0_0 num.scen. 100 num.boost 75 repet.13 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 objval 16730 total_time 59.296
 Instance inst_52_4_0_0 num.scen. 100 num.boost 75 repet.14 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 objval 16683 total_time 227.534
 
-Instance inst_52_4_0_0 num.scen. 100 num.boost 125 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 objval 16796 total_time 230.099
-Instance inst_52_4_0_0 num.scen. 100 num.boost 125 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 objval 16767 total_time 116.248
-Instance inst_52_4_0_0 num.scen. 100 num.boost 125 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 objval 16743 total_time 74.57
-Instance inst_52_4_0_0 num.scen. 100 num.boost 125 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 objval 16418 total_time 141.169
-Instance inst_52_4_0_0 num.scen. 100 num.boost 125 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 objval 16481 total_time 586.48
+Instance inst_52_4_0_0 num.scen. 100 num.boost 125 repet. 0 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 objval 16529 total_time 199.14
+Instance inst_52_4_0_0 num.scen. 100 num.boost 125 repet. 1 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 objval 16699 total_time 71.552
+Instance inst_52_4_0_0 num.scen. 100 num.boost 125 repet. 2 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 objval 16773 total_time 105.885
+Instance inst_52_4_0_0 num.scen. 100 num.boost 125 repet. 3 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 objval 16440 total_time 150.08
+Instance inst_52_4_0_0 num.scen. 100 num.boost 125 repet. 4 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 objval 16575 total_time 82.805
+Instance inst_52_4_0_0 num.scen. 100 num.boost 125 repet. 5 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 objval 16853 total_time 127.323
+Instance inst_52_4_0_0 num.scen. 100 num.boost 125 repet. 6 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 objval 16406 total_time 118.004
+Instance inst_52_4_0_0 num.scen. 100 num.boost 125 repet. 7 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 objval 16774 total_time 168.824
+Instance inst_52_4_0_0 num.scen. 100 num.boost 125 repet. 8 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 objval 17008 total_time 123.891
+Instance inst_52_4_0_0 num.scen. 100 num.boost 125 repet. 9 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 objval 16805 total_time 122.393
+Instance inst_52_4_0_0 num.scen. 100 num.boost 125 repet. 10 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 objval 16565 total_time 180.988
+Instance inst_52_4_0_0 num.scen. 100 num.boost 125 repet. 11 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 objval 16638 total_time 65.67
+Instance inst_52_4_0_0 num.scen. 100 num.boost 125 repet. 12 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 objval 16645 total_time 223.76
+Instance inst_52_4_0_0 num.scen. 100 num.boost 125 repet. 13 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 objval 16791 total_time 257.238
+Instance inst_52_4_0_0 num.scen. 100 num.boost 125 repet. 14 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 objval 16705 total_time 73.252
+Instance inst_52_4_0_0 num.scen. 100 num.boost 125 repet. 15 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 objval 16668 total_time 165.267
+Instance inst_52_4_0_0 num.scen. 100 num.boost 125 repet. 16 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 objval 16461 total_time 86.389
+Instance inst_52_4_0_0 num.scen. 100 num.boost 125 repet. 17 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 objval 16493 total_time 273.175
+Instance inst_52_4_0_0 num.scen. 100 num.boost 125 repet. 18 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 objval 16560 total_time 110.129
+Instance inst_52_4_0_0 num.scen. 100 num.boost 125 repet. 19 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 objval 16488 total_time 52.72
+Instance inst_52_4_0_0 num.scen. 100 num.boost 125 repet. 20 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 objval 16796 total_time 230.099
+Instance inst_52_4_0_0 num.scen. 100 num.boost 125 repet. 21 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 objval 16767 total_time 116.248
+Instance inst_52_4_0_0 num.scen. 100 num.boost 125 repet. 22 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 objval 16743 total_time 74.57
+Instance inst_52_4_0_0 num.scen. 100 num.boost 125 repet. 23 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 objval 16418 total_time 141.169
+Instance inst_52_4_0_0 num.scen. 100 num.boost 125 repet. 24 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 objval 16481 total_time 586.48
 
 Instance inst_52_4_0_0 num.scen. 100 num.boost 175 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 objval 17975 total_time 473.074
 *Instance inst_52_4_0_0 num.scen. 100 num.boost 175 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 objval 17929 total_time 600.238
