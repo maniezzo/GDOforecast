@@ -6,7 +6,7 @@
    "epsCost"   : 1000,
    "TimeLimit" : 600,
    "nrep"      : 15,
-   "nmult"     : 4, "cmntNmult" : "number of clients with b[i]=2",
+   "nmult"     : 12, "cmntNmult" : "number of clients with b[i]=2",
    "isVerbose" : false,
    "isDetmnst" : false
 }
