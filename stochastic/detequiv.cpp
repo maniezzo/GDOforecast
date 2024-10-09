@@ -1,7 +1,7 @@
 #include "detequiv.h"
 
 // Read instance data, generates also the p and the req
-void StochMIP::readInstance(string& fileName, int numScen, int nboost) 
+void StochMIP::readInstance(string& fileName, int numScen, int nboost, int nmult) 
 {  string line;
    int i,j,s;
 
@@ -19,18 +19,10 @@ void StochMIP::readInstance(string& fileName, int numScen, int nboost)
    name = JSV["name"];
    n = (int)JSV["n"];
    m = (int)JSV["m"];
-   nmult = (int)JSV["nmult"];
 
    cap.resize(m,0);
    for (i = 0; i < JSV["cap"].size(); i++)
       cap[i] = JSV["cap"][i];
-
-   //maxReq = 0;
-   //req.resize(n,0);
-   //for (i = 0; i < JSV["req"].size(); i++)
-   //{  req[i] = JSV["req"][i];
-   //   if(req[i]>maxReq) maxReq = req[i];
-   //}
 
    cols.resize(n);
    for (i = 0; i < JSV["cols"].size(); i++)
@@ -41,8 +33,18 @@ void StochMIP::readInstance(string& fileName, int numScen, int nboost)
       rows[i] = JSV["rows"][i];
 
    b.resize(n);
-   for (i = 0; i < JSV["b"].size(); i++)
-      b[i] = JSV["b"][i];
+   vector<int> ind(b.size());   // Vector of indices
+   vector<int> rqst(b.size());  // default richieste, per ordinamento solo
+   for (i = 0; i < JSV["b"].size(); i++) 
+   {  b[i]    = JSV["b"][i];
+      rqst[i] = JSV["req"][i];
+      ind[i] = i;
+   }
+   // Sort indices based on comparing elements in rqst in descending order
+   sort(ind.begin(), ind.end(), [&rqst](int i1, int i2) { return rqst[i1] > rqst[i2]; });  // Descending order
+   // make splittable the nmult clients with higer requests
+   for(i=0;i<nmult;i++)
+      b[ind[i]] = 2;
 
    qcost.resize(m);
    for (i = 0; i < JSV["qcost"].size(); i++)

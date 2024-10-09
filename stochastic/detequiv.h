@@ -22,7 +22,7 @@ public:
    vector<vector<int>> xAssCost; // assignment costs
    vector<vector<int>> boostFcasts;
 
-   void readInstance(string& fileName, int numScen, int nboost);
+   void readInstance(string& fileName, int numScen, int nboost, int nmult);
    int readBoostForecasts(string filePath,int nboost,int numScen);
    int populateTableau(CPXENVptr env, CPXLPptr lp, int numScen, double epsCost);
    tuple<int,int,int,int,float,double> solveDetEq(int timeLimit, int numScen, bool isVerbose, double epsCost);

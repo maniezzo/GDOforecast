@@ -3,7 +3,7 @@
 // Read instance data
 void SingleMIP::readInstance(string& fileName) 
 {  string line;
-   int i,j;
+   int i,j,nmult;
 
    ifstream infile;
    cout << "Non stochastic: opening " << fileName << endl;

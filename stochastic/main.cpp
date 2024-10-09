@@ -7,7 +7,7 @@ int main()
    SingleMIP MIP;
    string instanceFile,distribFile,solFile;
    string line;
-   int status,irep;
+   int status,irep,nrep,nmult;
    //srand(666);
    srand(time(NULL));
 
@@ -30,6 +30,8 @@ int main()
    double epsCost = JSV["epsCost"];      // costo ogni infeasibility
    bool isVerbose = JSV["isVerbose"];
    bool isDetmnst = JSV["isDetmnst"];    // run also the deterministic version
+   nrep  = JSV["nrep"];                  // number of repetitions
+   nmult = JSV["nmult"];                 // number of split clients, with b[i]=2
 
    // Find the last occurrence of '_' and '.' and extract number of boosted series
    size_t underscorePos = distribFile.rfind('_');
@@ -44,9 +46,9 @@ int main()
    }
 
    // stochastic, deterministic equivalent
-   for(irep=0;irep<30;irep++)
+   for(irep=0;irep<nrep;irep++)
    {
-      Stoch.readInstance(instanceFile,numScen,nboost);
+      Stoch.readInstance(instanceFile,numScen,nboost,nmult);
       Stoch.readBoostForecasts(distribFile,nboost,numScen);
       tuple<int,int,int,int,float,double> res = Stoch.solveDetEq(TimeLimit,numScen,isVerbose,epsCost);
       size_t slashPos = instanceFile.rfind('/');
