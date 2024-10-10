@@ -50,7 +50,7 @@ def boxplotb0(df):
    ax1.yaxis.grid(True, linestyle='-', which='major', color='lightgrey', alpha=0.3)
 
    # Annotating the quartiles and median
-   font_size = 12
+   font_size = 10
    plt.text(1.15, min_val75,f'{min_val75}', verticalalignment='center', fontsize=font_size)
    plt.text(1.15, q1_75,    f'{q1_75}', verticalalignment='center', fontsize=font_size)
    plt.text(1.15, median75, f'{median75}', verticalalignment='center', fontsize=font_size)
@@ -69,10 +69,19 @@ def boxplotb0(df):
    plt.text(3.15, q3_175, f'{q3_175}', verticalalignment='center', fontsize=font_size)
    plt.text(3.15, max_val175, f'{max_val175}', verticalalignment='center', fontsize=font_size)
 
+   # deterministic cost
+   plt.axhline(y=15553, color='r', xmin = 0, linestyle='-')
+   yticks = plt.gca().get_yticks()
+   # Add 15553 to the list of y-ticks if it's not already there
+   if 15553 not in yticks:
+      yticks = list(yticks) + [15553]
+   #plt.yticks(yticks)
+
    # Add labels and title
    plt.title('Objective function values, enlarging boostset', fontsize=font_size)
    plt.ylabel('Values', fontsize=font_size)
-
+   plt.ylim(15500, 18500)
+   plt.savefig('figb0.eps', format='eps')
    # Show the plot
    plt.show()
    return
@@ -161,12 +170,15 @@ def boxplotBmult(df):
    # Add labels and title
    plt.title('Objective function values, increasing b values', fontsize=font_size)
    plt.ylabel('Values', fontsize=font_size)
+   plt.savefig('figbmult.eps', format='eps')
 
    # Show the plot
    plt.show()
    return
 
 if __name__ == "__main__":
+   import matplotlib
+   matplotlib.use('TkAgg') # migliora la reattività dei plot
    df = pd.read_csv("../results/res_nboost_b0.csv")
    boxplotb0(df)
    df = pd.read_csv("../results/res_nboost_bmult.csv")
