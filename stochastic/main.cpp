@@ -8,6 +8,7 @@ int main()
    string instanceFile,distribFile,solFile;
    string line;
    int status,irep,nrep,nmult;
+   float zlb;
    //srand(666);
    srand(time(NULL));
 
@@ -50,7 +51,7 @@ int main()
    {
       Stoch.readInstance(instanceFile,numScen,nboost,nmult);
       Stoch.readBoostForecasts(distribFile,nboost,numScen);
-      tuple<int,int,int,int,float,double> res = Stoch.solveDetEq(TimeLimit,numScen,isVerbose,epsCost);
+      tuple<int,int,int,int,float,float,double> res = Stoch.solveDetEq(TimeLimit,numScen,isVerbose,epsCost);
       size_t slashPos = instanceFile.rfind('/');
       dotPos = instanceFile.rfind('.');
       string strInst = instanceFile.substr(slashPos+1,dotPos-slashPos-1);
@@ -63,8 +64,9 @@ int main()
       osString<<" cur_numcols "<<get<1>(res);
       osString<<" cur_numrows "<<get<2>(res);
       osString<<" numInfeasibilities "<<get<3>(res);
-      osString<<" objval "<<get<4>(res);
-      osString<<" total_time "<<get<5>(res)<<endl;
+      osString<<" zlb "<<get<4>(res);
+      osString<<" objval "<<get<5>(res);
+      osString<<" total_time "<<get<6>(res)<<endl;
       string outStr = osString.str();
       cout<<outStr<<endl;
 

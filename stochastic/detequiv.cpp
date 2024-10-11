@@ -335,9 +335,9 @@ TERMINATE:
    return (status);
 } 
 
-tuple<int,int,int,int,float,double> StochMIP::solveDetEq(int timeLimit, int numScen, bool isVerbose, double epsCost)
+tuple<int,int,int,int,float,float,double> StochMIP::solveDetEq(int timeLimit, int numScen, bool isVerbose, double epsCost)
 {  int      solstat, numInfeasibilities = 0;
-   double   objval;
+   double   objval,zlb;
    vector<double> x;
    vector<double> pi;
    vector<double> slack;
@@ -417,6 +417,8 @@ tuple<int,int,int,int,float,double> StochMIP::solveDetEq(int timeLimit, int numS
    status = CPXsolution(env, lp, &solstat, &objval, &x[0], &pi[0], &slack[0], &dj[0]);
    if (status) 
    {  cout << "Failed to obtain solution." << endl; goto TERMINATE; }
+
+   zlb = objval;
 
    // Write the output to the screen.
    cout << "\nSolution status = " << solstat << endl;
@@ -512,7 +514,7 @@ TERMINATE:
       }
    }
 
-   tuple<int,int,int,int,float,double> res = make_tuple(status,cur_numcols,cur_numrows,numInfeasibilities,objval,total_time);
+   tuple<int,int,int,int,float,float,double> res = make_tuple(status,cur_numcols,cur_numrows,numInfeasibilities,zlb,objval,total_time);
    return res;
 }  /* END main */
 

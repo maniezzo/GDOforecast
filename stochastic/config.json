@@ -1,12 +1,12 @@
 { 
-   "instanceFile" : "../generator/inst_52_4_0_0.json",
+   "instanceFile" : "../generator/inst_52_4_0_0_q4.json",
    "distribFile"  : "../boost_forecast/distr_YW_AR_75.csv",
    "solFile"   : "results.txt",
    "numScen"   : 100,
-   "epsCost"   : 1000,
-   "TimeLimit" : 600,
+   "epsCost"   : 10000,
+   "TimeLimit" : 1200,
    "nrep"      : 15,
-   "nmult"     : 12, "cmntNmult" : "number of clients with b[i]=2",
+   "nmult"     : 0, "cmntNmult" : "number of clients with b[i]=2",
    "isVerbose" : false,
    "isDetmnst" : false
 }
