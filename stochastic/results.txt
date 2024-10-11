@@ -153,3 +153,19 @@ Instance inst_52_4_0_0_q2 num.scen. 100 num.boost 75 repet. 11 status 0 cur_numc
 Instance inst_52_4_0_0_q2 num.scen. 100 num.boost 75 repet. 12 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 zlb 4.66034e+06 objval 5.45782e+06 total_time 1200.09
 Instance inst_52_4_0_0_q2 num.scen. 100 num.boost 75 repet. 13 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 zlb 4.78154e+06 objval 5.46698e+06 total_time 1200.09
 Instance inst_52_4_0_0_q2 num.scen. 100 num.boost 75 repet. 14 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 4 zlb 4.74656e+06 objval 5.5127e+06 total_time 1200.1
+
+Instance inst_52_4_0_0_q4 num.scen. 100 num.boost 75 repet. 0 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 zlb 1.38088e+07 objval 1.3978e+07 total_time 75.879
+Instance inst_52_4_0_0_q4 num.scen. 100 num.boost 75 repet. 1 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 zlb 1.33569e+07 objval 1.34937e+07 total_time 27.973
+Instance inst_52_4_0_0_q4 num.scen. 100 num.boost 75 repet. 2 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 zlb 1.35449e+07 objval 1.3594e+07 total_time 6.129
+Instance inst_52_4_0_0_q4 num.scen. 100 num.boost 75 repet. 3 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 zlb 1.35977e+07 objval 1.38731e+07 total_time 33.874
+Instance inst_52_4_0_0_q4 num.scen. 100 num.boost 75 repet. 4 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 zlb 1.32656e+07 objval 1.34632e+07 total_time 0.415
+Instance inst_52_4_0_0_q4 num.scen. 100 num.boost 75 repet. 5 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 zlb 1.30405e+07 objval 1.31952e+07 total_time 11.563
+Instance inst_52_4_0_0_q4 num.scen. 100 num.boost 75 repet. 6 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 zlb 1.37328e+07 objval 1.39502e+07 total_time 52.31
+Instance inst_52_4_0_0_q4 num.scen. 100 num.boost 75 repet. 7 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 zlb 1.33066e+07 objval 1.34901e+07 total_time 42.941
+Instance inst_52_4_0_0_q4 num.scen. 100 num.boost 75 repet. 8 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 zlb 1.36532e+07 objval 1.39235e+07 total_time 3.292
+Instance inst_52_4_0_0_q4 num.scen. 100 num.boost 75 repet. 9 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 zlb 1.28259e+07 objval 1.28259e+07 total_time 0.099
+Instance inst_52_4_0_0_q4 num.scen. 100 num.boost 75 repet. 10 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 zlb 1.30932e+07 objval 1.31864e+07 total_time 1.414
+Instance inst_52_4_0_0_q4 num.scen. 100 num.boost 75 repet. 11 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 zlb 1.27513e+07 objval 1.29608e+07 total_time 0.445
+Instance inst_52_4_0_0_q4 num.scen. 100 num.boost 75 repet. 12 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 zlb 1.28516e+07 objval 1.29922e+07 total_time 0.836
+Instance inst_52_4_0_0_q4 num.scen. 100 num.boost 75 repet. 13 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 zlb 1.34817e+07 objval 1.35953e+07 total_time 18.377
+Instance inst_52_4_0_0_q4 num.scen. 100 num.boost 75 repet. 14 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 zlb 1.34998e+07 objval 1.36894e+07 total_time 61.962
