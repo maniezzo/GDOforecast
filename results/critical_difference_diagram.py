@@ -260,6 +260,11 @@ def draw_cd_diagram(df_perf=None, alpha=0.05, title=None, labels=False, fAscendi
 
     print(f"average_ranks {average_ranks}")
 
+    with open("ranks_results.txt", "a") as file:
+        # Write the text you want to append
+        file.write(f"{title} ranks {average_ranks.index.values}\n")
+        file.write(f"{title} ranks {average_ranks.values}\n")
+
     for p in p_values:
         print(f"p values: {p}")
 
@@ -414,6 +419,6 @@ if __name__ == '__main__':
     # fAscending True:  minimize, lower values better
     # fAscending False: maximize, higher values better
     draw_cd_diagram(df_perf=df_perf, title=obfuncname, labels=True, fAscending = True)
-    print(f"Diagram is written on file {obfuncname}resXXX.png")
+    print(f"Diagram is written on file {obfuncname}resXXX.eps")
 
 
