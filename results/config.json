@@ -3,7 +3,7 @@
    "model"   : "YW", "mcomment": ["AR","YW"],
    "fback"   : 0   , "bcomment": "0 no backcasting",
    "frep"    : 1   , "rcomment": "1 with repetition, 0 scramble",
-   "nboost"  : 75 , "ncomment": [75, 100, 125, 175],
+   "nboost"  : 175 , "ncomment": [75, 100, 125, 175],
    "firstcust": 0  , "fcomment": "first customer to model",
    "stepcust" : 52 , "scomment": "number of forecasted custmers"
 }
