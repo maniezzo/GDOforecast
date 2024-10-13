@@ -13,7 +13,7 @@ import sys
 import json
 
 # forecasts a single future value look_back time instant ahead using the specified mathod
-def forecast_value(ds,dslog,method,look_back = 3, verbose = False):
+def forecast_value(ds,dslog,method,look_back = 3, verbose = False, morder="", mseasorder=""):
    if(method=="AR"):
       fcast = ar.go_AR(ds[:-look_back], look_back=look_back, verbose=verbose, gridSearch=True)  # AR semplice
    elif (method == "HW"):
@@ -23,7 +23,11 @@ def forecast_value(ds,dslog,method,look_back = 3, verbose = False):
    elif(method=="xgboost"):
       fcast = xgb.go_xgboost(ds[:-look_back], look_back=look_back, verbose= verbose)  # XGboost
    elif (method == "arima"):
-      fcast = sar.go_sarima(ds[:-look_back], look_back=look_back, autoArima=True, verbose=verbose)  # ARIMA
+      if(morder==""):
+         fcast,_,_ = sar.go_sarima(ds[:-look_back], look_back=look_back, autoArima=True, verbose=verbose)  # ARIMA
+      else:
+         fcast,_,_ = sar.go_sarima(ds, look_back=look_back, autoArima=False, verbose=False, morder=morder,
+                                  mseasorder=mseasorder)  # (idserie==0))  # ARIMA
    elif (method == "MLP"):
       fcast = mlp.go_MLP(ds[:-look_back], look_back=look_back, lr=0.05, niter=1000, verbose=verbose)  # MLP, pytorch
    elif (method == "lstm"):
@@ -64,7 +68,7 @@ def main_fcast(name, df, idcustomer=0, step = 52, model='AR', distrib='AR', fbac
 
       # if arima, I fit on the first series of the set and keep the model on all other ones
       yarima = -1
-      if(model == "ARIMA"):
+      if(model == "ARIMA" or True):
          ds = np.array(bset.iloc[0, 0:])
          yarima, morder, mseasorder = sar.go_sarima(ds, look_back=look_back, autoArima=True, verbose=verbose)   # ARIMA
 
@@ -136,7 +140,7 @@ def main_fcast(name, df, idcustomer=0, step = 52, model='AR', distrib='AR', fbac
          ylstm  = forecast_value(ds,dslog,method="lstm",look_back=look_back,verbose=verbose)
          yrf    = forecast_value(ds,dslog,method="randomf",look_back=look_back,verbose=verbose)
          yxgb   = forecast_value(ds,dslog,method="xgboost",look_back=look_back,verbose=verbose)
-         # yarima was already computed before
+         yarima = forecast_value(ds,dslog,method="arima",look_back=look_back,verbose=verbose, morder=morder, mseasorder=mseasorder) #(idserie==0))  # ARIMA
       else:
          yar = yhw = ylstm = ymlp = yrf = yxgb = yarima = 0
          ysvm = [0]
