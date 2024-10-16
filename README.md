@@ -1,14 +1,17 @@
-# OCDT
-Optimal Covering Decision Tree
+# GDOforecast
+Forecast and optimizaton in a 2-echelon logistic setting
 
-Lots of up to date work and old leftovers
+Repository of all codes and data reported in the papers: ....
 
+The repository contains several unreported and non-exiting tests, in addition to the code that generates the reported results.  
 Directories:
-- convexhull: old, just a 3d view of a dataset
-- data: all datasets. Also a viewer like that in convexhul with a filter for inliers dataset.
-- github_cart: a cart from github
-- hyperbox: hyperbox AABB clustering. Python older, c++ newer. Works only on small datasets
-- interpretableAI: their solution, needs licensing
-- MIPmodel: minimal covering cuts. Python older, c++ unfinished stub, c# the real thing, with ortools
-- plotTree: reads the cuts and plots the tree. Python older, c++ binary tree, c# nonbinary tree
-
+- boosting: generates the boosted sets
+- boost_forecast: predictive module, boosting and standard forecasts
+- data: original and intermediate instance data
+- forenback: a forenback matheuristic for solving the problem, abandoned
+- generator: generator for the extended benchmark set
+- lagrangian: a lagrangina matheuristic for solving the problem, abandoned
+- old-soco: data and codes used for the paper maniezzo, tingting 2023
+- results: all results of the optimizations
+- stochastic: code for the prescriptive module
+- testHexaly: test of the hexaly solver for solving the problem, intermediate
