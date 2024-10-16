@@ -335,9 +335,9 @@ TERMINATE:
    return (status);
 } 
 
-tuple<int,int,int,int,float,float,double> StochMIP::solveDetEq(int timeLimit, int numScen, bool isVerbose, double epsCost)
+tuple<int,int,int,int,float,float,double,double> StochMIP::solveDetEq(int timeLimit, int numScen, bool isVerbose, double epsCost)
 {  int      solstat, numInfeasibilities = 0;
-   double   objval,zlb;
+   double   objval,zlb,lbfinal;
    vector<double> x;
    vector<double> pi;
    vector<double> slack;
@@ -467,6 +467,10 @@ tuple<int,int,int,int,float,float,double> StochMIP::solveDetEq(int timeLimit, in
    if (status) 
    {  cout << "No MIP objective value available.  Exiting..." << endl; goto TERMINATE; }
 
+   status = CPXgetbestobjval(env, lp, &lbfinal);
+   if (status) 
+   {  cout << "Could not get a lower bound.  Exiting..." << endl; goto TERMINATE; }
+
    cout << "Solution value  = " << objval << endl;
    cur_numrows = CPXgetnumrows(env, lp);
    cur_numcols = CPXgetnumcols(env, lp);
@@ -514,7 +518,7 @@ TERMINATE:
       }
    }
 
-   tuple<int,int,int,int,float,float,double> res = make_tuple(status,cur_numcols,cur_numrows,numInfeasibilities,zlb,objval,total_time);
+   tuple<int,int,int,int,float,float,double,double> res = make_tuple(status,cur_numcols,cur_numrows,numInfeasibilities,zlb,objval,lbfinal,total_time);
    return res;
 }  /* END main */
 

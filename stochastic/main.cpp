@@ -51,7 +51,7 @@ int main()
    {
       Stoch.readInstance(instanceFile,numScen,nboost,nmult);
       Stoch.readBoostForecasts(distribFile,nboost,numScen);
-      tuple<int,int,int,int,float,float,double> res = Stoch.solveDetEq(TimeLimit,numScen,isVerbose,epsCost);
+      tuple<int,int,int,int,float,float,double,double> res = Stoch.solveDetEq(TimeLimit,numScen,isVerbose,epsCost);
       size_t slashPos = instanceFile.rfind('/');
       dotPos = instanceFile.rfind('.');
       string strInst = instanceFile.substr(slashPos+1,dotPos-slashPos-1);
@@ -66,9 +66,10 @@ int main()
       osString<<" numInfeasibilities "<<get<3>(res);
       osString<<" zlb "<<get<4>(res);
       osString<<" objval "<<get<5>(res);
-      osString<<" total_time "<<get<6>(res)<<endl;
+      osString<<" finalLb "<<get<6>(res);
+      osString<<" total_time "<<get<7>(res)<<endl;
       string outStr = osString.str();
-      cout<<outStr<<endl;
+      cout<< fixed << outStr<<endl;
 
       // Open the file in append mode (std::ios::app)
       std::ofstream outFile(solFile,std::ios::app);
