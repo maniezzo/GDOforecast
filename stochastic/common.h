@@ -17,8 +17,8 @@
 using namespace std;
 
 // Structure to hold callback data, including timing information and LP pointer
-struct CallbackData {
-   std::chrono::steady_clock::time_point lastPrintTime; // Last time bounds were printed
+struct CallbackData 
+{  chrono::steady_clock::time_point lastPrintTime; // Last time bounds were printed
    CPXLPptr lp;  // Pointer to the CPLEX problem (LP)
 };
 

@@ -317,7 +317,7 @@ tuple<int,int,int,float,float,double,double> SingleMIP::solveMIP(int timeLimit, 
       goto TERMINATE;
    }
 
-  cur_numrows = CPXgetnumrows(env, lp);
+   cur_numrows = CPXgetnumrows(env, lp);
    cur_numcols = CPXgetnumcols(env, lp);
    cout << "LP model; ncol=" << cur_numcols << " nrows=" << cur_numrows << endl;
 
@@ -370,7 +370,7 @@ tuple<int,int,int,float,float,double,double> SingleMIP::solveMIP(int timeLimit, 
    }
 
    // Create an instance of the callback data structure and pass the problem pointer
-   data.lastPrintTime = std::chrono::steady_clock::now(); // Initialize the timer
+   data.lastPrintTime = chrono::steady_clock::now(); // Initialize the callback timer
    data.lp = lp; // Set the LP pointer
 
    // Set the callback function
@@ -421,7 +421,7 @@ tuple<int,int,int,float,float,double,double> SingleMIP::solveMIP(int timeLimit, 
 
    //for (i = 0; i < cur_numrows; i++) 
    //   cout << "Row " << i << ":  Slack = " << slack[i] << endl;
-  //for (j = 0; j < cur_numcols; j++) 
+   //for (j = 0; j < cur_numcols; j++) 
    //   if(x[j]>0.01)
    //      cout << "Column " << j << ":  Value = " << x[j] << endl;
 
