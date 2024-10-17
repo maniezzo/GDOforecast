@@ -2,17 +2,16 @@
 #include "detequiv.h"
 #include "json.h"
 
-
 // Callback function to print best bounds every 10 minutes
 int CPXPUBLIC myCallbackFunction(CPXCENVptr env, void *cbdata, int wherefrom, void *cbhandle) 
 {  // Cast the callback handle to our custom data structure
    CallbackData *data = static_cast<CallbackData*>(cbhandle);
 
    // Get the current time
-   auto currentTime = std::chrono::steady_clock::now();
+   auto currentTime = chrono::steady_clock::now();
 
    // Calculate time elapsed since the last print
-   std::chrono::duration<double> elapsedTime = currentTime - data->lastPrintTime;
+   chrono::duration<double> elapsedTime = currentTime - data->lastPrintTime;
 
    // Check if 10 minutes (600 seconds) have passed
    if (elapsedTime.count() >= 600.0) {
@@ -31,7 +30,7 @@ int CPXPUBLIC myCallbackFunction(CPXCENVptr env, void *cbdata, int wherefrom, vo
       }
 
       // Print the bounds
-      std::cout << "After " << elapsedTime.count() / 60 << " minutes: "
+      cout << "After " << elapsedTime.count() << " sec: "
          << "Best Upper Bound: " << bestObjVal
          << ", Best Lower Bound: " << incumbObjVal << std::endl;
 
