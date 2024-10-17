@@ -11,8 +11,17 @@
 #include <tuple>
 #include <algorithm>   // sort
 #include <time.h>
+#include <chrono>
 #include "json.h"
 
 using namespace std;
+
+// Structure to hold callback data, including timing information and LP pointer
+struct CallbackData {
+   std::chrono::steady_clock::time_point lastPrintTime; // Last time bounds were printed
+   CPXLPptr lp;  // Pointer to the CPLEX problem (LP)
+};
+
+int CPXPUBLIC myCallbackFunction(CPXCENVptr env, void *cbdata, int wherefrom, void *cbhandle);
 
 #endif // COMMON_H

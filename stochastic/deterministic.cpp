@@ -1,4 +1,4 @@
-#include "stochastic.h"
+#include "deterministic.h"
 
 // Read instance data
 void SingleMIP::readInstance(string& fileName) 
@@ -268,13 +268,13 @@ tuple<int,int,int,float,float,double,double> SingleMIP::solveMIP(int timeLimit, 
    vector<double> dj;
    vector<char>   ctype;
 
-   CPXENVptr env = NULL;
-   CPXLPptr  lp  = NULL;
-   int       status = 0;
-   int       i,j;
-   int       cur_numrows, cur_numcols;
-   time_t    tstart, tend;
-   double    total_time;
+   CPXENVptr     env = NULL;
+   CPXLPptr      lp  = NULL;
+   int           status = 0;
+   int           i,j;
+   int           cur_numrows, cur_numcols;
+   time_t    tstart, tend; double    total_time;
+   CallbackData data;
 
    // Initialize the CPLEX environment
    env = CPXopenCPLEX(&status);
@@ -317,16 +317,14 @@ tuple<int,int,int,float,float,double,double> SingleMIP::solveMIP(int timeLimit, 
       goto TERMINATE;
    }
 
-   cur_numrows = CPXgetnumrows(env, lp);
+  cur_numrows = CPXgetnumrows(env, lp);
    cur_numcols = CPXgetnumcols(env, lp);
    cout << "LP model; ncol=" << cur_numcols << " nrows=" << cur_numrows << endl;
 
    // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> LP <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
    status = CPXlpopt(env, lp);
    if (status) 
-   {  cout << "Failed to optimize LP." << endl;
-      goto TERMINATE;
-   }
+   {  cout << "Failed to optimize LP." << endl; goto TERMINATE; }
    cur_numrows = CPXgetnumrows(env, lp);
    cur_numcols = CPXgetnumcols(env, lp);
    cout << "LP model; ncol=" << cur_numcols << " nrows=" << cur_numrows << endl;
@@ -347,19 +345,15 @@ tuple<int,int,int,float,float,double,double> SingleMIP::solveMIP(int timeLimit, 
    {  cout << "Failed to obtain solution." << endl; goto TERMINATE; }
 
    zlb = objval;
-
    // Write the output to the screen.
    cout << "\nSolution status = " << solstat << endl;
    cout << "Solution value  = "   << objval << endl;
+   //for (i = 0; i < cur_numrows; i++) 
+   //   cout << "Row "<< i << ":  Slack = "<< slack[i] <<"  Pi = " << pi[i] << endl;
 
-   if(isVerbose)
-   {  //for (i = 0; i < cur_numrows; i++) 
-      //   cout << "Row "<< i << ":  Slack = "<< slack[i] <<"  Pi = " << pi[i] << endl;
-
-      for (j = 0; j<cur_numcols; j++)
-         if (x[j]>0.01)
-            cout<<"Column "<<j<<":  Value = "<<x[j]<<"  Reduced cost = "<<dj[j]<<endl;
-   }
+   //for (j = 0; j < cur_numcols; j++) 
+   //   if(x[j] > 0.01)
+   //      cout << "Column " << j << ":  Value = " << x[j] <<"  Reduced cost = " << dj[j] << endl;
 
    // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> MIP <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
    // Now copy the ctype array
@@ -369,10 +363,23 @@ tuple<int,int,int,float,float,double,double> SingleMIP::solveMIP(int timeLimit, 
    for(i=0;i<m;i++)
       for(j=0;j<n;j++)
          ctype.push_back('I');   // q vars
-
    status = CPXcopyctype(env, lp, &ctype[0]);
    if (status)
-   {  cout << "Failed to copy ctype" << endl; goto TERMINATE; }
+   {  cout << "Failed to copy ctype" << endl;
+      goto TERMINATE;
+   }
+
+   // Create an instance of the callback data structure and pass the problem pointer
+   data.lastPrintTime = std::chrono::steady_clock::now(); // Initialize the timer
+   data.lp = lp; // Set the LP pointer
+
+   // Set the callback function
+   if (CPXsetinfocallbackfunc(env, myCallbackFunction, &data)) {
+      std::cerr << "Failed to set callback function." << std::endl;
+      CPXfreeprob(env, &lp);
+      CPXcloseCPLEX(&env);
+      return make_tuple<int,int,int,float,float,double,double>(0,0,0,0,0,0,0);
+   }
 
    // ---------------------------- Optimize to integrality
    tstart = clock();
@@ -402,15 +409,19 @@ tuple<int,int,int,float,float,double,double> SingleMIP::solveMIP(int timeLimit, 
 
    status = CPXgetx(env, lp, &x[0], 0, cur_numcols - 1);
    if (status) 
-   {  cout << "Failed to get optimal integer x." << endl; goto TERMINATE; }
+   {  cout << "Failed to get optimal integer x." << endl;
+      goto TERMINATE;
+   }
 
    status = CPXgetslack(env, lp, &slack[0], 0, cur_numrows - 1);
    if (status) 
-   {  cout << "Failed to get optimal slack values." << endl; goto TERMINATE; }
+   {  cout << "Failed to get optimal slack values." << endl;
+      goto TERMINATE;
+   }
 
    //for (i = 0; i < cur_numrows; i++) 
    //   cout << "Row " << i << ":  Slack = " << slack[i] << endl;
-   //for (j = 0; j < cur_numcols; j++) 
+  //for (j = 0; j < cur_numcols; j++) 
    //   if(x[j]>0.01)
    //      cout << "Column " << j << ":  Value = " << x[j] << endl;
 
