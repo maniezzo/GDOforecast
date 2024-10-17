@@ -81,7 +81,7 @@ int main()
    string strNboost = distribFile.substr(underscorePos + 1, dotPos - underscorePos - 1);
    int nboost = stoi(strNboost);
 
-   // non stochastic, just a test
+   // non stochastic, no boosting
    if(isDetmnst)
    {  
       for(irep=0;irep<nrep;irep++)
@@ -98,7 +98,10 @@ int main()
          osString<<"Instance "<<strInst;
          osString<<" num.scen. "<<numScen;
          osString<<" num.boost " << nboost;
+<<<<<<< HEAD
+=======
 
+>>>>>>> faac0db7355456ab424195ce0cddcc2758a8a78b
          osString<<" status " <<    get<0>(res);
          osString<<" cur_numcols "<<get<1>(res);
          osString<<" cur_numrows "<<get<2>(res);
@@ -106,7 +109,10 @@ int main()
          osString<<" objval "<<     get<4>(res);
          osString<<" finalLb "<<    get<5>(res);
          osString<<" total_time "<< get<6>(res)<<endl;
+<<<<<<< HEAD
+=======
 
+>>>>>>> faac0db7355456ab424195ce0cddcc2758a8a78b
          string outStr = osString.str();
          cout<< fixed << outStr<<endl;
 
