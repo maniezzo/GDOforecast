@@ -4,7 +4,7 @@
    "solFile"   : "results.txt",
    "numScen"   : 100,
    "epsCost"   : 1000000,
-   "TimeLimit" : 600,
+   "TimeLimit" : 3600,
    "nrep"      : 15,
    "nmult"     : 0, "cmntNmult" : "number of clients with b[i]=2",
    "isVerbose" : false,
