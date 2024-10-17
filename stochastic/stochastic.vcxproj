@@ -136,13 +136,13 @@
     <ClCompile Include="detequiv.cpp" />
     <ClCompile Include="json.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="stochastic.cpp" />
+    <ClCompile Include="deterministic.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h" />
     <ClInclude Include="detequiv.h" />
     <ClInclude Include="json.h" />
-    <ClInclude Include="stochastic.h" />
+    <ClInclude Include="deterministic.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

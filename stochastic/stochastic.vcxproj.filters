@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="stochastic.cpp">
+    <ClCompile Include="deterministic.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="json.cpp">
@@ -29,7 +29,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stochastic.h">
+    <ClInclude Include="deterministic.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="json.h">

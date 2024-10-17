@@ -48,7 +48,6 @@ int main()
    SingleMIP MIP;
    string instanceFile,distribFile,solFile;
    string line;
-   stringstream ss;
    int status,irep,nrep,nmult;
    float zlb;
    //srand(666);
@@ -84,7 +83,14 @@ int main()
 
    // non stochastic, just a test
    if(isDetmnst)
+   {  MIP.readInstance(instanceFile);
+      status = MIP.solveMIP(TimeLimit);
+   if(isDetmnst)
    {  
+
+
+
+
       for(irep=0;irep<nrep;irep++)
       {  ss.str("");
          ss << irep;
@@ -123,7 +129,6 @@ int main()
    }
    else
    {  // stochastic, deterministic equivalent
-      instanceFile += ".json";
       for(irep=0;irep<nrep;irep++)
       {
          Stoch.readInstance(instanceFile,numScen,nboost,nmult);
