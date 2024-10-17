@@ -49,7 +49,7 @@ void SingleMIP::readInstance(string& fileName)
    for (i = 0; i < JSV["qcost"].size(); i++)
       qcost[i] = JSV["qcost"][i];
 
-   string matrixFile = "c:/git/GDOforecast/generator/seedMatrix.csv";
+   string matrixFile = "../generator/seedMatrix.csv";
    cout << "Opening matrix file " << matrixFile << endl;
    infile.exceptions(ifstream::failbit | ifstream::badbit);
    infile.open(matrixFile);
@@ -259,20 +259,22 @@ TERMINATE:
    return (status);
 } 
 
-int SingleMIP::solveMIP(int timeLimit)
+tuple<int,int,int,float,float,double,double> SingleMIP::solveMIP(int timeLimit, bool isVerbose)
 {  int      solstat;
-   double   objval;
+   double   objval,zlb,lbfinal;
    vector<double> x;
    vector<double> pi;
    vector<double> slack;
    vector<double> dj;
    vector<char>   ctype;
 
-   CPXENVptr     env = NULL;
-   CPXLPptr      lp  = NULL;
-   int           status = 0;
-   int           i,j;
-   int           cur_numrows, cur_numcols;
+   CPXENVptr env = NULL;
+   CPXLPptr  lp  = NULL;
+   int       status = 0;
+   int       i,j;
+   int       cur_numrows, cur_numcols;
+   time_t    tstart, tend;
+   double    total_time;
 
    // Initialize the CPLEX environment
    env = CPXopenCPLEX(&status);
@@ -315,6 +317,10 @@ int SingleMIP::solveMIP(int timeLimit)
       goto TERMINATE;
    }
 
+   cur_numrows = CPXgetnumrows(env, lp);
+   cur_numcols = CPXgetnumcols(env, lp);
+   cout << "LP model; ncol=" << cur_numcols << " nrows=" << cur_numrows << endl;
+
    // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> LP <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
    status = CPXlpopt(env, lp);
    if (status) 
@@ -338,19 +344,22 @@ int SingleMIP::solveMIP(int timeLimit)
 
    status = CPXsolution(env, lp, &solstat, &objval, &x[0], &pi[0], &slack[0], &dj[0]);
    if (status) 
-   {  cout << "Failed to obtain solution." << endl;
-      goto TERMINATE;
-   }
+   {  cout << "Failed to obtain solution." << endl; goto TERMINATE; }
+
+   zlb = objval;
 
    // Write the output to the screen.
    cout << "\nSolution status = " << solstat << endl;
    cout << "Solution value  = "   << objval << endl;
-   //for (i = 0; i < cur_numrows; i++) 
-   //   cout << "Row "<< i << ":  Slack = "<< slack[i] <<"  Pi = " << pi[i] << endl;
 
-   for (j = 0; j < cur_numcols; j++) 
-      if(x[j] > 0.01)
-         cout << "Column " << j << ":  Value = " << x[j] <<"  Reduced cost = " << dj[j] << endl;
+   if(isVerbose)
+   {  //for (i = 0; i < cur_numrows; i++) 
+      //   cout << "Row "<< i << ":  Slack = "<< slack[i] <<"  Pi = " << pi[i] << endl;
+
+      for (j = 0; j<cur_numcols; j++)
+         if (x[j]>0.01)
+            cout<<"Column "<<j<<":  Value = "<<x[j]<<"  Reduced cost = "<<dj[j]<<endl;
+   }
 
    // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> MIP <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
    // Now copy the ctype array
@@ -360,18 +369,19 @@ int SingleMIP::solveMIP(int timeLimit)
    for(i=0;i<m;i++)
       for(j=0;j<n;j++)
          ctype.push_back('I');   // q vars
+
    status = CPXcopyctype(env, lp, &ctype[0]);
    if (status)
-   {  cout << "Failed to copy ctype" << endl;
-      goto TERMINATE;
-   }
+   {  cout << "Failed to copy ctype" << endl; goto TERMINATE; }
 
    // ---------------------------- Optimize to integrality
+   tstart = clock();
    status = CPXmipopt(env, lp);
    if (status) 
-   {  cout << "Failed to optimize MIP" << endl;
-      goto TERMINATE;
-   }
+   {  cout << "Failed to optimize MIP" << endl; goto TERMINATE; }
+   tend = clock();
+   total_time = (double)( tend - tstart )/(double)CLK_TCK ;
+   cout << "Elapsed time :" << total_time << endl;
 
    solstat = CPXgetstat(env, lp);
    cout << "Solution status = " << solstat << endl;
@@ -382,28 +392,27 @@ int SingleMIP::solveMIP(int timeLimit)
       goto TERMINATE;
    }
 
+   status = CPXgetbestobjval(env, lp, &lbfinal);
+   if (status) 
+   {  cout << "Could not get a lower bound.  Exiting..." << endl; goto TERMINATE; }
+
    cout << "Solution value  = " << objval << endl;
    cur_numrows = CPXgetnumrows(env, lp);
    cur_numcols = CPXgetnumcols(env, lp);
 
    status = CPXgetx(env, lp, &x[0], 0, cur_numcols - 1);
    if (status) 
-   {  cout << "Failed to get optimal integer x." << endl;
-      goto TERMINATE;
-   }
+   {  cout << "Failed to get optimal integer x." << endl; goto TERMINATE; }
 
    status = CPXgetslack(env, lp, &slack[0], 0, cur_numrows - 1);
    if (status) 
-   {  cout << "Failed to get optimal slack values." << endl;
-      goto TERMINATE;
-   }
+   {  cout << "Failed to get optimal slack values." << endl; goto TERMINATE; }
 
    //for (i = 0; i < cur_numrows; i++) 
    //   cout << "Row " << i << ":  Slack = " << slack[i] << endl;
-
-   for (j = 0; j < cur_numcols; j++) 
-      if(x[j]>0.01)
-         cout << "Column " << j << ":  Value = " << x[j] << endl;
+   //for (j = 0; j < cur_numcols; j++) 
+   //   if(x[j]>0.01)
+   //      cout << "Column " << j << ":  Value = " << x[j] << endl;
 
    // Finally, write a copy of the problem to a file
    if(cur_numcols < 200)
@@ -433,5 +442,7 @@ TERMINATE:
       }
    }
 
-   return (status);
+
+   tuple<int,int,int,float,float,double,double> res = make_tuple(status,cur_numcols,cur_numrows,zlb,objval,lbfinal,total_time);
+   return res;
 }

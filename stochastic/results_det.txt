@@ -1,0 +1,47 @@
+Instance inst_52_4_0_0_q num.scen. 100 num.boost 75 status 0 cur_numcols 416 cur_numrows 316 zlb 189664 objval 189664 finalLb 189664 total_time 0.019
+Instance inst_52_4_0_0_q1 num.scen. 100 num.boost 75 status 0 cur_numcols 416 cur_numrows 316 zlb 78446.9 objval 78665 finalLb 78657.3 total_time 1.02
+Instance inst_52_4_0_0_q4 num.scen. 100 num.boost 75 status 0 cur_numcols 416 cur_numrows 316 zlb 189664 objval 189664 finalLb 189664 total_time 0.013
+
+Instance inst_52_4_0_0 num.scen. 100 num.boost 75 status 0 cur_numcols 416 cur_numrows 316 zlb 15419.9 objval 15553 finalLb 15551.5 total_time 0.138
+Instance inst_52_4_0_1 num.scen. 100 num.boost 75 status 0 cur_numcols 416 cur_numrows 316 zlb 19509.8 objval 19653 finalLb 19651.9 total_time 0.048
+Instance inst_52_4_0_2 num.scen. 100 num.boost 75 status 0 cur_numcols 416 cur_numrows 316 zlb 126061 objval 126269 finalLb 126256 total_time 0.41
+Instance inst_52_4_0_3 num.scen. 100 num.boost 75 status 0 cur_numcols 416 cur_numrows 316 zlb 100794 objval 101051 finalLb 101041 total_time 0.339
+Instance inst_52_4_0_4 num.scen. 100 num.boost 75 status 0 cur_numcols 416 cur_numrows 316 zlb 174066 objval 174248 finalLb 174244 total_time 0.567
+
+Instance inst_50_5_0_0 num.scen. 100 num.boost 75 status 0 cur_numcols 500 cur_numrows 355 zlb 120015 objval 120569 finalLb 120557 total_time 5.011
+Instance inst_50_5_0_1 num.scen. 100 num.boost 75 status 0 cur_numcols 500 cur_numrows 355 zlb 112173 objval 112715 finalLb 112704 total_time 0.893
+Instance inst_50_5_0_2 num.scen. 100 num.boost 75 status 0 cur_numcols 500 cur_numrows 355 zlb 142814 objval 143427 finalLb 143413 total_time 7.252
+Instance inst_50_5_0_3 num.scen. 100 num.boost 75 status 0 cur_numcols 500 cur_numrows 355 zlb 90168.9 objval 90536 finalLb 90527 total_time 0.982
+Instance inst_50_5_0_4 num.scen. 100 num.boost 75 status 0 cur_numcols 500 cur_numrows 355 zlb 101433 objval 101568 finalLb 101558 total_time 0.078
+
+Instance inst_50_5_5_0 num.scen. 100 num.boost 75 status 0 cur_numcols 500 cur_numrows 355 zlb 135421 objval 135925 finalLb 135911 total_time 11.484
+Instance inst_50_5_5_1 num.scen. 100 num.boost 75 status 0 cur_numcols 500 cur_numrows 355 zlb 115751 objval 116162 finalLb 116150 total_time 0.254
+Instance inst_50_5_5_2 num.scen. 100 num.boost 75 status 0 cur_numcols 500 cur_numrows 355 zlb 96290.8 objval 96973 finalLb 96963.4 total_time 0.578
+Instance inst_50_5_5_3 num.scen. 100 num.boost 75 status 0 cur_numcols 500 cur_numrows 355 zlb 111095 objval 111560 finalLb 111549 total_time 4.537
+Instance inst_50_5_5_4 num.scen. 100 num.boost 75 status 0 cur_numcols 500 cur_numrows 355 zlb 161929 objval 162362 finalLb 162346 total_time 3.428
+
+Instance inst_50_10_0_0 num.scen. 100 num.boost 75 status 0 cur_numcols 1000 cur_numrows 610 zlb 118948 objval 120485 finalLb 120063 total_time 613.035
+Instance inst_50_10_0_1 num.scen. 100 num.boost 75 status 0 cur_numcols 1000 cur_numrows 610 zlb 121765 objval 123821 finalLb 123458 total_time 616.795
+Instance inst_50_10_0_2 num.scen. 100 num.boost 75 status 0 cur_numcols 1000 cur_numrows 610 zlb 149599 objval 151532 finalLb 151517 total_time 322.507
+Instance inst_50_10_0_3 num.scen. 100 num.boost 75 status 0 cur_numcols 1000 cur_numrows 610 zlb 139311 objval 140889 finalLb 140875 total_time 97.982
+Instance inst_50_10_0_4 num.scen. 100 num.boost 75 status 0 cur_numcols 1000 cur_numrows 610 zlb 124384 objval 125604 finalLb 125591 total_time 19.706
+
+Instance inst_50_10_5_0 num.scen. 100 num.boost 75 status 0 cur_numcols 1000 cur_numrows 610 zlb 134062 objval 135207 finalLb 135193 total_time 29.484
+Instance inst_50_10_5_1 num.scen. 100 num.boost 75 status 0 cur_numcols 1000 cur_numrows 610 zlb 126432 objval 128147 finalLb 128082 total_time 600.046
+Instance inst_50_10_5_2 num.scen. 100 num.boost 75 status 0 cur_numcols 1000 cur_numrows 610 zlb 119008 objval 120172 finalLb 120160 total_time 135.211
+Instance inst_50_10_5_3 num.scen. 100 num.boost 75 status 0 cur_numcols 1000 cur_numrows 610 zlb 145408 objval 148487 finalLb 148472 total_time 120.174
+Instance inst_50_10_5_4 num.scen. 100 num.boost 75 status 0 cur_numcols 1000 cur_numrows 610 zlb 136266 objval 138274 finalLb 138260 total_time 505.297
+
+Instance inst_50_10_10_0 num.scen. 100 num.boost 75 status 0 cur_numcols 1000 cur_numrows 610 zlb 144518 objval 146982 finalLb 145647 total_time 609.082
+Instance inst_50_10_10_1 num.scen. 100 num.boost 75 status 0 cur_numcols 1000 cur_numrows 610 zlb 98195.6 objval 99220 finalLb 99210.1 total_time 244.604
+Instance inst_50_10_10_2 num.scen. 100 num.boost 75 status 0 cur_numcols 1000 cur_numrows 610 zlb 121248 objval 122304 finalLb 122292 total_time 5.259
+Instance inst_50_10_10_3 num.scen. 100 num.boost 75 status 0 cur_numcols 1000 cur_numrows 610 zlb 113054 objval 114731 finalLb 114726 total_time 24.719
+Instance inst_50_10_10_4 num.scen. 100 num.boost 75 status 0 cur_numcols 1000 cur_numrows 610 zlb 120415 objval 122517 finalLb 122195 total_time 616.985
+
+Instance inst_52_4_0_0_q2 num.scen. 100 num.boost 75 repet. 0 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 zlb 8.76275e+06 objval 9.14042e+06 finalLb 8.81595e+06 total_time 600.27
+Instance inst_52_4_0_0_q2 num.scen. 100 num.boost 75 repet. 1 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 zlb 8.73872e+06 objval 9.2264e+06 finalLb 8.79749e+06 total_time 600.146
+Instance inst_52_4_0_0_q2 num.scen. 100 num.boost 75 repet. 2 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 zlb 8.77571e+06 objval 9.18052e+06 finalLb 8.83021e+06 total_time 600.097
+Instance inst_52_4_0_0_q2 num.scen. 100 num.boost 75 repet. 3 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 zlb 8.72727e+06 objval 9.12478e+06 finalLb 8.77534e+06 total_time 600.096
+Instance inst_52_4_0_0_q2 num.scen. 100 num.boost 75 repet. 4 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 zlb 8.70482e+06 objval 9.16546e+06 finalLb 8.77307e+06 total_time 600.101
+
+Instance inst_52_4_0_0_q3 num.scen. 100 num.boost 75 repet. 0 status 0 cur_numcols 26208 cur_numrows 31600 numInfeasibilities 0 zlb 1.11079e+07 objval 1.12565e+07 finalLb 1.12554e+07 total_time 205.218

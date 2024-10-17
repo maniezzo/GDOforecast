@@ -7,6 +7,7 @@ int main()
    SingleMIP MIP;
    string instanceFile,distribFile,solFile;
    string line;
+   stringstream ss;
    int status,irep,nrep,nmult;
    float zlb;
    //srand(666);
@@ -40,44 +41,78 @@ int main()
    string strNboost = distribFile.substr(underscorePos + 1, dotPos - underscorePos - 1);
    int nboost = stoi(strNboost);
 
-   // non stochastic, just a test
+   // non stochastic, no boosting
    if(isDetmnst)
-   {  MIP.readInstance(instanceFile);
-      status = MIP.solveMIP(TimeLimit);
+   {  
+      for(irep=0;irep<nrep;irep++)
+      {  ss.str("");
+         ss << irep;
+         string inst = instanceFile+"_"+ss.str()+".json";
+         MIP.readInstance(inst);
+         tuple<int,int,int,float,float,double,double> res = MIP.solveMIP(TimeLimit,isVerbose);
+
+         size_t slashPos = inst.rfind('/');
+         dotPos = inst.rfind('.');
+         string strInst = inst.substr(slashPos+1,dotPos-slashPos-1);
+         ostringstream osString;
+         osString<<"Instance "<<strInst;
+         osString<<" num.scen. "<<numScen;
+         osString<<" num.boost " << nboost;
+         osString<<" status " <<    get<0>(res);
+         osString<<" cur_numcols "<<get<1>(res);
+         osString<<" cur_numrows "<<get<2>(res);
+         osString<<" zlb "<<        get<3>(res);
+         osString<<" objval "<<     get<4>(res);
+         osString<<" finalLb "<<    get<5>(res);
+         osString<<" total_time "<< get<6>(res)<<endl;
+         string outStr = osString.str();
+         cout<< fixed << outStr<<endl;
+
+         // Open the file in append mode (std::ios::app)
+         std::ofstream outFile(solFile,std::ios::app);
+         if (!outFile)
+            cout<<"Error opening output file: "<<solFile<<std::endl;
+         else
+         {  outFile<<outStr;
+            outFile.close();
+         }
+      }
    }
+   else
+   {  // stochastic, deterministic equivalent
+      instanceFile += ".json";
+      for(irep=0;irep<nrep;irep++)
+      {
+         Stoch.readInstance(instanceFile,numScen,nboost,nmult);
+         Stoch.readBoostForecasts(distribFile,nboost,numScen);
+         tuple<int,int,int,int,float,float,double,double> res = Stoch.solveDetEq(TimeLimit,numScen,isVerbose,epsCost);
+         size_t slashPos = instanceFile.rfind('/');
+         dotPos = instanceFile.rfind('.');
+         string strInst = instanceFile.substr(slashPos+1,dotPos-slashPos-1);
+         ostringstream osString;
+         osString<<"Instance "<<strInst;
+         osString<<" num.scen. "<<numScen;
+         osString<<" num.boost " << nboost;
+         osString<<" repet. " << irep;
+         osString<<" status " << get<0>(res);
+         osString<<" cur_numcols "<<get<1>(res);
+         osString<<" cur_numrows "<<get<2>(res);
+         osString<<" numInfeasibilities "<<get<3>(res);
+         osString<<" zlb "<<get<4>(res);
+         osString<<" objval "<<get<5>(res);
+         osString<<" finalLb "<<get<6>(res);
+         osString<<" total_time "<<get<7>(res)<<endl;
+         string outStr = osString.str();
+         cout<< fixed << outStr<<endl;
 
-   // stochastic, deterministic equivalent
-   for(irep=0;irep<nrep;irep++)
-   {
-      Stoch.readInstance(instanceFile,numScen,nboost,nmult);
-      Stoch.readBoostForecasts(distribFile,nboost,numScen);
-      tuple<int,int,int,int,float,float,double,double> res = Stoch.solveDetEq(TimeLimit,numScen,isVerbose,epsCost);
-      size_t slashPos = instanceFile.rfind('/');
-      dotPos = instanceFile.rfind('.');
-      string strInst = instanceFile.substr(slashPos+1,dotPos-slashPos-1);
-      ostringstream osString;
-      osString<<"Instance "<<strInst;
-      osString<<" num.scen. "<<numScen;
-      osString<<" num.boost " << nboost;
-      osString<<" repet. " << irep;
-      osString<<" status " << get<0>(res);
-      osString<<" cur_numcols "<<get<1>(res);
-      osString<<" cur_numrows "<<get<2>(res);
-      osString<<" numInfeasibilities "<<get<3>(res);
-      osString<<" zlb "<<get<4>(res);
-      osString<<" objval "<<get<5>(res);
-      osString<<" finalLb "<<get<6>(res);
-      osString<<" total_time "<<get<7>(res)<<endl;
-      string outStr = osString.str();
-      cout<< fixed << outStr<<endl;
-
-      // Open the file in append mode (std::ios::app)
-      std::ofstream outFile(solFile,std::ios::app);
-      if (!outFile)
-         cout<<"Error opening output file: "<<solFile<<std::endl;
-      else
-      {  outFile<<outStr;
-         outFile.close();
+         // Open the file in append mode (std::ios::app)
+         std::ofstream outFile(solFile,std::ios::app);
+         if (!outFile)
+            cout<<"Error opening output file: "<<solFile<<std::endl;
+         else
+         {  outFile<<outStr;
+            outFile.close();
+         }
       }
    }
    cout << "<ENTER> to exit ..."; getchar();

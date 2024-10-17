@@ -21,7 +21,7 @@ public:
    vector<vector<int>> xAssCost; // assignment costs
 
    int populateTableau(CPXENVptr env, CPXLPptr lp);
-   int solveMIP(int timeLimit);
+   tuple<int,int,int,float,float,double,double> solveMIP(int timeLimit, bool isVerbose);
    void readInstance(string& fileName);
 };
 #endif // STOCHASTIC_H
