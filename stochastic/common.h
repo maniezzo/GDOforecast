@@ -21,6 +21,7 @@ struct CallbackData {
    std::chrono::steady_clock::time_point lastPrintTime; // Last time bounds were printed
 };
 
+// returns lower and upper bounds
 int CPXPUBLIC myCallbackFunction(CPXCENVptr env, void *cbdata, int wherefrom, void *cbhandle);
 
 #endif // COMMON_H

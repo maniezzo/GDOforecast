@@ -2,9 +2,12 @@
 #include "detequiv.h"
 #include "json.h"
 
-// New callback function for CPLEX 22.x
-int myCallbackFunction (CPXCENVptr env, void *cbdata, int wherefrom, void *cbhandle)
-{  int status,numsec;
+string solFile;
+
+// returns lower and upper bounds
+int CPXPUBLIC myCallbackFunction(CPXCENVptr env, void* cbdata, int wherefrom, void* cbhandle)
+{  int status=0,numsec;
+   double bestObjVal=-1, incumbObjVal=-1;
    // Cast the callback handle to our custom data structure
    CallbackData *data = static_cast<CallbackData*>(cbhandle);
 
@@ -15,11 +18,9 @@ int myCallbackFunction (CPXCENVptr env, void *cbdata, int wherefrom, void *cbhan
    chrono::duration<double> elapsedTime = currentTime - data->lastPrintTime;
 
    // Check if numsec seconds have passed
-   numsec = 5;
+   numsec = 600;
    if (elapsedTime.count() >= numsec) 
-   {  double bestObjVal, incumbObjVal;
-
-      status = CPXgetcallbackinfo (env, cbdata, wherefrom, CPX_CALLBACK_INFO_BEST_INTEGER, &bestObjVal);
+   {  status = CPXgetcallbackinfo (env, cbdata, wherefrom, CPX_CALLBACK_INFO_BEST_INTEGER, &bestObjVal);
       if ( status ) 
       {  cout<<"error " << status << " in CPXgetcallbackinfo"<<endl;
          status = 1;
@@ -38,15 +39,23 @@ int myCallbackFunction (CPXCENVptr env, void *cbdata, int wherefrom, void *cbhan
 
       // Reset the timer
       data->lastPrintTime = currentTime;
+      // Open the file in append mode (std::ios::app)
+      ofstream outFile(solFile,std::ios::app);
+      if (!outFile)
+         cout<<"Error opening output file: "<<solFile<<endl;
+      else
+      {  outFile << "elapsed " << elapsedTime.count() << " zlb " << incumbObjVal << " zub " << bestObjVal << endl;
+         outFile.close();
+      }
    }
 TERMINATE:
-   return 0; // Zero return indicates success
+   return status; // Zero return indicates success
 }
 
 int main()
 {  StochMIP Stoch;
    SingleMIP MIP;
-   string instanceFile,distribFile,solFile;
+   string instanceFile,distribFile;
    string line;
    stringstream ss;
    int status,irep,nrep,nmult;

@@ -374,8 +374,8 @@ tuple<int,int,int,float,float,double,double> SingleMIP::solveMIP(int timeLimit, 
 
    // Set the callback function
    status = CPXsetinfocallbackfunc (env, myCallbackFunction, &data);
-   if ( status ) {
-      cout << "Failed to set callback function." << std::endl;
+   if ( status ) 
+   {  cout << "Failed to set callback function." << std::endl;
       CPXfreeprob(env, &lp);
       CPXcloseCPLEX(&env);
       return make_tuple<int,int,int,float,float,double,double>(0,0,0,0,0,0,0);
