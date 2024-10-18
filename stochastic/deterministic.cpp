@@ -369,9 +369,8 @@ tuple<int,int,int,float,float,double,double> SingleMIP::solveMIP(int timeLimit, 
       goto TERMINATE;
    }
 
-   // Create an instance of the callback data structure and pass the problem pointer
-   data.lastPrintTime = chrono::steady_clock::now(); // Initialize the callback timer
-   data.lp = lp; // Set the LP pointer
+   // Create an instance of our callback data structure
+   data.lastPrintTime = std::chrono::steady_clock::now(); // Initialize the timer
 
    // Set the callback function
    if (CPXsetinfocallbackfunc(env, myCallbackFunction, &data)) {

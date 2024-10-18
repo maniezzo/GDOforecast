@@ -3,43 +3,41 @@
 #include "json.h"
 
 // Callback function to print best bounds every 10 minutes
-int CPXPUBLIC myCallbackFunction(CPXCENVptr env, void *cbdata, int wherefrom, void *cbhandle) 
-{  // Cast the callback handle to our custom data structure
+int CPXPUBLIC myCallbackFunction(CPXCENVptr env, void *cbdata, int wherefrom, void *cbhandle) {
+   // Cast the callback handle to our custom data structure
    CallbackData *data = static_cast<CallbackData*>(cbhandle);
-   int numsec = 10;
-   int status;
 
    // Get the current time
-   auto currentTime = chrono::steady_clock::now();
+   auto currentTime = std::chrono::steady_clock::now();
 
    // Calculate time elapsed since the last print
-   chrono::duration<double> elapsedTime = currentTime - data->lastPrintTime;
+   std::chrono::duration<double> elapsedTime = currentTime - data->lastPrintTime;
 
-   // Check if numsec seconds
-   if (elapsedTime.count() >= numsec) {
+   // Check if 10 minutes (600 seconds) have passed
+   if (elapsedTime.count() >= 600.0) {
       double bestObjVal, incumbObjVal;
 
-      // Get the best upper bound (dual bound)
-      status = CPXgetbestobjval(env, data->lp, &bestObjVal);
-      if (status) 
-      {  cout << "Error retrieving best objective value." << endl;
-         return 1; // error
+      // Get the current best bound (upper bound, dual bound)
+      if (CPXcallbackgetinfo(env, cbdata, wherefrom, CPX_CALLBACK_INFO_BEST_REMAINING, &bestObjVal)) {
+         std::cerr << "Error retrieving best objective value." << std::endl;
+         return 1; // Non-zero return indicates an error
       }
 
-      // Get the best lower bound (incumbent)
-      if (CPXgetobjval(env, data->lp, &incumbObjVal)) {
-         cout << "Error retrieving incumbent objective value." << endl;
-         return 1; // error
+      // Get the incumbent value (lower bound)
+      if (CPXcallbackgetinfo(env, cbdata, wherefrom, CPX_CALLBACK_INFO_BEST_INTEGER, &incumbObjVal)) {
+         std::cerr << "Error retrieving incumbent objective value." << std::endl;
+         return 1; // Non-zero return indicates an error
       }
 
       // Print the bounds
-      cout << "----> After " << elapsedTime.count() << " sec: "
-         << "Best Upper Bound: " << bestObjVal
-         << ", Best Lower Bound: " << incumbObjVal << endl;
+      std::cout << "After " << elapsedTime.count() / 60 << " minutes: "
+         << "Best Upper Bound (Dual): " << bestObjVal
+         << ", Best Lower Bound (Incumbent): " << incumbObjVal << std::endl;
 
       // Reset the timer
       data->lastPrintTime = currentTime;
    }
+
    return 0; // Zero return indicates success
 }
 

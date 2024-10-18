@@ -16,10 +16,9 @@
 
 using namespace std;
 
-// Structure to hold callback data, including timing information and LP pointer
-struct CallbackData 
-{  chrono::steady_clock::time_point lastPrintTime; // Last time bounds were printed
-   CPXLPptr lp;  // Pointer to the CPLEX problem (LP)
+// Structure to hold callback data, including timing information
+struct CallbackData {
+   std::chrono::steady_clock::time_point lastPrintTime; // Last time bounds were printed
 };
 
 int CPXPUBLIC myCallbackFunction(CPXCENVptr env, void *cbdata, int wherefrom, void *cbhandle);
