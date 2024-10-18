@@ -369,13 +369,13 @@ tuple<int,int,int,float,float,double,double> SingleMIP::solveMIP(int timeLimit, 
       goto TERMINATE;
    }
 
-
    // Create an instance of our callback data structure
    data.lastPrintTime = std::chrono::steady_clock::now(); // Initialize the timer
 
    // Set the callback function
-   if (CPXcallbacksetfunc(env, lp, CPX_CALLBACKCONTEXT_RELAXATION | CPX_CALLBACKCONTEXT_CANDIDATE, myCallbackFunction, &data)) {
-      std::cerr << "Failed to set callback function." << std::endl;
+   status = CPXsetinfocallbackfunc (env, myCallbackFunction, &data);
+   if ( status ) {
+      cout << "Failed to set callback function." << std::endl;
       CPXfreeprob(env, &lp);
       CPXcloseCPLEX(&env);
       return make_tuple<int,int,int,float,float,double,double>(0,0,0,0,0,0,0);

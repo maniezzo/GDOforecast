@@ -61,3 +61,4 @@ Instance inst_50_10_5_2 num.scen. 100 num.boost 75 status 0 cur_numcols 1000 cur
 Instance inst_50_10_5_3 num.scen. 100 num.boost 75 status 0 cur_numcols 1000 cur_numrows 610 zlb 145408 objval 148548 finalLb 148176 total_time 10.447
 Instance inst_50_10_5_4 num.scen. 100 num.boost 75 status 0 cur_numcols 1000 cur_numrows 610 zlb 136266 objval 138669 finalLb 137437 total_time 10.37
 Instance inst_50_10_5_0 num.scen. 100 num.boost 75 status 0 cur_numcols 1000 cur_numrows 610 zlb 134062 objval 135279 finalLb 134962 total_time 10.215
+Instance inst_50_10_5_0 num.scen. 100 num.boost 75 status 0 cur_numcols 1000 cur_numrows 610 zlb 134062 objval 135207 finalLb 135193 total_time 78.128

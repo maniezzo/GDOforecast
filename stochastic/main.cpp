@@ -3,45 +3,43 @@
 #include "json.h"
 
 // New callback function for CPLEX 22.x
-int CPXPUBLIC myCallbackFunction(CPXCALLBACKCONTEXTptr context, CPXLONG contextid, void *cbhandle) {
+int myCallbackFunction (CPXCENVptr env, void *cbdata, int wherefrom, void *cbhandle)
+{  int status,numsec;
    // Cast the callback handle to our custom data structure
    CallbackData *data = static_cast<CallbackData*>(cbhandle);
 
    // Get the current time
-   auto currentTime = std::chrono::steady_clock::now();
+   auto currentTime = chrono::steady_clock::now();
 
    // Calculate time elapsed since the last print
-   std::chrono::duration<double> elapsedTime = currentTime - data->lastPrintTime;
+   chrono::duration<double> elapsedTime = currentTime - data->lastPrintTime;
 
-   // Check if 10 minutes (600 seconds) have passed
-   if (elapsedTime.count() >= 600.0) {
-      double bestObjVal, incumbObjVal;
+   // Check if numsec seconds have passed
+   numsec = 5;
+   if (elapsedTime.count() >= numsec) 
+   {  double bestObjVal, incumbObjVal;
 
-      // Check the context and retrieve bounds accordingly
-      if (contextid == CPX_CALLBACKCONTEXT_RELAXATION) {
-         // Get the dual bound (upper bound) from the relaxation context
-         if (CPXcallbackgetinfodbl(context, CPX_CALLBACK_INFO_DUAL_BOUND, &bestObjVal)) {
-            std::cerr << "Error retrieving dual bound (upper bound) in relaxation." << std::endl;
-            return 1;
-         }
-      } 
-      else if (contextid == CPX_CALLBACKCONTEXT_CANDIDATE) {
-         // Get the incumbent value (lower bound) from the candidate context
-         if (CPXcallbackgetinfodbl(context, CPX_CALLBACK_INFO_BEST_SOL, &incumbObjVal)) {
-            std::cerr << "Error retrieving incumbent value (lower bound) in candidate." << std::endl;
-            return 1;
-         }
+      status = CPXgetcallbackinfo (env, cbdata, wherefrom, CPX_CALLBACK_INFO_BEST_INTEGER, &bestObjVal);
+      if ( status ) 
+      {  cout<<"error " << status << " in CPXgetcallbackinfo"<<endl;
+         status = 1;
+         goto TERMINATE;
+      }
+
+      status = CPXgetcallbackinfo (env, cbdata, wherefrom, CPX_CALLBACK_INFO_BEST_REMAINING, &incumbObjVal);
+      if ( status ) 
+      {  cout<<"error " << status << " in CPXgetcallbackinfo"<<endl;
+         status = 1;
+         goto TERMINATE;
       }
 
       // Print the bounds (if both were retrieved)
-      std::cout << "After " << elapsedTime.count() / 60 << " minutes: "
-         << "Best Upper Bound (Dual): " << bestObjVal
-         << ", Best Lower Bound (Incumbent): " << incumbObjVal << std::endl;
+      cout << "-----> " << " elapsed " << elapsedTime.count() << " secs: zub: " << bestObjVal << ", zlb: " << incumbObjVal << endl;
 
       // Reset the timer
       data->lastPrintTime = currentTime;
    }
-
+TERMINATE:
    return 0; // Zero return indicates success
 }
 
