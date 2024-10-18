@@ -2,8 +2,8 @@
 #include "detequiv.h"
 #include "json.h"
 
-// Callback function to print best bounds every 10 minutes
-int CPXPUBLIC myCallbackFunction(CPXCENVptr env, void *cbdata, int wherefrom, void *cbhandle) {
+// New callback function for CPLEX 22.x
+int CPXPUBLIC myCallbackFunction(CPXCALLBACKCONTEXTptr context, CPXLONG contextid, void *cbhandle) {
    // Cast the callback handle to our custom data structure
    CallbackData *data = static_cast<CallbackData*>(cbhandle);
 
@@ -17,19 +17,23 @@ int CPXPUBLIC myCallbackFunction(CPXCENVptr env, void *cbdata, int wherefrom, vo
    if (elapsedTime.count() >= 600.0) {
       double bestObjVal, incumbObjVal;
 
-      // Get the current best bound (upper bound, dual bound)
-      if (CPXcallbackgetinfo(env, cbdata, wherefrom, CPX_CALLBACK_INFO_BEST_REMAINING, &bestObjVal)) {
-         std::cerr << "Error retrieving best objective value." << std::endl;
-         return 1; // Non-zero return indicates an error
+      // Check the context and retrieve bounds accordingly
+      if (contextid == CPX_CALLBACKCONTEXT_RELAXATION) {
+         // Get the dual bound (upper bound) from the relaxation context
+         if (CPXcallbackgetinfodbl(context, CPX_CALLBACK_INFO_DUAL_BOUND, &bestObjVal)) {
+            std::cerr << "Error retrieving dual bound (upper bound) in relaxation." << std::endl;
+            return 1;
+         }
+      } 
+      else if (contextid == CPX_CALLBACKCONTEXT_CANDIDATE) {
+         // Get the incumbent value (lower bound) from the candidate context
+         if (CPXcallbackgetinfodbl(context, CPX_CALLBACK_INFO_BEST_SOL, &incumbObjVal)) {
+            std::cerr << "Error retrieving incumbent value (lower bound) in candidate." << std::endl;
+            return 1;
+         }
       }
 
-      // Get the incumbent value (lower bound)
-      if (CPXcallbackgetinfo(env, cbdata, wherefrom, CPX_CALLBACK_INFO_BEST_INTEGER, &incumbObjVal)) {
-         std::cerr << "Error retrieving incumbent objective value." << std::endl;
-         return 1; // Non-zero return indicates an error
-      }
-
-      // Print the bounds
+      // Print the bounds (if both were retrieved)
       std::cout << "After " << elapsedTime.count() / 60 << " minutes: "
          << "Best Upper Bound (Dual): " << bestObjVal
          << ", Best Lower Bound (Incumbent): " << incumbObjVal << std::endl;
