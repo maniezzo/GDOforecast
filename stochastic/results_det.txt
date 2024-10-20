@@ -185,3 +185,11 @@ elapsed 601.194 zlb 241869 zub 248139
 elapsed 602.932 zlb 241893 zub 248065
 Instance inst_100_50_25_4 num.scen. 100 num.boost 75 status 0 cur_numcols 10000 cur_numrows 5250 zlb 237861 objval 247921 finalLb 241904 total_time 3607.89
 
+
+elapsed 603.056 zlb 431240 zub 437128
+elapsed 603.826 zlb 431288 zub 436851
+elapsed 600.468 zlb 431314 zub 436780
+elapsed 602.4 zlb 431329 zub 436763
+elapsed 606.864 zlb 431339 zub 436763
+Instance inst_200_50_10_0 num.scen. 100 num.boost 75 status 0 cur_numcols 20000 cur_numrows 10450 zlb 429875 objval 436681 finalLb 431342 total_time 3603.03
+elapsed 602.45 zlb 447419 zub 450913
