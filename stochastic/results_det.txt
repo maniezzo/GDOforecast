@@ -192,4 +192,34 @@ elapsed 600.468 zlb 431314 zub 436780
 elapsed 602.4 zlb 431329 zub 436763
 elapsed 606.864 zlb 431339 zub 436763
 Instance inst_200_50_10_0 num.scen. 100 num.boost 75 status 0 cur_numcols 20000 cur_numrows 10450 zlb 429875 objval 436681 finalLb 431342 total_time 3603.03
-elapsed 602.45 zlb 447419 zub 450913
+
+elapsed 601.283 zlb 431238 zub 436805
+elapsed 604.189 zlb 431268 zub 436785
+elapsed 603.978 zlb 431281 zub 436716
+elapsed 607.068 zlb 431288 zub 436576
+elapsed 601.208 zlb 431293 zub 436576
+Instance inst_200_50_10_0 num.scen. 100 num.boost 75 status 0 cur_numcols 20000 cur_numrows 10450 zlb 429875 objval 436240 finalLb 431295 total_time 3604.99
+elapsed 607.851 zlb 447391 zub 450789
+elapsed 604.245 zlb 447396 zub 450778
+elapsed 610.901 zlb 447400 zub 450778
+elapsed 604.995 zlb 447402 zub 450778
+elapsed 604.887 zlb 447404 zub 450778
+Instance inst_200_50_10_1 num.scen. 100 num.boost 75 status 0 cur_numcols 20000 cur_numrows 10450 zlb 445908 objval 450588 finalLb 447405 total_time 3603.84
+elapsed 606.098 zlb 436070 zub 447431
+elapsed 600.507 zlb 436147 zub 447119
+elapsed 602.729 zlb 436202 zub 446681
+elapsed 600.498 zlb 436241 zub 446591
+elapsed 602.167 zlb 436269 zub 446316
+Instance inst_200_50_10_2 num.scen. 100 num.boost 75 status 0 cur_numcols 20000 cur_numrows 10450 zlb 434891 objval 445576 finalLb 436284 total_time 3604.58
+elapsed 600.025 zlb 453507 zub 458125
+elapsed 601.124 zlb 453526 zub 458125
+elapsed 603.359 zlb 453534 zub 458051
+elapsed 609.427 zlb 453540 zub 457857
+elapsed 609.542 zlb 453544 zub 457857
+Instance inst_200_50_10_3 num.scen. 100 num.boost 75 status 0 cur_numcols 20000 cur_numrows 10450 zlb 451348 objval 457857 finalLb 453546 total_time 3603.77
+elapsed 604.448 zlb 441063 zub 447341
+elapsed 602.719 zlb 441161 zub 447114
+elapsed 604.147 zlb 441245 zub 446819
+elapsed 609.325 zlb 441295 zub 446689
+elapsed 601.9 zlb 441326 zub 446575
+Instance inst_200_50_10_4 num.scen. 100 num.boost 75 status 0 cur_numcols 20000 cur_numrows 10450 zlb 438782 objval 446386 finalLb 441340 total_time 3605.15
