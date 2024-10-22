@@ -504,11 +504,12 @@ if __name__ == "__main__":
 
    for inst in range(5):
       print(f"-------------------------- solving inst = {inst}")
-      name = f"inst_200_50_25_{inst}"
+      name = f"inst_52_4_0_{inst}"
       costs,qcost,req,cap,b = readData(name)
       ncli = len(req)
       nser = len(cap)
       nmult = np.sum(b != 1)
+      row_averages = np.mean(costs, axis=1)
 
       tstart = time.process_time()
 

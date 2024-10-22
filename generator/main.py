@@ -68,7 +68,7 @@ if __name__ == "__main__":
    # Randomly select a subset of rows and columns
    num_rows    = 50  # Number of rows to sample
    num_columns = 300  # Number of columns to sample
-   num_mult    = 50   # number of allowed multiple assignments
+   num_mult    = 10   # number of allowed multiple assignments
    max_mult    = 5   # max num of multiple assignments
 
    isOrg = False # non servirà più
