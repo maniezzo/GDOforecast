@@ -96,8 +96,13 @@ int main()
    {  
       for(irep=0;irep<nrep;irep++)
       {  ss.str("");
-         ss << irep;
-         string inst = instanceFile+"_"+ss.str()+".json";
+         if(instanceFile.find('q')==instanceFile.length())
+         {  ss<<irep; // multiple instances only in case all q are 0 (name with no q)
+            inst = instanceFile+"_"+ss.str()+".json";
+         }
+         else
+            inst = instanceFile+".json";
+
          MIP.readInstance(inst);
          tuple<int,int,int,float,float,double,double> res = MIP.solveMIP(TimeLimit,isVerbose);
 
