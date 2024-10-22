@@ -1,5 +1,5 @@
 { 
-   "instanceFile" : "../generator/inst_200_50_10",
+   "instanceFile" : "../generator/inst_300_50_10",
    "distribFile"  : "../boost_forecast/distr_YW_AR_75.csv",
    "solFile"   : "results_det.txt",
    "numScen"   : 100,
