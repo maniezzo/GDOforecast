@@ -4,6 +4,7 @@ from statsmodels.tsa.stattools import acf
 import statsmodels.api as sm
 from critical_difference_diagram import draw_diagram
 import json
+import makeTables
 
 # Accuracy metrics
 def forecast_accuracy(model,forecast, actual):
@@ -89,5 +90,6 @@ def go_analysis():
    return
 
 if "__main__" == __name__:
+   makeTables.run_table()
    isLinear()
    go_analysis()
