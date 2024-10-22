@@ -56,7 +56,7 @@ int main()
 {  StochMIP Stoch;
    SingleMIP MIP;
    string instanceFile,distribFile;
-   string line;
+   string line,inst;
    stringstream ss;
    int status,irep,nrep,nmult;
    float zlb;
