@@ -203,7 +203,6 @@ int main()
             MIP.qcost[i] = 0;
 
          // vector of indices
-         vector<int> indices(MIP.qcost.size());
          for (i = 0; i < qCostDown.size(); ++i) indices[i] = i;
 
          // Sort indices based on the values in qCostDown (qcost) by ASC
@@ -211,10 +210,8 @@ int main()
             return qCostDown[i1] < qCostDown[i2];  // Compare values in qCostDown
             });
 
-         for(i=0;i<MIP.m;i++)
-            MIP.qcost[i] = qCostDown[i];
          res = MIP.solveMIP(TimeLimit,isVerbose);
-         printResults(strInst,numScen,nboost,i+1,res);
+         printResults(strInst,numScen,nboost,0,res);
 
          for (i=0;i<MIP.m;i++)
          {  MIP.qcost[indices[i]] = qCostDown[indices[i]];
