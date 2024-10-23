@@ -74,6 +74,27 @@ void SingleMIP::readInstance(string& fileName)
    infile.close();
 }
 
+// generate q costs
+tuple<vector<int>,vector<int>> SingleMIP::generateQcosts()
+{  int i,j,sumc,avgSumc;
+   vector<int> qCostUp(m);   // cost increasing with distance
+   vector<int> qCostDown(m); // cost decreasing with distance
+   avgSumc = 0;
+   for(i=0;i<m;i++)  // calcolo costi medi di trasposto veso un server
+   {  sumc = 0;
+      for(j=0;j<n;j++)
+         sumc += xAssCost[i][j];
+      qCostUp[i] = sumc/n;
+      avgSumc += qCostUp[i];
+   }
+   avgSumc = avgSumc/m;
+   for(i=0;i<m;i++)
+      qCostDown[i] = 2*avgSumc - qCostUp[i];
+
+   cout << "generate q costs";
+   return make_tuple(qCostUp,qCostDown);
+}
+
 // The tableu for the basic, non scenario case.
 int SingleMIP::populateTableau(CPXENVptr env, CPXLPptr lp)
 {  int status,numrows,numcols,numnz;

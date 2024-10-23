@@ -23,5 +23,7 @@ public:
    int populateTableau(CPXENVptr env, CPXLPptr lp);
    tuple<int,int,int,float,float,double,double> solveMIP(int timeLimit, bool isVerbose);
    void readInstance(string& fileName);
+   tuple<vector<int>,vector<int>> generateQcosts();
+
 };
 #endif // STOCHASTIC_H
