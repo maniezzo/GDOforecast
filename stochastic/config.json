@@ -1,13 +1,13 @@
 { 
-   "instanceFile" : "../generator/inst_200_5_0",
+   "instanceFile" : "../generator/inst_50_10_10",
    "distribFile"  : "../boost_forecast/distr_YW_AR_75.csv",
    "solFile"   : "results_det.txt",
    "numScen"   : 100,
    "epsCost"   : 1000000,
-   "TimeLimit" : 600,
-   "nrep"      : 1,
+   "TimeLimit" : 1800,
+   "nrep"      : 5,
    "nmult"     : 0,     "cmntNmult" : "number of clients with b[i]=2",
-   "isQtest"   : true,  "cmntQ" : "generate and test different q distributions",
+   "isQtest"   : false, "cmntQ" : "generate and test different q distributions",
    "isVerbose" : false,
    "isDetmnst" : true
 }
