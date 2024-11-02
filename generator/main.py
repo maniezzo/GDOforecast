@@ -66,9 +66,9 @@ if __name__ == "__main__":
    df = pd.read_csv('seedMatrix.csv',header=None, skiprows=1)
 
    # Randomly select a subset of rows and columns
-   num_rows    = 10  # Number of rows to sample
-   num_columns = 100  # Number of columns to sample
-   num_mult    = 5   # number of allowed multiple assignments
+   num_rows    = 50  # Number of rows to sample
+   num_columns = 300  # Number of columns to sample
+   num_mult    = 0   # number of allowed multiple assignments
    max_mult    = 5   # max num of multiple assignments
 
    isOrg = False # non servirà più
