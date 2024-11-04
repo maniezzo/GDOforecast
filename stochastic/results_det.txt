@@ -676,3 +676,7 @@ elapsed 608.728 zlb 698371 zub 703044
 elapsed 603.669 zlb 698374 zub 702944
 Instance inst_300_50_0_4 num.scen. 100 num.boost 75 num.paid 0 status 0 cur_numcols 30000 cur_numrows 15650 zlb 697035 objval 702921 finalLb 698375 total_time 3605
 Instance inst_300_50_0_4 num.scen. 100 num.boost 75 status 0 cur_numcols 30000 cur_numrows 15650 zlb 697035 objval 702921 finalLb 698375 total_time 3605
+Instance inst_100_10_0_0 num.scen. 100 num.boost 75 num.paid 0 status 0 cur_numcols 2000 cur_numrows 1210 zlb 231865 objval 232394 finalLb 232371 total_time 129.923
+Instance inst_100_10_0_0 num.scen. 100 num.boost 75 status 0 cur_numcols 2000 cur_numrows 1210 zlb 231865 objval 232394 finalLb 232371 total_time 129.923
+elapsed 600.457 zlb 254803 zub 255580
+elapsed 601.912 zlb 254803 zub 255580
