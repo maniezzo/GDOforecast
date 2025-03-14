@@ -40,3 +40,51 @@ MSE	res_YW_AR_175	ranks	fcast_50	fcast_avg	yrf	ysvm	yhw	yarima	ymlp	ylstm	yxgb	y
 MSE	res_YW_AR_175	ranks	2.5	3.82692308	5.48076923	5.5	5.88461538	6.07692308	6.17307692	6.26923077	6.5	6.78846154
 BIAS	res_YW_AR_175	ranks	yar	ymlp	yarima	ylstm	yhw	fcast_50	ysvm	fcast_avg	yrf	yxgb
 BIAS	res_YW_AR_175	ranks	2.80769231	3.57692308	4.07692308	4.34615385	5.36538462	5.48076923	5.48076923	7.36538462	7.75	8.75
+MAE res_YW_AR_75 ranks ['fcast_avg' 'fcast_50' 'yhw' 'yarima' 'ysvm' 'ylstm' 'yar' 'ymlp' 'yrf'
+ 'yxgb']
+MAE res_YW_AR_75 ranks [2.67307692 3.03846154 5.42307692 5.73076923 5.88461538 6.01923077
+ 6.05769231 6.38461538 6.46153846 7.32692308]
+MSE res_YW_AR_75 ranks ['fcast_avg' 'fcast_50' 'yhw' 'yarima' 'ysvm' 'ylstm' 'yar' 'ymlp' 'yrf'
+ 'yxgb']
+MSE res_YW_AR_75 ranks [2.67307692 3.03846154 5.42307692 5.73076923 5.88461538 6.01923077
+ 6.05769231 6.38461538 6.46153846 7.32692308]
+BIAS res_YW_AR_75 ranks ['yar' 'ymlp' 'yarima' 'fcast_50' 'ylstm' 'yhw' 'ysvm' 'fcast_avg' 'yrf'
+ 'yxgb']
+BIAS res_YW_AR_75 ranks [3.13461538 4.05769231 4.11538462 4.42307692 4.55769231 5.67307692
+ 5.86538462 6.         8.11538462 9.05769231]
+MAE res_YW_AR_75 ranks ['fcast_avg' 'fcast_50' 'yhw' 'yarima' 'ysvm' 'ylstm' 'yar' 'ymlp' 'yrf'
+ 'yxgb']
+MAE res_YW_AR_75 ranks [2.67307692 3.03846154 5.42307692 5.73076923 5.88461538 6.01923077
+ 6.05769231 6.38461538 6.46153846 7.32692308]
+MSE res_YW_AR_75 ranks ['fcast_avg' 'fcast_50' 'yhw' 'yarima' 'ysvm' 'ylstm' 'yar' 'ymlp' 'yrf'
+ 'yxgb']
+MSE res_YW_AR_75 ranks [2.67307692 3.03846154 5.42307692 5.73076923 5.88461538 6.01923077
+ 6.05769231 6.38461538 6.46153846 7.32692308]
+BIAS res_YW_AR_75 ranks ['yar' 'ymlp' 'yarima' 'fcast_50' 'ylstm' 'yhw' 'ysvm' 'fcast_avg' 'yrf'
+ 'yxgb']
+BIAS res_YW_AR_75 ranks [3.13461538 4.05769231 4.11538462 4.42307692 4.55769231 5.67307692
+ 5.86538462 6.         8.11538462 9.05769231]
+MAE res_YW_AR_75 ranks ['fcast_avg' 'fcast_50' 'yhw' 'yarima' 'ysvm' 'ylstm' 'yar' 'ymlp' 'yrf'
+ 'yxgb']
+MAE res_YW_AR_75 ranks [2.67307692 3.03846154 5.42307692 5.73076923 5.88461538 6.01923077
+ 6.05769231 6.38461538 6.46153846 7.32692308]
+MSE res_YW_AR_75 ranks ['fcast_avg' 'fcast_50' 'yhw' 'yarima' 'ysvm' 'ylstm' 'yar' 'ymlp' 'yrf'
+ 'yxgb']
+MSE res_YW_AR_75 ranks [2.67307692 3.03846154 5.42307692 5.73076923 5.88461538 6.01923077
+ 6.05769231 6.38461538 6.46153846 7.32692308]
+BIAS res_YW_AR_75 ranks ['yar' 'ymlp' 'yarima' 'fcast_50' 'ylstm' 'yhw' 'ysvm' 'fcast_avg' 'yrf'
+ 'yxgb']
+BIAS res_YW_AR_75 ranks [3.13461538 4.05769231 4.11538462 4.42307692 4.55769231 5.67307692
+ 5.86538462 6.         8.11538462 9.05769231]
+MAE res_YW_AR_75 ranks ['fcast_avg' 'fcast_50' 'yhw' 'yarima' 'ysvm' 'ylstm' 'yar' 'ymlp' 'yrf'
+ 'yxgb']
+MAE res_YW_AR_75 ranks [2.67307692 3.03846154 5.42307692 5.73076923 5.88461538 6.01923077
+ 6.05769231 6.38461538 6.46153846 7.32692308]
+MSE res_YW_AR_75 ranks ['fcast_avg' 'fcast_50' 'yhw' 'yarima' 'ysvm' 'ylstm' 'yar' 'ymlp' 'yrf'
+ 'yxgb']
+MSE res_YW_AR_75 ranks [2.67307692 3.03846154 5.42307692 5.73076923 5.88461538 6.01923077
+ 6.05769231 6.38461538 6.46153846 7.32692308]
+BIAS res_YW_AR_75 ranks ['yar' 'ymlp' 'yarima' 'fcast_50' 'ylstm' 'yhw' 'ysvm' 'fcast_avg' 'yrf'
+ 'yxgb']
+BIAS res_YW_AR_75 ranks [3.13461538 4.05769231 4.11538462 4.42307692 4.55769231 5.67307692
+ 5.86538462 6.         8.11538462 9.05769231]
