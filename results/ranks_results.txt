@@ -88,3 +88,15 @@ BIAS res_YW_AR_75 ranks ['yar' 'ymlp' 'yarima' 'fcast_50' 'ylstm' 'yhw' 'ysvm' '
  'yxgb']
 BIAS res_YW_AR_75 ranks [3.13461538 4.05769231 4.11538462 4.42307692 4.55769231 5.67307692
  5.86538462 6.         8.11538462 9.05769231]
+MAE res_YW_AR_75 ranks ['fcast_avg' 'fcast_50' 'yhw' 'yarima' 'ysvm' 'ylstm' 'yar' 'ymlp' 'yrf'
+ 'yxgb']
+MAE res_YW_AR_75 ranks [2.67307692 3.03846154 5.42307692 5.73076923 5.88461538 6.01923077
+ 6.05769231 6.38461538 6.46153846 7.32692308]
+MSE res_YW_AR_75 ranks ['fcast_avg' 'fcast_50' 'yhw' 'yarima' 'ysvm' 'ylstm' 'yar' 'ymlp' 'yrf'
+ 'yxgb']
+MSE res_YW_AR_75 ranks [2.67307692 3.03846154 5.42307692 5.73076923 5.88461538 6.01923077
+ 6.05769231 6.38461538 6.46153846 7.32692308]
+BIAS res_YW_AR_75 ranks ['yar' 'ymlp' 'yarima' 'fcast_50' 'ylstm' 'yhw' 'ysvm' 'fcast_avg' 'yrf'
+ 'yxgb']
+BIAS res_YW_AR_75 ranks [3.13461538 4.05769231 4.11538462 4.42307692 4.55769231 5.67307692
+ 5.86538462 6.         8.11538462 9.05769231]
