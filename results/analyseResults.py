@@ -90,6 +90,6 @@ def go_analysis():
    return
 
 if "__main__" == __name__:
-   makeTables.run_table()
+   #makeTables.run_table()
    isLinear()
    go_analysis()
