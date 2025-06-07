@@ -10,7 +10,7 @@ Directories:
 - data: original and intermediate instance data
 - forenback: a forenback matheuristic for solving the problem, abandoned
 - generator: generator for the extended benchmark set
-- lagrangian: a lagrangina matheuristic for solving the problem, abandoned
+- lagrangian: a lagrangian matheuristic for solving the problem, abandoned
 - old-soco: data and codes used for the paper maniezzo, tingting 2023
 - results: all results of the optimizations
 - stochastic: code for the prescriptive module

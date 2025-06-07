@@ -50,7 +50,7 @@ void StochMIP::readInstance(string& fileName, int numScen, int nboost, int nmult
    for (i = 0; i < JSV["qcost"].size(); i++)
       qcost[i] = JSV["qcost"][i];
 
-   string matrixFile = "../generator/seedMatrix.csv";
+   string matrixFile = "../costMatrix.csv";
    cout << "Opening matrix file " << matrixFile << endl;
    infile.exceptions(ifstream::failbit | ifstream::badbit);
    infile.open(matrixFile);
@@ -115,7 +115,7 @@ int StochMIP::readBoostForecasts(string filePath,int nboost,int numScen)
    for(s=0;s<numScen;s++)
    {  req[s].resize(n);
       for(j=0;j<n;j++)
-      {  req[s][j] = generateReq(j,nboost);
+      {  req[s][j] = boostFcasts[j][s]; //generateReq(j,nboost);
          if(req[s][j]>maxReq) maxReq = req[s][j];
       }
    }
@@ -352,6 +352,11 @@ tuple<int,int,int,int,float,float,double,double> StochMIP::solveDetEq(int timeLi
    time_t    tstart, tend;
    double    total_time;
 
+   // solution file
+   ofstream outFile("solFile.txt");
+   if (!outFile)
+      cout<<"Error opening solution file"<<endl;
+
    // Initialize the CPLEX environment
    env = CPXopenCPLEX(&status);
    if (env == NULL) 
@@ -428,9 +433,9 @@ tuple<int,int,int,int,float,float,double,double> StochMIP::solveDetEq(int timeLi
    {  //for (i = 0; i < cur_numrows; i++) 
       //   cout << "Row "<< i << ":  Slack = "<< slack[i] <<"  Pi = " << pi[i] << endl;
 
-      for (j = 0; j<cur_numcols; j++)
-         if (x[j]>0.01)
-            cout<<"Column "<<j<<":  Value = "<<x[j]<<"  Reduced cost = "<<dj[j]<<endl;
+      //for (j = 0; j<cur_numcols; j++)
+      //   if (x[j]>0.01)
+      //      cout<<"Column "<<j<<":  Value = "<<x[j]<<"  Reduced cost = "<<dj[j]<<endl;
    }
 
    // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> MIP <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -478,7 +483,10 @@ tuple<int,int,int,int,float,float,double,double> StochMIP::solveDetEq(int timeLi
    if (status)
    { cout<<"Failed to get optimal integer x."<<endl; goto TERMINATE; }
 
-   if(isVerbose)
+
+   // Open output file in append mode (std::ios::app)
+
+   if(isVerbose || true)
    {  status = CPXgetslack(env,lp,&slack[0],0,cur_numrows-1);
       if (status)
       { cout<<"Failed to get optimal slack values."<<endl; goto TERMINATE; }
@@ -486,18 +494,23 @@ tuple<int,int,int,int,float,float,double,double> StochMIP::solveDetEq(int timeLi
       //for (i = 0; i < cur_numrows; i++) 
       //   cout << "Row " << i << ":  Slack = " << slack[i] << endl;
       //
-      //for (j = 0; j<cur_numcols; j++)
-      //   if (x[j]>0.01)
-      //      cout<<"Column "<<j<<":  Value = "<<x[j]<<endl;
+      for (j = 0; j<cur_numcols; j++)
+         if (x[j]>0.01)
+         {
+            cout<<"Column "<<j<<":  Value = "<<x[j]<<endl;
+            outFile<<"Column "<<j<<":  Value = "<<x[j]<<endl;
+         }
    }
 
    // eps variables, infeasibilities
    for(j=n*m;j<(n*m+n*numScen);j++)
       if (x[j]>0.01)
       {  cout<<"Eps "<<j<<":  Value = "<<x[j]<<endl;
+         outFile<<"Eps "<<j<<":  Value = "<<x[j]<<endl;
          numInfeasibilities++;
       }
    cout << "Number of infeasibilities: " << numInfeasibilities << endl;
+   outFile.close();
 
 TERMINATE:
    // Free up the problem as allocated by CPXcreateprob, if necessary
@@ -523,8 +536,6 @@ TERMINATE:
 }  /* END main */
 
 // random quantity in the boosted series according to empyrical distrib
-// ritorna una richiesta interpretando la distribuzione dei boosted come distribuzione empirica
-// da cui posso estrarre quante volte voglio
 int StochMIP::generateReq(int j, int nboost)
 {  int ind,val;
    ind = rand()%nboost;
