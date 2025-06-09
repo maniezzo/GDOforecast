@@ -12,7 +12,7 @@ import sqlite101 as sql
 import pmdarima as pm
 
 '''
-This code generates the bbosted time series and stores them in sqlite.
+This code generates the bosted time series and stores them in sqlite.
 Forecasting of these series in in boostforecast
 '''
 

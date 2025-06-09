@@ -9,5 +9,7 @@ Directories:
 - boost_forecast: predictive module, boosting and standard forecasts
 - data: original and intermediate instance data
 - generator: generator for the extended benchmark set
+- lagrangian: a lagrangian matheuristic for solving the problem, abandoned
+- old-soco: data and codes used for the paper maniezzo, tingting 2023
 - results: all results of the optimizations
 - stochastic: code for the prescriptive module
