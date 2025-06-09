@@ -130,6 +130,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ETSdetequiv.cpp" />
     <ClCompile Include="json.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>

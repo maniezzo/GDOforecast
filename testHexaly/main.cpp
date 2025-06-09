@@ -5,6 +5,7 @@
 #include <vector>
 #include <time.h>
 #include "json.h"
+#include "ETSdetequiv.cpp"
 
 using namespace hexaly;
 using namespace std;
@@ -207,9 +208,13 @@ int main()
 {  string instanceFile = "c:/git/GDOforecast/generator/inst_52_4_0_0.json";
    string solFile = "results.txt";
    int TimeLimit = 60;
+   bool isETS = true;
 
    try {
       GDOassignment model;
+      if(isETS)
+         ETSDetequiv model;
+
       model.readInstance(instanceFile);
       model.solve(TimeLimit);
       if (solFile != "NULL")

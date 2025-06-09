@@ -299,10 +299,11 @@ def main_boosting(name,df,backCast = True, repetition=True, nboost=75,p=7,verbos
             plt.show()
 
       if verbose and idserie==0:
-         for i in range(10):
+         nseries = 25
+         for i in range(nseries):
             plt.plot(boost_set[i,1:])
-         plt.title(f"boosted (10), series {idserie}")
-         plt.ylim(3*min(boost_set[0,1:]),3*max(boost_set[0,1:]))
+         plt.title(f"boosted ({nseries}), series {idserie}")
+         plt.ylim(2.5*min(boost_set[0,1:]),2.5*max(boost_set[0,1:]))
          plt.show()
 
       attrib  = "r" if repetition else "s"  # repetition or scramble
