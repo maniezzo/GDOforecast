@@ -1,7 +1,9 @@
-#include "detequiv.h"
+#include "HexESdetequiv.h"
+
+// deterministic equivalent, Exponential Smoothing (Holt Winters) case, Hexaly solver
 
 // Read instance data, generates also the p and the req
-void StochMIP::readInstance(string& fileName, int numScen, int nboost, int nmult) 
+void HexStochMIP::readInstance(string& fileName, int numScen, int nboost, int nmult) 
 {  string line;
    int i,j,s;
 
@@ -81,7 +83,7 @@ void StochMIP::readInstance(string& fileName, int numScen, int nboost, int nmult
 }
 
 // reads the numserver forecasts for each of the boosted series
-int StochMIP::readBoostForecasts(string filePath,int nboost,int numScen)
+int HexStochMIP::readBoostForecasts(string filePath,int nboost,int numScen)
 {  string line;
    int i,j,s;
    ifstream infile;
@@ -124,7 +126,7 @@ int StochMIP::readBoostForecasts(string filePath,int nboost,int numScen)
 }
 
 // The tableu for the bscenario case.
-int StochMIP::populateTableau(CPXENVptr env, CPXLPptr lp, int numScen, double epsCost)
+int HexStochMIP::populateTableau(CPXENVptr env, CPXLPptr lp, int numScen, double epsCost)
 {  int status,numrows,numcols,numnz;
    int i,j,s,currMatBeg,index,qbeg,epsbeg;
    vector<double> obj;
@@ -335,7 +337,7 @@ TERMINATE:
    return (status);
 } 
 
-tuple<int,int,int,int,float,float,double,double> StochMIP::solveDetEq(int timeLimit, int numScen, bool isVerbose, double epsCost)
+tuple<int,int,int,int,float,float,double,double> HexStochMIP::solveDetEq(int timeLimit, int numScen, bool isVerbose, double epsCost)
 {  int      solstat, numInfeasibilities = 0;
    double   objval,zlb,lbfinal;
    vector<double> x;
@@ -536,7 +538,7 @@ TERMINATE:
 }  /* END main */
 
 // random quantity in the boosted series according to empyrical distrib
-int StochMIP::generateReq(int j, int nboost)
+int HexStochMIP::generateReq(int j, int nboost)
 {  int ind,val;
    ind = rand()%nboost;
    val = boostFcasts[j][ind]; // ind-th element of the series for j-th client

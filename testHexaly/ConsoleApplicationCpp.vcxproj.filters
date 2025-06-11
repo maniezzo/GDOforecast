@@ -32,5 +32,8 @@
     <ClInclude Include="..\..\..\hexaly_13_0\include\optimizer\hexalyoptimizer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

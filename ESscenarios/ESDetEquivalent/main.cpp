@@ -1,4 +1,5 @@
-#include "detequiv.h"
+#include "ESdetequiv.h"
+#include "HexESdetequiv.h"
 #include "json.h"
 
 string solFile;

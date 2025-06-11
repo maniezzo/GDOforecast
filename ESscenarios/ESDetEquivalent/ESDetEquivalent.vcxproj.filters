@@ -21,7 +21,10 @@
     <ClCompile Include="json.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="detequiv.cpp">
+    <ClCompile Include="ESdetequiv.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HexESdetequiv.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -29,7 +32,10 @@
     <ClInclude Include="common.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="detequiv.h">
+    <ClInclude Include="ESdetequiv.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HexESdetequiv.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

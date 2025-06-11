@@ -1,15 +1,6 @@
-#include "c:/hexaly_13_5/include/optimizer/hexalyoptimizer.h"
-#include <fstream>
-#include <iostream>
-#include <sstream>
-#include <vector>
-#include <time.h>
-#include "json.h"
+#include "common.h"
 
-using namespace hexaly;
-using namespace std;
-
-class ETSDetequiv
+class ETSDetequiv : public Base
 {
 public:
    string name;
