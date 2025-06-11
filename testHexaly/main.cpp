@@ -1,4 +1,4 @@
-#include "c:/hexaly_13_0/include/optimizer/hexalyoptimizer.h"
+#include "c:/hexaly_13_5/include/optimizer/hexalyoptimizer.h"
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -222,7 +222,7 @@ int main()
       return 0;
    }
    catch (const exception& e) {
-      cerr << "Error: " << e.what() << endl;
+      cout << "Error: " << e.what() << endl;
       return 1;
    }
 }
