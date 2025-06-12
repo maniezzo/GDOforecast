@@ -338,153 +338,244 @@ TERMINATE:
 } 
 
 tuple<int,int,int,int,float,float,double,double> HexStochMIP::solveDetEq(int timeLimit, int numScen, bool isVerbose, double epsCost)
-{  int      solstat, numInfeasibilities = 0;
-   double   objval,zlb,lbfinal;
-   vector<double> x;
-   vector<double> pi;
-   vector<double> slack;
-   vector<double> dj;
-   vector<char>   ctype;
+{  int i,j,s,epsbeg,qbeg, numcols, solstat, numInfeasibilities = 0;
+   double ttot;
+   clock_t tstart,tend;
+   HxModel model = optimizer.getModel();
 
-   CPXENVptr  env = NULL;
-   CPXLPptr  lp  = NULL;
-   int       status = 0;
-   int       i,j,s;
-   int       cur_numrows, cur_numcols;
-   time_t    tstart, tend;
-   double    total_time;
-
-   // solution file
-   ofstream outFile("solFile.txt");
-   if (!outFile)
-      cout<<"Error opening solution file"<<endl;
-
-   // Initialize the CPLEX environment
-   env = CPXopenCPLEX(&status);
-   if (env == NULL) 
-   {  char  errmsg[CPXMESSAGEBUFSIZE];
-      cout << "Could not open CPLEX environment." << endl;
-      CPXgeterrorstring(env, status, errmsg);
-      cout << errmsg << endl;
-      goto TERMINATE;
+   numcols = 0;
+   // i: m server, j: n client
+   x.resize(n*m);
+   for (i = 0; i < n*m; ++i)
+   {  x[i] = model.boolVar();
+      numcols++;
    }
 
-   // Turn on output to the screen 
-   status = CPXsetintparam(env, CPXPARAM_ScreenOutput, CPX_ON);
-   if (status) 
-   {  cout << "Failure to turn on screen indicator, error " << status << endl; goto TERMINATE; }
+   // Create columns for eps variables
+   epsbeg = numcols; // index of first eps variable
+   eps.resize(n*numScen);
+   for(i=0;i<numScen;i++)
+   {  eps[i] = model.boolVar();
+      numcols++;
+   }
 
-   // Turn on data checking
-   status = CPXsetintparam(env, CPXPARAM_Read_DataCheck,CPX_DATACHECK_WARN);
-   if (status) 
-   {  cout << "Failure to turn on data checking, error " << status << endl; goto TERMINATE; }
+   // Create the columns for q variables
+   qbeg = numcols; // index of first q variabla
+   q.resize(numScen*n*m);
+   for (i = 0; i < numScen*n*m; ++i)
+   {  q[i] = model.intVar(0, maxReq);
+      numcols++;
+   }
 
-   // time limit
-   status = CPXsetdblparam(env, CPX_PARAM_TILIM, timeLimit);
 
-   // Create the problem.
-   lp = CPXcreateprob(env, &status, "scenGDO");
-   if (lp == NULL) 
-   {  cout << "Failed to create LP." << endl; goto TERMINATE; }
+   // ------------------------------------------------------ constraints section
 
-   // Now populate the problem with the data.
-   status = populateTableau(env, lp, numScen, epsCost);
-   if (status) 
-   {  cout <<"Failed to populate problem." << endl; goto TERMINATE; }
-
-   cur_numrows = CPXgetnumrows(env, lp);
-   cur_numcols = CPXgetnumcols(env, lp);
-   cout << "LP model; ncol=" << cur_numcols << " nrows=" << cur_numrows << endl;
-
-   // Finally, write a copy of the problem to a file
-   if(cur_numcols < 1000)
-   {  status = CPXwriteprob(env,lp,"problem.lp",NULL);
-      if (status) 
-      {  cout << "Failed to write model to disk." << endl;
-         goto TERMINATE;
+   // quantity q constraints.
+   for(s=0;s<numScen;s++)   
+      for(j=0;j<n;j++)
+      {  HxExpression quant = model.sum();
+         for(i=0;i<m;i++)
+            quant.addOperand(q[i*n+j]);
+         model.constraint(quant==req[j]);
       }
-   }
 
-   // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> LP <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-   status = CPXlpopt(env, lp);
-   if (status) 
-   {  cout << "Failed to optimize LP." << endl; goto TERMINATE; }
+      // assignment
+      for(j=0;j<n;j++)
+      {  HxExpression nass = model.sum();
+         for(i=0;i<m;i++)
+            nass.addOperand(x[i*n+j]);
+         model.constraint(nass <= b[j]);
+      }
 
-   // save solutions
-   for(int j=0;j<cur_numcols;j++)
-   {  x.push_back(0);   // primal variables
-      dj.push_back(0);  // reduced costs
-   }
+      // server capacities
+      for(i=0;i<m;i++)
+      {  HxExpression usedcap = model.sum();
+         for(j=0;j<n;j++)
+            usedcap.addOperand(q[i*n+j]);
+         model.constraint(usedcap<= cap[i]);
+      }
 
-   for (int i = 0; i < cur_numrows; i++)
-   {  pi.push_back(0);     // dual variables
-      slack.push_back(0);  // constraint slacks
-   }
-
-   status = CPXsolution(env, lp, &solstat, &objval, &x[0], &pi[0], &slack[0], &dj[0]);
-   if (status) 
-   {  cout << "Failed to obtain solution." << endl; goto TERMINATE; }
-
-   zlb = objval;
-
-   // Write the output to the screen.
-   cout << "\nSolution status = " << solstat << endl;
-   cout << "Solution value  = "   << objval << endl;
-
-   if(isVerbose)
-   {  //for (i = 0; i < cur_numrows; i++) 
-      //   cout << "Row "<< i << ":  Slack = "<< slack[i] <<"  Pi = " << pi[i] << endl;
-
-      //for (j = 0; j<cur_numcols; j++)
-      //   if (x[j]>0.01)
-      //      cout<<"Column "<<j<<":  Value = "<<x[j]<<"  Reduced cost = "<<dj[j]<<endl;
-   }
-
-   // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> MIP <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-   // Now copy the ctype array
-   for(s=0;s<numScen;s++)
+      //link x - q
       for(i=0;i<m;i++)
          for(j=0;j<n;j++)
-            ctype.push_back('I');   // x vars
+            model.constraint(q[i*n+j] - req[j]*x[i*n+j] <= 0);
+
+      // -------------------------------------- cost section
+      vector<HxExpression> costs(2*m*n); // first x then q
+      // Costs due to assignments
+      for (int i = 0; i < m; i++)
+         //costs[i].resize(n);
+         for (int j = 0; j < n; j++)
+            costs[i*n + j] = xAssCost[i][j]*x[i*n+j];
+
+      // costs due to infeasibilities
+      for (int i = 0; i < m; ++i) 
+         ecc ecc
+
+      // rental costs 
+      for (int i = 0; i < m; ++i) 
+         for (int j = 0; j < n; ++j) 
+            costs[n*m + i*n+j] = qcost[i]*q[i*n+j];
+
+      // Minimize the total cost
+      totalCost = model.sum(costs.begin(), costs.end());
+      model.minimize(totalCost);
+      model.close();
+      //optimizer.saveEnvironment("lmModel.hxm");
+
+      // --------------------------------------- Parameterize the optimizer
+      optimizer.getParam().setTimeLimit(limit);
+      tstart = clock();
+      optimizer.solve();
+      tend = clock();
+      ttot = (tend-tstart)/CLOCKS_PER_SEC;
+      HxSolutionStatus status = optimizer.getSolution().getStatus();
+      cout << "Status " << status << " cost " << totalCost.getValue() << " tcpu " << ttot << endl;
+   
+ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZz
+{
+   currMatBeg = 0;
+   numrows = numnz = 0;
+
+   for(s=0;s<numScen;s++)   
+      for(j=0;j<n;j++)
+      {  rmatbeg.push_back(currMatBeg);
+   rowname.push_back("q"+to_string(s)+"_"+to_string(j)); numrows++;
+   // eps variable
+   rmatind.push_back(epsbeg+s*n+j); 
+   rmatval.push_back(1.0); 
+   numnz++;
+   // q variables
+   for(i=0;i<m;i++)
+   {  index = qbeg + s*n*m +i*n +j;  // int q vars + scenario vars + server offset + client within server
+   rmatind.push_back(index); 
+   rmatval.push_back(1.0); 
+   numnz++;
+   }
+
+   sense.push_back('E');
+   rhs.push_back(req[s][j]);
+   currMatBeg+=m+1;  // m q vars and one eps
+      }
+
+   // vector<string> to char**
+   char** rname = new char* [rowname.size()];
+   for (int index = 0; index < rowname.size(); index++) 
+      rname[index] = const_cast<char*>(rowname[index].c_str());
+
+   status = CPXaddrows(env, lp, 0, numrows, numnz, &rhs[0], &sense[0], &rmatbeg[0], &rmatind[0], &rmatval[0], NULL, rname);
+   delete[] rname;
+   if (status)  goto TERMINATE;
+}
+
+// num assignments x constraints.
+{
+   currMatBeg = 0;
+   numrows = numnz = 0;
+   rmatbeg.clear();
+   rowname.clear();
+   rmatind.clear();
+   rmatval.clear();
+   sense.clear();
+   rhs.clear();
    for(s=0;s<numScen;s++)
       for(j=0;j<n;j++)
-         ctype.push_back('I');      // eps vars
+      {  rmatbeg.push_back(currMatBeg);
+   rowname.push_back("b"+to_string(s)+"_"+to_string(j)); numrows++;
+   for(i=0;i<m;i++)
+   {  index = i*n +j;  // x vars, server offset + client within server
+   rmatind.push_back(index); 
+   rmatval.push_back(1.0); 
+   numnz++;
+   }
+   sense.push_back('L');
+   rhs.push_back(b[j]);
+   currMatBeg+=m;
+      }
+
+   // vector<string> to char**
+   char** rname = new char* [rowname.size()];
+   for (int index = 0; index < rowname.size(); index++) 
+      rname[index] = const_cast<char*>(rowname[index].c_str());
+
+   status = CPXaddrows(env, lp, 0, numrows, numnz, &rhs[0], &sense[0], &rmatbeg[0], &rmatind[0], &rmatval[0], NULL, rname);
+   delete[] rname;
+   if (status)  goto TERMINATE;
+}
+
+// capacity constraints
+{
+   currMatBeg = 0;
+   numrows = numnz = 0;
+   rmatbeg.clear();
+   rowname.clear();
+   rmatind.clear();
+   rmatval.clear();
+   sense.clear();
+   rhs.clear();
+   for(s=0;s<numScen;s++)
+      for(i=0;i<m;i++)
+      {  rmatbeg.push_back(currMatBeg);
+   rowname.push_back("cap"+to_string(s)+"_"+to_string(i)); numrows++;
+   for(j=0;j<n;j++)
+   {
+      index = qbeg + s*n*m +i*n +j;  // int q vars + scenario vars + server offset + client within server
+      rmatind.push_back(index); 
+      rmatval.push_back(1.0); 
+      numnz++;
+   }
+   sense.push_back('L');
+   rhs.push_back(cap[i]);
+   currMatBeg+=n;
+      }
+
+   // vector<string> to char**
+   char** rname = new char* [rowname.size()];
+   for (int index = 0; index < rowname.size(); index++) 
+      rname[index] = const_cast<char*>(rowname[index].c_str());
+
+   status = CPXaddrows(env, lp, 0, numrows, numnz, &rhs[0], &sense[0], &rmatbeg[0], &rmatind[0], &rmatval[0], NULL, rname);
+   delete[] rname;
+   if (status)  goto TERMINATE;
+}
+
+// q-x linking ocnstraints
+{
+   currMatBeg = 0;
+   numrows = numnz = 0;
+   rmatbeg.clear();
+   rowname.clear();
+   rmatind.clear();
+   rmatval.clear();
+   sense.clear();
+   rhs.clear();
    for(s=0;s<numScen;s++)
       for(i=0;i<m;i++)
          for(j=0;j<n;j++)
-            ctype.push_back('I');   // q vars
-   status = CPXcopyctype(env, lp, &ctype[0]);
-   if (status)
-   {  cout << "Failed to copy ctype" << endl; goto TERMINATE; }
+         {
+            rmatbeg.push_back(currMatBeg);
+            rowname.push_back("xq"+to_string(s)+"_"+to_string(i)+"_"+to_string(j)); numrows++;
+            index = qbeg + s*n*m +i*n +j;  // int q vars + scenario vars + server offset + client within server
+            rmatind.push_back(index); 
+            rmatval.push_back(1.0); 
+            numnz++;
+            index = i*n +j;  // x vars + server offset + client within server
+            rmatind.push_back(index); 
+            rmatval.push_back(-req[s][j]); 
+            numnz++;
+            sense.push_back('L');
+            rhs.push_back(0);
+            currMatBeg+=2;
+         }
 
-   // -------------------------------------------------- Optimize to integrality
-   tstart = clock();
-   status = CPXmipopt(env, lp);
-   if (status) 
-   {  cout << "Failed to optimize MIP" << endl; goto TERMINATE; }
-   tend = clock();
-   total_time = (double)( tend - tstart )/(double)CLK_TCK ;
-   cout << "Elapsed time :" << total_time << endl;
+   // vector<string> to char**
+   char** rname = new char* [rowname.size()];
+   for (int index = 0; index < rowname.size(); index++) 
+      rname[index] = const_cast<char*>(rowname[index].c_str());
 
-   solstat = CPXgetstat(env, lp);
-   cout << "Solution status = " << solstat << endl; // 101 CPXMIP_OPTIMAL,  102 CPXMIP_OPTIMAL_TOL (opt within tolerance)
-
-   status = CPXgetobjval(env, lp, &objval);
-   if (status) 
-   {  cout << "No MIP objective value available.  Exiting..." << endl; goto TERMINATE; }
-
-   status = CPXgetbestobjval(env, lp, &lbfinal);
-   if (status) 
-   {  cout << "Could not get a lower bound.  Exiting..." << endl; goto TERMINATE; }
-
-   cout << "Solution value  = " << objval << endl;
-   cur_numrows = CPXgetnumrows(env, lp);
-   cur_numcols = CPXgetnumcols(env, lp);
-   status = CPXgetx(env,lp,&x[0],0,cur_numcols-1);
-   if (status)
-   { cout<<"Failed to get optimal integer x."<<endl; goto TERMINATE; }
-
+   status = CPXaddrows(env, lp, 0, numrows, numnz, &rhs[0], &sense[0], &rmatbeg[0], &rmatind[0], &rmatval[0], NULL, rname);
+   delete[] rname;
+   if (status)  goto TERMINATE;
 
    // Open output file in append mode (std::ios::app)
 
@@ -514,12 +605,6 @@ tuple<int,int,int,int,float,float,double,double> HexStochMIP::solveDetEq(int tim
    cout << "Number of infeasibilities: " << numInfeasibilities << endl;
    outFile.close();
 
-TERMINATE:
-   // Free up the problem as allocated by CPXcreateprob, if necessary
-   if (lp != NULL) 
-   {  status = CPXfreeprob(env, &lp);
-      if (status) 
-         cout << "CPXfreeprob failed, error code " << status << endl;
    }
 
    // Free up the CPLEX environment, if necessary

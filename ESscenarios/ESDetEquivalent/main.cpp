@@ -76,7 +76,7 @@ void printResults(string strInst, int numScen, int nboost, int npaid,
       cout<<"Error opening output file: "<<solFile<<std::endl;
    else
    {  outFile<<outStr;
-   outFile.close();
+      outFile.close();
    }
 }
 

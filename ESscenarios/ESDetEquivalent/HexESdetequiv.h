@@ -30,6 +30,7 @@ public:
 
    // Decision variables
    vector<HxExpression> x;
+   vector<HxExpression> eps;
    vector<HxExpression> q;
 
    // Objective
