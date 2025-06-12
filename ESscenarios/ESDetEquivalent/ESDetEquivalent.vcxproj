@@ -107,7 +107,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(CPLEX_STUDIO_DIR2211)\cplex\lib\x64_windows_msvc14\stat_mdd\cplex2211.lib;$(CPLEX_STUDIO_DIR2211)\cplex\lib\x64_windows_msvc14\stat_mdd\ilocplex.lib;$(CPLEX_STUDIO_DIR2211)\concert\lib\x64_windows_msvc14\stat_mdd\concert.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>c:\hexaly_13_5\bin\hexaly135.lib;$(CPLEX_STUDIO_DIR2211)\cplex\lib\x64_windows_msvc14\stat_mdd\cplex2211.lib;$(CPLEX_STUDIO_DIR2211)\cplex\lib\x64_windows_msvc14\stat_mdd\ilocplex.lib;$(CPLEX_STUDIO_DIR2211)\concert\lib\x64_windows_msvc14\stat_mdd\concert.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -123,7 +123,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(CPLEX_STUDIO_DIR2211)\cplex\lib\x64_windows_msvc14\stat_mda\cplex2211.lib;$(CPLEX_STUDIO_DIR2211)\cplex\lib\x64_windows_msvc14\stat_mda\ilocplex.lib;$(CPLEX_STUDIO_DIR2211)\concert\lib\x64_windows_msvc14\stat_mda\concert.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>c:\hexaly_13_5\bin\hexaly135.lib;$(CPLEX_STUDIO_DIR2211)\cplex\lib\x64_windows_msvc14\stat_mda\cplex2211.lib;$(CPLEX_STUDIO_DIR2211)\cplex\lib\x64_windows_msvc14\stat_mda\ilocplex.lib;$(CPLEX_STUDIO_DIR2211)\concert\lib\x64_windows_msvc14\stat_mda\concert.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

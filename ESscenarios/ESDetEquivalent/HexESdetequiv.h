@@ -1,7 +1,10 @@
-#ifndef DETEQ_H
-#define DETEQ_H
+#ifndef HDETEQ_H
+#define HDETEQ_H
 
 #include "common.h"
+#include "c:/hexaly_13_5/include/optimizer/hexalyoptimizer.h"
+
+using namespace hexaly;
 
 class HexStochMIP
 {
@@ -22,10 +25,20 @@ public:
    vector<vector<int>> xAssCost; // assignment costs
    vector<vector<int>> boostFcasts;
 
+   // Hexaly Optimizer
+   HexalyOptimizer optimizer;
+
+   // Decision variables
+   vector<HxExpression> x;
+   vector<HxExpression> q;
+
+   // Objective
+   HxExpression totalCost;
+
    void readInstance(string& fileName, int numScen, int nboost, int nmult);
    int readBoostForecasts(string filePath,int nboost,int numScen);
    int populateTableau(CPXENVptr env, CPXLPptr lp, int numScen, double epsCost);
    tuple<int,int,int,int,float,float,double,double> solveDetEq(int timeLimit, int numScen, bool isVerbose, double epsCost);
    int generateReq(int j, int nboost);
 };
-#endif // DETEQ_H
+#endif // HDETEQ_H

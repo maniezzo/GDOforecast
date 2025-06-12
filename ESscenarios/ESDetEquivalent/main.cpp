@@ -82,6 +82,7 @@ void printResults(string strInst, int numScen, int nboost, int npaid,
 
 int main()
 {  StochMIP Stoch;
+   HexStochMIP HexStoch;
    string instanceFile,distribFile;
    string line,inst;
    stringstream ss;
@@ -126,9 +127,12 @@ int main()
       instanceFile += ".json";
       for(irep=0;irep<nrep;irep++)
       {
-         Stoch.readInstance(instanceFile,numScen,nboost,nmult);
-         Stoch.readBoostForecasts(distribFile,nboost,numScen);
-         tuple<int,int,int,int,float,float,double,double> res = Stoch.solveDetEq(TimeLimit,numScen,isVerbose,epsCost);
+         //Stoch.readInstance(instanceFile,numScen,nboost,nmult);
+         HexStoch.readInstance(instanceFile,numScen,nboost,nmult);
+         //Stoch.readBoostForecasts(distribFile,nboost,numScen);
+         HexStoch.readBoostForecasts(distribFile,nboost,numScen);
+         //tuple<int,int,int,int,float,float,double,double> res = Stoch.solveDetEq(TimeLimit,numScen,isVerbose,epsCost);
+         tuple<int,int,int,int,float,float,double,double> res = HexStoch.solveDetEq(TimeLimit,numScen,isVerbose,epsCost);
          size_t slashPos = instanceFile.rfind('/');
          dotPos = instanceFile.rfind('.');
          string strInst = instanceFile.substr(slashPos+1,dotPos-slashPos-1);

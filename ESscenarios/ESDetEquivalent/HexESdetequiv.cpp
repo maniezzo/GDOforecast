@@ -44,7 +44,7 @@ void HexStochMIP::readInstance(string& fileName, int numScen, int nboost, int nm
    }
    // Sort indices based on comparing elements in rqst in descending order
    sort(ind.begin(), ind.end(), [&rqst](int i1, int i2) { return rqst[i1] > rqst[i2]; });  // Descending order
-   // make splittable the nmult clients with higer requests
+   // make splittable the nmult clients with higher requests
    for(i=0;i<nmult;i++)
       b[ind[i]] = 2;
 
