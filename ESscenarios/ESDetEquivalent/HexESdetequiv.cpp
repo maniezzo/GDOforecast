@@ -92,18 +92,18 @@ int HexStochMIP::readBoostForecasts(string filePath,int nboost,int numScen)
    infile.exceptions(ifstream::failbit | ifstream::badbit);
    infile.open(filePath);
    // Read the file line by line
-   boostFcasts.resize(n);
-   for(i=0;i<n;i++)
-      boostFcasts[i].resize(nboost);
+   boostFcasts.resize(nboost);
+   for(i=0;i<nboost;i++)
+      boostFcasts[i].resize(n);
 
    i=0;
-   while (i<n && getline(infile, line))
+   while (i<numScen && getline(infile, line))
    {  stringstream ss(line);
       string value;
 
       // Split the line by commas
       j=0;
-      while (getline(ss, value, ',') && j<nboost) 
+      while (getline(ss, value, ',') && j<n) 
       {  boostFcasts[i][j] = round(stof(value)); // Convert to integer and add to row
          j++;
       }
@@ -115,12 +115,12 @@ int HexStochMIP::readBoostForecasts(string filePath,int nboost,int numScen)
    maxReq = 0;
    req.resize(numScen);
    for(s=0;s<numScen;s++)
-   {  req[s].resize(n);
+      req[s].resize(n);
+   for(s=0;s<numScen;s++)
       for(j=0;j<n;j++)
-      {  req[s][j] = boostFcasts[j][s]; //generateReq(j,nboost);
+      {  req[s][j] = boostFcasts[s][j]; //generateReq(j,nboost);
          if(req[s][j]>maxReq) maxReq = req[s][j];
       }
-   }
 
    return 0;
 }
@@ -179,7 +179,7 @@ tuple<int,int,int,int,float,float,double,double> HexStochMIP::solveDetEq(int tim
             costs[n*m + n*numScen + i*n*numScen + j*numScen + s] = qcost[i]*q[i*n*numScen + j*numScen + s]; // costo noleggio q, per scenario e cliente
 
    // ------------------------------------------------------ constraints section
-
+   
    // quantity q constraints.
    for(s=0;s<numScen;s++)   
       for(j=0;j<n;j++)
@@ -190,34 +190,40 @@ tuple<int,int,int,int,float,float,double,double> HexStochMIP::solveDetEq(int tim
          model.constraint(quant==req[s][j]);
          numrows++;
       }
-/*
-      // assignment
-      for(j=0;j<n;j++)
-      {  HxExpression nass = model.sum();
-         for(i=0;i<m;i++)
-            nass.addOperand(x[i*n+j]);
-         model.constraint(nass <= b[j]);
-      }
 
-      // server capacities
-      for(i=0;i<m;i++)
+   // server capacities
+   for(i=0;i<m;i++)
+      for(s=0;s<numScen;s++)   
       {  HxExpression usedcap = model.sum();
          for(j=0;j<n;j++)
-            usedcap.addOperand(q[i*n+j]);
-         model.constraint(usedcap<= cap[i]);
+            usedcap.addOperand(q[i*n*numScen+j*numScen+s]);
+         model.constraint(usedcap <= cap[i]);
+         numrows++;
       }
 
-      //link x - q
+   // assignment
+   for(j=0;j<n;j++)
+   {  HxExpression nass = model.sum();
+      for(i=0;i<m;i++)
+         nass.addOperand(x[i*n+j]);
+      model.constraint(nass <= b[j]);
+      numrows++;
+   }
+
+   //link x - q
+   for(s=0;s<numScen;s++)   
       for(i=0;i<m;i++)
          for(j=0;j<n;j++)
-            model.constraint(q[i*n+j] - req[j]*x[i*n+j] <= 0);
-*/
+         {  model.constraint(q[i*n*numScen+j*numScen+s]-req[s][j]*x[i*n+j]<=0);
+            numrows++;
+         }
 
    // Minimize the total cost
    totalCost = model.sum(costs.begin(), costs.end());
    model.minimize(totalCost);
    model.close();
    optimizer.saveEnvironment("lmModel.hxm");
+   cout << "n. var."<<numcols<<" num.x "<<epsbeg<<" num eps "<<qbeg-epsbeg<<endl;
 
    // --------------------------------------- Parametrize the optimizer
    optimizer.getParam().setTimeLimit(timeLimit);
@@ -231,14 +237,19 @@ tuple<int,int,int,int,float,float,double,double> HexStochMIP::solveDetEq(int tim
    else if (optimizer.getSolution().getStatus() == SS_Feasible)   cout << "Feasible solution found" << endl;
    else if (optimizer.getSolution().getStatus() == SS_Optimal)    cout << "Optimal solution found" << endl;
    else cout<<"Unknown status"<<endl;
-   cout << "Status " << status << " cost " << totalCost.getValue() << " tcpu " << ttot << endl;
 
    // Open output file in append mode (std::ios::app)
    ofstream outFile;
    outFile.exceptions(ofstream::failbit | ofstream::badbit);
    outFile.open("hexaly_results.dat");
 
-   outFile << totalCost.getValue() << endl;
+   try
+   {
+      cout << "Status " << status << " cost " << totalCost.getDoubleValue() << " tcpu " << ttot << endl;
+   }
+   catch(int errorCode)
+   {  cout<<"errorcode "<<errorCode<<endl; }
+
    if(isVerbose || true)
    {  
       for (k = 0; k<epsbeg; k++)
@@ -258,7 +269,7 @@ tuple<int,int,int,int,float,float,double,double> HexStochMIP::solveDetEq(int tim
    cout << "Number of infeasibilities: " << numInfeasibilities << endl;
    outFile.close();
 
-   tuple<int,int,int,int,float,float,double,double> res = make_tuple(status,numcols,numrows,numInfeasibilities,-1,totalCost.getValue(),-1,ttot);
+   tuple<int,int,int,int,float,float,double,double> res = make_tuple(status,numcols,numrows,numInfeasibilities,-1,totalCost.getDoubleValue(),-1,ttot);
    return res;
 }  /* END main */
 

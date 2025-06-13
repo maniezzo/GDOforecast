@@ -1,2 +1,6 @@
 Instance inst_52_4_0_0 num.scen. 75 num.boost 75 repet. 0 status 0 cur_numcols 19708 cur_numrows 23700 numInfeasibilities 9 zlb 2.07019e+08 objval 2.09023e+08 finalLb 2.0702e+08 total_time 7214.82
 Instance inst_52_4_0_0 num.scen. 75 num.boost 75 repet. 0 status 0 cur_numcols 19708 cur_numrows 23700 numInfeasibilities 9 zlb 2.07019e+08 objval 2.09023e+08 finalLb 2.0702e+08 total_time 7212.12
+Instance inst_52_4_0_0 num.scen. 75 num.boost 75 repet. 0 status 3 cur_numcols 19708 cur_numrows 3900 numInfeasibilities 0 zlb -1 objval 0 finalLb -1 total_time 0
+Instance inst_52_4_0_0 num.scen. 75 num.boost 75 repet. 0 status 3 cur_numcols 19708 cur_numrows 3900 numInfeasibilities 0 zlb -1 objval 0 finalLb -1 total_time 0
+Instance inst_52_4_0_0 num.scen. 75 num.boost 75 repet. 0 status 3 cur_numcols 19708 cur_numrows 3900 numInfeasibilities 0 zlb -1 objval 0 finalLb -1 total_time 0
+Instance inst_52_4_0_0 num.scen. 75 num.boost 75 repet. 0 status 3 cur_numcols 19708 cur_numrows 19852 numInfeasibilities 0 zlb -1 objval 15423 finalLb -1 total_time 37
