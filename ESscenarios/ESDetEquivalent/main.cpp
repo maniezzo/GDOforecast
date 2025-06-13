@@ -86,8 +86,7 @@ int main()
    string instanceFile,distribFile;
    string line,inst;
    stringstream ss;
-   int i,status,irep,nrep,nmult;
-   float zlb;
+   int irep,nrep,nmult;
    srand(995);
    //srand(time(NULL));
 
