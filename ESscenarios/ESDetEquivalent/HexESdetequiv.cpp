@@ -42,6 +42,7 @@ void HexStochMIP::readInstance(string& fileName, int numScen, int nboost, int nm
       rqst[i] = JSV["req"][i];
       ind[i] = i;
    }
+
    // Sort indices based on comparing elements in rqst in descending order
    sort(ind.begin(), ind.end(), [&rqst](int i1, int i2) { return rqst[i1] > rqst[i2]; });  // Descending order
    // make splittable the nmult clients with higher requests
@@ -125,8 +126,88 @@ int HexStochMIP::readBoostForecasts(string filePath,int nboost,int numScen)
    return 0;
 }
 
-tuple<int,int,int,int,float,float,double,double> HexStochMIP::solveDetEq(int timeLimit, int numScen, bool isVerbose, double epsCost)
-{  int i,j,s,k,epsbeg,qbeg,maxCap, numcols, numrows, numInfeasibilities = 0;
+
+// confronta la soluzione robusta con i dati veri futuri
+void HexStochMIP::checkSolution(string histFile)
+{  int i,j;
+   string line;
+   vector<int> histData;
+   vector<int> assignments(52); // vettore per le assegnazioni dei clienti
+
+   // legge serie storiche di dicembre
+   cout<<"opening historical data file: "<<histFile<<endl;
+   ifstream infile(histFile);
+   if (!infile.is_open())
+   {  cout<<"Error opening historical data file: "<<histFile<<endl;
+      return;
+   }
+   getline(infile, line); // headers
+
+   i=0;
+   while (getline(infile, line))
+   {  stringstream ss(line);
+      string value;
+
+      // valore storico efettivo di dicembre
+      j=0;
+      while (getline(ss, value, ','))
+      {  if ((i+1)%48 == 0)
+         {  //cout<<(i+1)/48<<"_"<<j<<") "<<value<<endl; // = round(stof(value)); 
+            if(j==3)
+               histData.push_back(round(stof(value)));
+         }
+         j++;
+      }
+      i++;
+   }      
+   infile.close();
+
+   // il file "hexaly_results.dat" e' riempito in HexESdetequiv.cpp
+   cout<<"opening hexaly_results.dat"<<endl;
+   ifstream infile2("hexaly_results.dat");
+   if (!infile2.is_open())
+   {  cout<<"Error opening detequiv data file: "<<histFile<<endl;
+      return;
+   }
+   while (getline(infile2, line))
+   {  stringstream ss(line);
+      string value;
+
+      // variabili in soluzione robusta
+      j=0;
+      while (getline(ss, value, ' '))
+      { 
+         if(j==1)
+            i=round(stof(value));
+         if(j==2)
+            assignments[round(stof(value))] = i;
+         j++;
+      }
+   }
+   infile2.close();
+
+   // controlla ammisibilità delle capacità
+   int totCost = 0; // costo totale della soluzione
+   vector<int> whCost(m);  // costi di ogni magazzino
+   vector<int> capUsed(m); // vettore per le capacità usate
+   for(j=0;j<n;j++)
+   {
+      capUsed[assignments[j]] += histData[j]; // somma le richieste dei clienti assegnati al server
+      totCost += xAssCost[assignments[j]][j]; // somma i costi di assegnamento
+      totCost += qcost[assignments[j]]*histData[j]; // somma i costi di noleggio
+      whCost[assignments[j]] += qcost[assignments[j]]*histData[j]; // costo di noleggio per il magazzino
+   }
+   for (i=0;i<m;i++)
+   {
+      cout<<"Server "<<i<<" cost "<< whCost[i] <<" used capacity "<<capUsed[i]<<" / "<<cap[i]<<endl;
+      if (capUsed[i]>cap[i])
+         cout<<">>>>>>> Server "<<i<<" capacity exceeded: "<<capUsed[i]<<" > "<<cap[i]<<endl;
+   }
+}
+
+
+tuple<int,int,int,int,float,float,double,double> HexStochMIP::solveDetEq(int timeLimit, int numScen, bool isVerbose, double epsCost, string histFile)
+{  int i,j,s,k,epsbeg,qbeg,maxCap, numcols, numrows, totcost, numInfeasibilities = 0;
    double ttot;
    clock_t tstart,tend;
    HxModel model = optimizer.getModel();
@@ -244,20 +325,24 @@ tuple<int,int,int,int,float,float,double,double> HexStochMIP::solveDetEq(int tim
    outFile.open("hexaly_results.dat");
 
    try
-   {
-      cout << "Status " << status << " cost " << totalCost.getDoubleValue() << " tcpu " << ttot << endl;
+   {  cout << "Status " << status << " cost " << totalCost.getDoubleValue() << " tcpu " << ttot << endl;
    }
    catch(int errorCode)
    {  cout<<"errorcode "<<errorCode<<endl; }
 
    if(isVerbose || true)
-   {  
-      for (k = 0; k<epsbeg; k++)
-         if (x[k].getValue()>0.01)
-         {  cout<<"x "<<k<<":  Value = "<<x[k].getValue()<<endl;
-            outFile<<"x "<<k<<":  Value = "<<x[k].getValue()<<endl;
+   {  totcost = 0;
+      for (i = 0; i < m; i++)
+         for (j = 0; j < n; j++)
+         {  k = i*n+j;
+            if (x[k].getValue()>0.01)
+            {  cout<<"i "<<i<<" j "<<j<<" x["<<k<<"]:  Value = "<<x[k].getValue()<<endl;
+               outFile<<"x " << i << " " << j << " k="<<k<<":  Val. = "<<x[k].getValue()<< " cost " << xAssCost[i][j] << endl;
+               totcost += xAssCost[i][j]*x[k].getValue();
+            }
          }
    }
+   cout<<"Total assignment cost: "<<totcost<<endl;
 
    // eps variables, infeasibilities
    for(k=0;k<eps.size();k++)
@@ -268,6 +353,8 @@ tuple<int,int,int,int,float,float,double,double> HexStochMIP::solveDetEq(int tim
       }
    cout << "Number of infeasibilities: " << numInfeasibilities << endl;
    outFile.close();
+
+   checkSolution(histFile);
 
    tuple<int,int,int,int,float,float,double,double> res = make_tuple(status,numcols,numrows,numInfeasibilities,-1,totalCost.getDoubleValue(),-1,ttot);
    return res;

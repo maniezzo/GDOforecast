@@ -1,52 +1,52 @@
-x 0:  Value = 1
-x 9:  Value = 1
-x 15:  Value = 1
-x 18:  Value = 1
-x 19:  Value = 1
-x 38:  Value = 1
-x 54:  Value = 1
-x 56:  Value = 1
-x 60:  Value = 1
-x 65:  Value = 1
-x 66:  Value = 1
-x 69:  Value = 1
-x 72:  Value = 1
-x 74:  Value = 1
-x 78:  Value = 1
-x 79:  Value = 1
-x 80:  Value = 1
-x 81:  Value = 1
-x 83:  Value = 1
-x 88:  Value = 1
-x 89:  Value = 1
-x 97:  Value = 1
-x 98:  Value = 1
-x 101:  Value = 1
-x 102:  Value = 1
-x 105:  Value = 1
-x 107:  Value = 1
-x 109:  Value = 1
-x 114:  Value = 1
-x 115:  Value = 1
-x 116:  Value = 1
-x 120:  Value = 1
-x 127:  Value = 1
-x 128:  Value = 1
-x 129:  Value = 1
-x 137:  Value = 1
-x 144:  Value = 1
-x 146:  Value = 1
-x 147:  Value = 1
-x 151:  Value = 1
-x 155:  Value = 1
-x 162:  Value = 1
-x 163:  Value = 1
-x 177:  Value = 1
-x 186:  Value = 1
-x 188:  Value = 1
-x 190:  Value = 1
-x 191:  Value = 1
-x 195:  Value = 1
-x 197:  Value = 1
-x 200:  Value = 1
-x 204:  Value = 1
+x 0 0 k=0:  Val. = 1 cost 488
+x 0 9 k=9:  Val. = 1 cost 213
+x 0 15 k=15:  Val. = 1 cost 86
+x 0 18 k=18:  Val. = 1 cost 60
+x 0 19 k=19:  Val. = 1 cost 133
+x 0 38 k=38:  Val. = 1 cost 179
+x 1 2 k=54:  Val. = 1 cost 116
+x 1 4 k=56:  Val. = 1 cost 394
+x 1 8 k=60:  Val. = 1 cost 456
+x 1 13 k=65:  Val. = 1 cost 298
+x 1 14 k=66:  Val. = 1 cost 485
+x 1 17 k=69:  Val. = 1 cost 313
+x 1 20 k=72:  Val. = 1 cost 362
+x 1 22 k=74:  Val. = 1 cost 303
+x 1 26 k=78:  Val. = 1 cost 495
+x 1 27 k=79:  Val. = 1 cost 123
+x 1 28 k=80:  Val. = 1 cost 461
+x 1 29 k=81:  Val. = 1 cost 414
+x 1 31 k=83:  Val. = 1 cost 637
+x 1 36 k=88:  Val. = 1 cost 310
+x 1 37 k=89:  Val. = 1 cost 288
+x 1 45 k=97:  Val. = 1 cost 171
+x 1 46 k=98:  Val. = 1 cost 387
+x 1 49 k=101:  Val. = 1 cost 423
+x 1 50 k=102:  Val. = 1 cost 921
+x 2 1 k=105:  Val. = 1 cost 319
+x 2 3 k=107:  Val. = 1 cost 390
+x 2 5 k=109:  Val. = 1 cost 172
+x 2 10 k=114:  Val. = 1 cost 195
+x 2 11 k=115:  Val. = 1 cost 288
+x 2 12 k=116:  Val. = 1 cost 287
+x 2 16 k=120:  Val. = 1 cost 202
+x 2 23 k=127:  Val. = 1 cost 123
+x 2 24 k=128:  Val. = 1 cost 169
+x 2 25 k=129:  Val. = 1 cost 188
+x 2 33 k=137:  Val. = 1 cost 262
+x 2 40 k=144:  Val. = 1 cost 222
+x 2 42 k=146:  Val. = 1 cost 657
+x 2 43 k=147:  Val. = 1 cost 389
+x 2 47 k=151:  Val. = 1 cost 282
+x 2 51 k=155:  Val. = 1 cost 281
+x 3 6 k=162:  Val. = 1 cost 319
+x 3 7 k=163:  Val. = 1 cost 123
+x 3 21 k=177:  Val. = 1 cost 94
+x 3 30 k=186:  Val. = 1 cost 477
+x 3 32 k=188:  Val. = 1 cost 88
+x 3 34 k=190:  Val. = 1 cost 305
+x 3 35 k=191:  Val. = 1 cost 140
+x 3 39 k=195:  Val. = 1 cost 97
+x 3 41 k=197:  Val. = 1 cost 151
+x 3 44 k=200:  Val. = 1 cost 401
+x 3 48 k=204:  Val. = 1 cost 286

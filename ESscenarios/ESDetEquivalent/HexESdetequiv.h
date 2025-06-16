@@ -38,7 +38,8 @@ public:
 
    void readInstance(string& fileName, int numScen, int nboost, int nmult);
    int readBoostForecasts(string filePath,int nboost,int numScen);
-   tuple<int,int,int,int,float,float,double,double> solveDetEq(int timeLimit, int numScen, bool isVerbose, double epsCost);
+   void checkSolution(string histFile);
+   tuple<int,int,int,int,float,float,double,double> solveDetEq(int timeLimit, int numScen, bool isVerbose, double epsCost, string histFile);
    int generateReq(int j, int nboost);
 };
 #endif // HDETEQ_H

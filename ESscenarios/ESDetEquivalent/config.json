@@ -1,7 +1,8 @@
 { 
    "instanceFile" : "../inst_52_4_0_0",
    "distribFile"  : "../ETSboosts_75.csv",
-   "solFile"   : "results_det.txt",
+   "histFile"  : "../../serie_nocovid_new.csv", "cmtHist" : "serie storiche delle richieste",
+   "solFile"   : "results_hex.txt",
    "numScen"   : 75,	"cmtNum" : "comunque è messo uguale al numero di serie bootstrap",
    "epsCost"   : 1000000,
    "TimeLimit" : 7200,

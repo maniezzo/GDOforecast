@@ -83,7 +83,7 @@ void printResults(string strInst, int numScen, int nboost, int npaid,
 int main()
 {  StochMIP Stoch;
    HexStochMIP HexStoch;
-   string instanceFile,distribFile;
+   string instanceFile,distribFile,histFile;
    string line,inst;
    stringstream ss;
    int irep,nrep,nmult;
@@ -104,6 +104,7 @@ int main()
    instanceFile   = JSV["instanceFile"];
    distribFile    = JSV["distribFile"];
    solFile        = JSV["solFile"];
+   histFile       = JSV["histFile"];
    int numScen    = JSV["numScen"];      // numero di scenari da generare
    int TimeLimit  = JSV["TimeLimit"];    // CPLEX time limit
    double epsCost = JSV["epsCost"];      // costo ogni infeasibility
@@ -131,7 +132,7 @@ int main()
          //Stoch.readBoostForecasts(distribFile,nboost,numScen);
          HexStoch.readBoostForecasts(distribFile,nboost,numScen);
          //tuple<int,int,int,int,float,float,double,double> res = Stoch.solveDetEq(TimeLimit,numScen,isVerbose,epsCost);
-         tuple<int,int,int,int,float,float,double,double> res = HexStoch.solveDetEq(TimeLimit,numScen,isVerbose,epsCost);
+         tuple<int,int,int,int,float,float,double,double> res = HexStoch.solveDetEq(TimeLimit,numScen,isVerbose,epsCost,histFile);
          size_t slashPos = instanceFile.rfind('/');
          dotPos = instanceFile.rfind('.');
          string strInst = instanceFile.substr(slashPos+1,dotPos-slashPos-1);
