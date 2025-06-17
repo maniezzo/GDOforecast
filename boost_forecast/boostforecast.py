@@ -59,6 +59,9 @@ def main_fcast(name, df, idcustomer=0, step = 52, model='AR', distrib='AR', fbac
    with open(resFileName, "w") as fout:
       fout.write("series,model,true,fcast_50,fcast_avg,fcast_05,fcast_95,yar,yhw,ysvm,ylstm,ymlp,yrf,yxgb,yarima\n")
 
+   with open("boostFcast.txt","w") as fres:
+      fres.write("Boost forecasts")
+
    # foreach boosted series forecast (max 52)
    #for iboostset in len(df): # for each block of boosted series
    for iboostset in range(idcustomer,idcustomer+step):
@@ -95,6 +98,8 @@ def main_fcast(name, df, idcustomer=0, step = 52, model='AR', distrib='AR', fbac
          fcast_all[idserie] = fvalue
          ds = np.exp(dslog)
          print(f"forecast value = {fvalue} actual {ds[-1]} error {fvalue-ds[-1]}")
+         with open("boostFcast.txt", "a") as fres:
+            fres.write(f"{iboostset},{idserie},{fvalue}\n")
 
          if idserie == 0:
             if verbose:
@@ -130,7 +135,7 @@ def main_fcast(name, df, idcustomer=0, step = 52, model='AR', distrib='AR', fbac
       fcast_50 = fcast_all[int(len(fcast_all)/100*50)]
 
       # non-bootssrap point forecasts
-      fForeCast = True
+      fForeCast = False
       if fForeCast:
          ds = np.array(bset.iloc[0, 1:])  # one series of bootstrap set, diff log values, remove first one
          yar    = forecast_value(ds,dslog,method="AR",look_back=look_back,verbose=verbose)

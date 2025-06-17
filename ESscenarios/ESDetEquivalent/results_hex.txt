@@ -1,3 +1,7 @@
 Instance inst_52_4_0_0 num.scen. 75 num.boost 75 repet. 0 status 3 cur_numcols 19708 cur_numrows 19852 numInfeasibilities 0 zlb -1 objval 15423 finalLb -1 total_time 29
 Instance inst_52_4_0_0 num.scen. 75 num.boost 75 repet. 0 status 3 cur_numcols 19708 cur_numrows 19852 numInfeasibilities 0 zlb -1 objval 15423 finalLb -1 total_time 29
 Instance inst_52_4_0_0 num.scen. 75 num.boost 75 repet. 0 status 3 cur_numcols 19708 cur_numrows 19852 numInfeasibilities 0 zlb -1 objval 15423 finalLb -1 total_time 30
+Instance inst_52_4_0_0 num.scen. 75 num.boost 75 repet. 0 status 3 cur_numcols 19708 cur_numrows 19852 numInfeasibilities 0 zlb -1 objval 17781 finalLb -1 total_time 34
+Instance inst_52_4_0_0 num.scen. 75 num.boost 75 repet. 0 status 3 cur_numcols 19708 cur_numrows 19852 numInfeasibilities 0 zlb -1 objval 15423 finalLb -1 total_time 29
+Instance inst_52_4_0_0 num.scen. 75 num.boost 75 repet. 0 status 3 cur_numcols 19708 cur_numrows 19852 numInfeasibilities 0 zlb -1 objval 15423 finalLb -1 total_time 29
+Instance inst_52_4_0_0 num.scen. 75 num.boost 75 repet. 0 status 3 cur_numcols 19708 cur_numrows 19852 numInfeasibilities 0 zlb -1 objval 17781 finalLb -1 total_time 33

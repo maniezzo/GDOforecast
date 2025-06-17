@@ -1,6 +1,6 @@
 { 
-   "instanceFile" : "../inst_52_4_0_0",
-   "distribFile"  : "../ETSboosts_75.csv",
+   "instanceFile" : "../inst_52_4_0_0_q1",
+   "distribFile"  : "../BESOboosts_75.csv",
    "histFile"  : "../../serie_nocovid_new.csv", "cmtHist" : "serie storiche delle richieste",
    "solFile"   : "results_hex.txt",
    "numScen"   : 75,	"cmtNum" : "comunque è messo uguale al numero di serie bootstrap",
