@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 from statsmodels.tsa.statespace.exponential_smoothing import ExponentialSmoothing as ETSStateSpace
 import numpy as np
 
+# genera i valori previsti delle serie boosted con modello con distribuzione (da confint holt winters)
+
 np.random.seed(995)
 # Load data
 data = pd.read_csv('../serie_nocovid_new.csv')
