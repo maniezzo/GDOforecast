@@ -1,0 +1,50 @@
+This is BibTeX, Version 0.99d
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: main.aux
+Reallocating 'name_of_file' (item size: 1) to 12 items.
+The style file: informs2014.bst
+Reallocating 'name_of_file' (item size: 1) to 10 items.
+Database file #1: GDObiblio.bib
+Warning--can't use both volume and number fields in JWCZ22
+You've used 78 entries,
+            2869 wiz_defined-function locations,
+            1105 strings with 17152 characters,
+and the built_in function-call counts, 70536 in all, are:
+= -- 7150
+> -- 1662
+< -- 59
++ -- 648
+- -- 541
+* -- 5075
+:= -- 8806
+add.period$ -- 144
+call.type$ -- 78
+change.case$ -- 555
+chr.to.int$ -- 79
+cite$ -- 79
+duplicate$ -- 7052
+empty$ -- 5623
+format.name$ -- 807
+if$ -- 14563
+int.to.chr$ -- 1
+int.to.str$ -- 1
+missing$ -- 780
+newline$ -- 240
+num.names$ -- 320
+pop$ -- 3416
+preamble$ -- 1
+purify$ -- 488
+quote$ -- 0
+skip$ -- 1328
+stack$ -- 0
+substring$ -- 7218
+swap$ -- 1791
+text.length$ -- 4
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 663
+warning$ -- 1
+while$ -- 505
+width$ -- 0
+write$ -- 858
+(There was 1 warning)

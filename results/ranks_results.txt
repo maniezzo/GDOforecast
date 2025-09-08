@@ -100,3 +100,7 @@ BIAS res_YW_AR_75 ranks ['yar' 'ymlp' 'yarima' 'fcast_50' 'ylstm' 'yhw' 'ysvm' '
  'yxgb']
 BIAS res_YW_AR_75 ranks [3.13461538 4.05769231 4.11538462 4.42307692 4.55769231 5.67307692
  5.86538462 6.         8.11538462 9.05769231]
+MAE res_YW_AR_75 ranks ['fcast_50' 'fcast_avg' 'yar' 'yarima' 'yhw' 'ylstm' 'ymlp' 'yrf' 'ysvm'
+ 'yxgb']
+MAE res_YW_AR_75 ranks [1.34615385 1.65384615 6.5        6.5        6.5        6.5
+ 6.5        6.5        6.5        6.5       ]
