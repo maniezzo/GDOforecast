@@ -26,4 +26,5 @@ ax2.set_ylabel('Frequency')
 
 # Display the plot
 plt.tight_layout()
+plt.savefig('compDistr.eps', format='eps')
 plt.show()
