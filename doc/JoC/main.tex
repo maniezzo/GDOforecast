@@ -189,13 +189,12 @@ The optimization framework of interest for this paper, where we seek to minimize
 
 \subsection{Forecast and optimize}
 
-There is a growing body of literature that combines time series forecasting with scenario-based optimization, where typically time series generates forecast paths that become scenario sets.
+The integration of forecasting and scenario-based optimization is not new {\it per se}. In fact there is a growing body of literature that combines the two, where typically time series generates forecast paths that become scenario sets.
 This integration goes by different names, including predict-then-optimize, stochastic programming with forecast scenarios, Forecast-informed optimization or Scenario-based stochastic optimization.
 
-The typical workflow of these contributions goes through a forecasting phase, using time series models such as SARIMA, GARCH, LSTM, Prophet, XGBoost, etc. to generate point forecasts and/or predictive distributions, followed by a scenario generation phase that simulate or sample possible future paths based on forecasted distributions and finally embed the scenarios into a stochastic program (single or multi-stage) \cite{R18,FTW18,BK19} and more recently into adaptive robust optimization solutions \cite{BB23}.
+The typical workflow of these contributions goes through a forecasting phase, using time series models such as SARIMA, GARCH, LSTM, Prophet, XGBoost, etc. to generate point forecasts and/or predictive distributions, followed by a scenario generation phase that simulate or sample possible future paths based on forecast distributions and finally embed the scenarios into a stochastic program (single or multi-stage, see \citealt{R18,FTW18,BK19}) and more recently into adaptive robust optimization solutions \citep{BB23}. Unlike this traditional two-stage workflow, our bootstrap-based approach unifies forecasting and scenario generation: scenarios are not a post-processing step but emerge directly from the forecasting model itself. This integration eliminates the need for ad hoc scenario generation techniques, ensuring that the optimization model operates on trajectories that are simultaneously consistent with historical dynamics and forecast uncertainty. 
 
-It is worth noting that the sequential paradigm, where forecasting models first estimate future parameters and the resulting  predictions are then used in optimization models, has been recently questioned. This approach may lead to suboptimal decisions when prediction errors significantly affect the optimization outcomes.
-Recent research propose framework, where forecasting models are trained not solely to minimize predictive error but also to improve downstream decision quality \cite{DAK17,WDT19}. Here, the optimization objectives are embedded into the training loss of forecasting models, optimizing decisions directly with respect to the performance in the target optimization problem.
+The sequential paradigm, in which forecasting models first estimate future parameters and the resulting predictions are then used in optimization models, has also been questioned, suggesting that it could result in suboptimal decisions when prediction errors significantly impact the optimization outcomes. Alternative, frameworks have been proposed where forecasting models are trained not only to minimize predictive error, but also to improve decision quality, with the optimization objectives embedded in the training loss of the forecasting models \citep{DAK17,WDT19}. However, this approach places a significant computational burden on model training that is not justified in cases where forecasts are sufficiently reliable, such as the one of interest to us.
 
 % Robust Stochastic Approximation Approach to Stochastic Programming
 % Authors: B. Verweij, S. Ahmed, A.J. Kleywegt, G. Nemhauser, A. Shapiro
@@ -223,45 +222,33 @@ Recent research propose framework, where forecasting models are trained not sole
 % Citation: Luedtke, J.R., Ahmed, S., Nemhauser, G.L. (2010). An integer programming approach for linear programs with probabilistic constraints. Math. Program., 122(2), 247–272.
 % Link: Journal of Global Optimization 5
 
-\subsection{Data-Driven Empirical Distribution Estimation}
-
-Data-driven approaches to estimating the distribution of stochastic variables have gained increasing attention as alternatives to classical parametric modeling, particularly in settings where assumptions of stationarity or known distributional forms are invalid. Unlike traditional techniques that rely on a priori specification of distribution families (e.g., Gaussian or Poisson), data-driven methods infer distributional characteristics directly from historical or observed data, making them especially suited for real-world applications with complex, noisy, or limited information.
-
-Among the most prominent techniques are resampling-based methods such as the Bootstrap \cite{b1}, which generates empirical distributions by repeatedly sampling from the data with replacement. The Maximum Entropy Bootstrap \cite{Vinod2006} extends this idea by producing replicates that preserve dependence structures in time series data, making it particularly valuable for short or non-stationary sequences.
-
-Recent work has explored the integration of these empirical distribution estimates into stochastic and robust optimization pipelines. Notable contributions include nonparametric scenario generation \cite{BM11}, distributionally robust optimization using empirical Wasserstein distances \cite{EK17}, and hybrid models that combine forecasting and optimization in a unified framework \cite{BK19}. 
-
-
 \subsection{2-echelon logistics networks}
 
-Multi-echelon inventory management is a supply chain control strategy that coordinates inventory across multiple levels, called "echelons," of the chain \citep{Clark60}. Each echelon — typically identified as suppliers, manufacturers, distribution centers, and retailers — may hold inventory. The objective is to optimize inventory across all levels of the supply chain rather than addressing each level in isolation. The literature on this strategy has expanded significantly, covering various aspects such as inventory control policies, replenishment strategies, and inventory risk management, among others. The implementation of effective forecasting and optimization processes represents a fundamental element of a well-defined and effective management policy. 
+Multi-echelon inventory management is a supply chain control strategy that coordinates inventory across multiple levels, called "echelons," of the chain \citep{Clark60}. Each echelon — typically identified as suppliers, manufacturers, distribution centers, and retailers — may hold inventory. The objective is to optimize inventory across all levels of the supply chain rather than addressing each level in isolation. The literature on this strategy has expanded significantly, covering various aspects such as inventory control policies, replenishment strategies, and inventory risk management, among others. 
 
-Forecasting, particularly demand forecasting, has garnered considerable attention in this field \citep{Shenstone01}. Different forecasting paradigms have been proposed \citep{Syntetos05,Keneley02,Ma15}, demonstrating that accurate demand forecasts can be achieved by analyzing historical data and that it is possible to integrate these insights into management models. 
+The implementation of effective forecasting and optimization processes represents a fundamental element of a well-defined and effective management policy. Specifically, in the context of 2-echelon logistics optimization, prescriptions grounded in predictive analytics are known to provide benefits by refining demand forecasting, inventory allocation, transportation planning, and related decisions \citep{VAD12,KK10,A01}. Forecasting, particularly demand forecasting, has garnered considerable attention in this field \citep{Shenstone01}. Different forecasting paradigms have been proposed \citep{Syntetos05,Keneley02,Ma15}, demonstrating that accurate demand forecasts can be achieved by analyzing historical data and that it is possible to integrate these insights into management models. Nevertheless, precise demand forecasting, especially within the context of dynamic retail environments characterized by fluctuating trends and seasonal variations, remains a significant obstacle. Multi-echelon demand forecasting commonly employs time series analysis, incorporating a variety of models.  However, the efficacy of these methods frequently hinges on assumptions of stationarity and specific distributional characteristics, which are often violated in empirical data. 
+
+Despite the acknowledged benefits, the application of prescriptive analytics in 2-echelon logistics systems is still an area of research and presents several challenges, including how to deal with uncertainties in demand and supply, how to properly model historical series, and how to efficiently formalize the related management decision processes to be supported. 
+
 
 % For example, \citep{A01} provides insights into how predictive analytics and collaborative forecasting can improve the performance of multi-echelon supply chains by anticipating demand and aligning inventory levels across different echelons, while \citep{VAD12} discusses the application of predictive analytics for inventory management in multi-echelon logistics systems, focusing on SKU classification and demand forecasting to optimize inventory levels across different echelons. Other examples can be found in \citep{R97,P16,BS17}. Predictive analytics intersects with big data and Industry 4.0, enabling logistics companies to anticipate trends, manage risk, and make informed decisions. \citep{WGNP16,HR17}. 
 
-The extant literature comprehensively examines diverse facets of multi-echelon inventory management, encompassing inventory control policies, replenishment strategies, and risk mitigation frameworks. Nevertheless, precise demand forecasting, especially within the context of dynamic retail environments characterized by fluctuating trends and seasonal variations, remains a significant obstacle. Multi-echelon demand forecasting commonly employs time series analysis, incorporating a variety of models.  However, the efficacy of these methods frequently hinges on assumptions of stationarity and specific distributional characteristics, which are often violated in empirical data. 
-Moreover, the accuracy of demand forecasts demonstrably influences the efficacy of subsequent optimization procedures, thereby highlighting the critical need for robust forecasting methodologies. 
-
-Bootstrap methods can enhance the performance of various machine learning models, including Multilayer Perceptrons (MLP) and Long Short-Term Memory (LSTM) networks. While these methods generally do not require strong distributional assumptions, they can benefit from the application of bootstrap techniques, as these can improve model robustness and mitigate overfitting, addressing concerns that are especially prevalent in scenarios with limited data availability. Studies demonstrate that integrating bootstrap methods with MLP and LSTM significantly improves predictive accuracy \citep{efron1994introduction,hastie2009elements,cho2014learning}. 
+%Bootstrap methods can enhance the performance of various machine learning models, including Multilayer Perceptrons (MLP) and Long Short-Term Memory (LSTM) networks. While these methods generally do not require strong distributional assumptions, they can benefit from the application of bootstrap techniques, as these can improve model robustness and mitigate overfitting, addressing concerns that are especially prevalent in scenarios with limited data availability. Studies demonstrate that integrating bootstrap methods with MLP and LSTM significantly improves predictive accuracy \citep{efron1994introduction,hastie2009elements,cho2014learning}. 
 
 % Turning to optimization of two-echelon logistics systems, we see again that a large number of mathematical models have been proposed \citep{Gumus10,Dai17,TGM23}. The primary concern revolves around demand, which is often assumed to be stochastic or specified as stationary. The goal of the optimization process is typically to develop a mathematical model that quantifies the total system cost, possibly enabling the determination of the optimal lot size to be ordered and the reorder point at each level of the supply chain
 
-A  model proposed in \citep{Axsater00} deals with a two-level inventory system that integrates a central warehouse with a number of different retailers, whose  demand was generated by a compound Poisson demand, analogously \citep{Andersson00} studied a two-level inventory system model with a central warehouse and multiple non-identical retailers.
-A multistage supply chain model based on Autoregressive Integrated Moving Average (ARIMA) time-series models has been presented in \citep{gilbert2005arima}. It establishes that the orders and inventories at each stage are also ARIMA processes, given an ARIMA model of consumer demand and associated lead times.
-Recent developments introduce heuristic approaches for cost optimization, with seasonal or cyclical demands  \citep{Sakulsom19}, or multi-objective optimization and vehicle synchronization \citep{ANHC21}.
+%A  model proposed in \citep{Axsater00} deals with a two-level inventory system that integrates a central warehouse with a number of different retailers, whose  demand was generated by a compound Poisson demand, analogously \citep{Andersson00} studied a two-level inventory system model with a central warehouse and multiple non-identical retailers.
+%A multistage supply chain model based on Autoregressive Integrated Moving Average (ARIMA) time-series models has been presented in \citep{gilbert2005arima}. It establishes that the orders and inventories at each stage are also ARIMA processes, given an ARIMA model of consumer demand and associated lead times.
+%Recent developments introduce heuristic approaches for cost optimization, with seasonal or cyclical demands  \citep{Sakulsom19}, or multi-objective optimization and vehicle synchronization \citep{ANHC21}.
 
 Effective multi-echelon inventory management is widely recognized for minimizing the average total cost of inventory by promoting coordination and cooperation among supply chain members. 
 %A decentralized inventory policy can indeed lead to excess inventory without enhancing customer service levels \citep{Gumus10}. 
 In terms of allocating stores to distribution centers (DCs), each time a DC makes an allocation decision, it can seek advance demand information to reduce uncertainty and associated costs. This approach allows the DC to update its market forecast and anticipate the structural attributes of the model, ultimately providing valuable management insights \citep{P16}.
-The majority of cases documented in the literature regarding the implementation of such multi-echelon inventory policies are based on examples of instances with generic demand, generated according to a variety of distributions \citep{Escorcia20,EG81}. The following sections present a real-world use case in which all instance elements are derived from actual records.
+The majority of cases documented in the literature regarding the implementation of such multi-echelon inventory policies are based on examples of instances with generic demand, generated according to a variety of distributions \citep{Escorcia20,EG81}. Our work presents a real-world use case in which all instance elements are derived from actual records.
 
 % The increasing complexity of large-scale retail trade (LSRT) supply chains has led to an increase in the need for efficient logistics, and this is particularly true in the area of multi-echelon distribution systems. A 2-echelon logistics network, characterized by two levels of supply chain entities, plays a critical role in ensuring the timely and cost-effective delivery of goods. It is a complex system involving interdependent factors such as inventory management, transportation costs, demand variability, and service level requirements. Optimizing these networks is critical for companies seeking to minimize costs while maintaining high service levels, and the study of multi-echelon supply chains with periodic review ordering policies has long prompted specific lines of research \citep{A01,Clark60}. 
 
 % In recent years, {\it predictive analytics} \cite{S10,Si13} and {\it prescriptive analytics} \cite{BK19,PH15} have emerged as powerful tools for improving decision making in various domains, including logistics \citep{DJS18}. By leveraging historical data and forecasting modules, possibly including machine learning and statistical models, prescriptive analytics enables organizations to anticipate trends, identify potential risks, and support informed decisions \citep{HR17,KS17}. It is therefore one of the primary tools to be considered for optimizing the supply chain. 
-Specifically, in the context of 2-echelon logistics optimization, prescriptive grounded in predictive analytics is known to provide benefits by refining demand forecasting, inventory allocation, transportation planning, and related decisions \citep{VAD12,KK10,A01}.
-
-Despite the acknowledged benefits, the application of prescriptive analytics in 2-echelon logistics systems is still an area of research and presents several challenges, including how to deal with uncertainties in demand and supply, how to properly model historical series, and how to efficiently formalize the related management decision processes to be supported. 
 
 % Flores et al. (2014), "A Scenario-based Stochastic Model for Supply Chain Planning under Demand Uncertainty"
 % Mula et al. (2006), "Mathematical programming models for supply chain production and transport planning"
@@ -331,6 +318,13 @@ According to the classification proposed in \cite{DEKOK2018} our contribution is
 % \end{figure*}
 
 \section{The predictive module} \label{Sec:forecasting}
+
+
+Data-driven approaches to estimating the distribution of stochastic variables have gained increasing attention as alternatives to classical parametric modeling, particularly in settings where assumptions of stationarity or known distributional forms are invalid. Unlike traditional techniques that rely on a priori specification of distribution families (e.g., Gaussian or Poisson), data-driven methods infer distributional characteristics directly from historical or observed data, making them especially suited for real-world applications with complex, noisy, or limited information.
+
+Among the most prominent techniques are resampling-based methods such as the Bootstrap \cite{b1}, which generates empirical distributions by repeatedly sampling from the data with replacement. The Maximum Entropy Bootstrap \cite{Vinod2006} extends this idea by producing replicates that preserve dependence structures in time series data, making it particularly valuable for short or non-stationary sequences.
+
+Recent work has explored the integration of these empirical distribution estimates into stochastic and robust optimization pipelines. Notable contributions include nonparametric scenario generation \cite{BM11}, distributionally robust optimization using empirical Wasserstein distances \cite{EK17}. 
 
 In our proposal, we utilize the Maximum Entropy Bootstrap (MEB) methodology in conjunction with the ensemble learning technique known as bagging (Bootstrap Aggregating). This combination enhances the accuracy and robustness of predictive models through the generation of multiple bootstrapped datasets from the original data. By training individual models on these datasets and aggregating their predictions through averaging, we adhere to MEB's principles while capturing the underlying statistical variability. Maximizing entropy under empirical constraints allows the integration of bagging with MEB to produce more robust models. In more details, each model trained on distinct bootstrapped samples incorporates uncertainty characteristics from the original data, allowing for a comprehensive representation of its variation.
 
@@ -881,6 +875,8 @@ This paper builds on a case study in distribution logistics to propose a more ge
 
 The study advocates integrating forecasting and optimization. We propose grounding the forecasting phase on bootstrapped autoregressive models, which demonstrated effectiveness compared to alternative methods. Bootstrapped forecasting identifies a probability distribution of future retailer requests, supporting stochastic optimization of allocations while considering both costs and forecast uncertainty. 
 
+ZZZZ This integration eliminates the need for ad hoc scenario generation techniques, ensuring that the optimization model operates on trajectories that are simultaneously consistent with historical dynamics and forecast uncertainty. We thus contribute a methodological bridge that reduces the gap between predictive modeling and decision-making under uncertainty, offering both conceptual simplicity and practical robustness.
+
 We considered both the cases where clients had to be fully allocated to a server and a split allocation version, and we  validated our framework using the transportation logistics data provided with the real-world use case and using artificial data for a better analysis of the fitness landscape revealing which defining parameters have the most impact on the instance complexity, obtaining results on the increase of complexity deriving from the variation of different parameters defining the problem instances.
 
 We believe that this study is of wide interest, both because it is an innovative case of predictive analytics and because the framework composed by the forecasting methodology presented, Maximum Entropy Bootstrap (MEB), and deterministic equivalent based on the bootstrapped series, can be of particular interest from a managerial perspective because of the justified insights offered.
@@ -904,7 +900,7 @@ The functions reported in the columns are: bias, Means Absolute Percentage Error
 
 All tables show significantly consistent results across all boost set sizes.
 
-\begin{table}
+\begin{table}[h]
 \centering
 \renewcommand{\arraystretch}{0.75}
 \begin{tabular}{ccccccc}
@@ -970,6 +966,8 @@ yarima     & -0.04 & 0.34 & -0.08 & 5.69 & -0.01 & 7.63 \\
 \label{table:app175}
 \end{table}
 \end{APPENDIX}
+
+\clearpage
 %
 %   or
 %
