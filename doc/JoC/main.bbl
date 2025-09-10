@@ -1,26 +1,11 @@
-\begin{thebibliography}{78}
+\begin{thebibliography}{69}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \providecommand{\urlprefix}{URL }
 
-\bibitem[{Anderluh et~al.(2021)Anderluh, Nolz, Hemmelmayr, \protect\BIBand{}
-  Crainic}]{ANHC21}
-Anderluh A, Nolz PC, Hemmelmayr VC, Crainic TG (2021) Multi-objective
-  optimization of a two-echelon vehicle routing problem with vehicle
-  synchronization and ‘grey zone’ customers arising in urban logistics.
-  \emph{European Journal of Operational Research} 289(3):940--958.
-
-\bibitem[{Andersson \protect\BIBand{} Marklund(2000)}]{Andersson00}
-Andersson J, Marklund J (2000) {Decentralized inventory control in a two-level
-  distribution system}. \emph{European J. of Operational Research}
-  127(3):483--506.
-
 \bibitem[{Aviv(2001)}]{A01}
 Aviv Y (2001) The effect of collaborative forecasting on supply chain
   performance. \emph{Management Science} 47(10):1326--1343.
-
-\bibitem[{Axsäter(2000)}]{Axsater00}
-Axsäter S (2000) \emph{Inventory Control} (Boston, USA: Kluwer Acad. Publ.).
 
 \bibitem[{Bayraksan \protect\BIBand{} Morton(2011)}]{BM11}
 Bayraksan G, Morton DP (2011) A sequential sampling procedure for stochastic
@@ -80,13 +65,6 @@ Chen Z, Xiong P (2023) {RSOME} in {Python}: An open-source package for robust
   stochastic optimization made easy. \emph{INFORMS Journal of Computing}
   35(4):717--724.
 
-\bibitem[{Cho et~al.(2014)Cho, Van~Merri{\"e}nboer, Gulcehre, Bahdanau,
-  Bougares, Schwenk, \protect\BIBand{} Bengio}]{cho2014learning}
-Cho K, Van~Merri{\"e}nboer B, Gulcehre C, Bahdanau D, Bougares F, Schwenk H,
-  Bengio Y (2014) Learning phrase representations using rnn encoder-decoder for
-  statistical machine translation. \emph{Proceedings of the 2014 Conference on
-  Empirical Methods in Natural Language Processing (EMNLP)}, 1724--1734.
-
 \bibitem[{Clark \protect\BIBand{} Scarf(1960)}]{Clark60}
 Clark A, Scarf H (1960) Optimal policies for a multi-echelon inventory problem.
   \emph{Management Science} 6(4):475--490.
@@ -131,10 +109,6 @@ Efron B (1979) Bootstrap methods: Another look at the jackknife. \emph{The
 \bibitem[{Efron \protect\BIBand{} Tibshirani(1993)}]{efron1993introduction}
 Efron B, Tibshirani RJ (1993) \emph{An Introduction to the Bootstrap} (Chapman
   and Hall/CRC).
-
-\bibitem[{Efron \protect\BIBand{} Tibshirani(1994)}]{efron1994introduction}
-Efron B, Tibshirani RJ (1994) \emph{An Introduction to the Bootstrap} (Chapman
-  \& Hall/CRC).
 
 \bibitem[{Eppen \protect\BIBand{} Schrage(1981)}]{EG81}
 Eppen G, Schrage L (1981) Centralized ordering policies in a multi-warehouse
@@ -183,10 +157,6 @@ Fenga L, Politis DN (2017) Lasso order selection for sparse autoregression: a
   bootstrap approach. \emph{Journal of Statistical Computation and Simulation}
   87(2):319--334.
 
-\bibitem[{Gilbert(2005)}]{gilbert2005arima}
-Gilbert K (2005) An arima supply chain model. \emph{Management Science}
-  51(2):305--310.
-
 \bibitem[{Hammersley(1960)}]{H60}
 Hammersley J (1960) Monte carlo methods for solving multivariable problems.
   \emph{Annals of the New York Academy of Sciences} 86(3):844--874.
@@ -196,11 +166,6 @@ Hammersley J (1960) Monte carlo methods for solving multivariable problems.
 Hasni M, Aguir M, Babai MZ, Jemai Z (2019) Spare parts demand forecasting: a
   review on bootstrapping methods. \emph{International Journal of Production
   Research} 57(15-16):4791--4804.
-
-\bibitem[{Hastie et~al.(2009)Hastie, Tibshirani, \protect\BIBand{}
-  Friedman}]{hastie2009elements}
-Hastie T, Tibshirani R, Friedman J (2009) \emph{The Elements of Statistical
-  Learning: Data Mining, Inference, and Prediction} (Springer).
 
 \bibitem[{Jaynes(1957)}]{jaynes1957information}
 Jaynes E (1957) Information theory and statistical mechanics. \emph{Physical
@@ -232,7 +197,7 @@ Kreiss JP, Lahiri SN (2012) Bootstrap methods for time series. \emph{Handbook
 Küçükyavuz S, Jiang R (2022) Chance-constrained optimization under limited
   distributional information: A review of reformulations based on sampling and
   distributional robustness. \emph{EURO Journal on Computational Optimization}
-  10:100030.
+  10.
 
 \bibitem[{Li et~al.(2023)Li, Cui, Kuo, \protect\BIBand{} Zhang}]{LCKZ23}
 Li R, Cui Z, Kuo YH, Zhang L (2023) Scenario-based distributionally robust
@@ -243,10 +208,6 @@ Li R, Cui Z, Kuo YH, Zhang L (2023) Scenario-based distributionally robust
 \bibitem[{Ma et~al.(2015)Ma, Li, \protect\BIBand{} Wang}]{Ma15}
 Ma Z, Li H, Wang Y (2015) Combining forecasts in supply chain forecasting: A
   review. \emph{Omega} .
-
-\bibitem[{Maniezzo(2023)}]{GDOforecastData}
-Maniezzo V (2023) Gdoforecast data. Https://github.com/maniezzo/
-  GDOforecast/blob/master/ data/dataframe\_nocovid\_full.csv.
 
 \bibitem[{Maniezzo(2024)}]{GDOforecastRepo}
 Maniezzo V (2024) {GDOforecast} repository. Https://github.com/maniezzo/
@@ -291,11 +252,6 @@ Rahimian H, Mehrotra S (2022) Frameworks and results in distributionally robust
 Römisch W (2018) \emph{Stochastic Programming, Scenario Generation In}, 1--5
   (John Wiley and Sons, Ltd), ISBN 9781118445112,
   \urlprefix\url{http://dx.doi.org/https://doi.org/10.1002/9781118445112.stat08075}.
-
-\bibitem[{Sakulsom \protect\BIBand{} Tharmmaphornphilas(2019)}]{Sakulsom19}
-Sakulsom N, Tharmmaphornphilas W (2019) Heuristics for a periodic-review policy
-  in a two-echelon inventory problem with seasonal demand. \emph{Computers \&
-  Industrial Engineering} 133:292--302, ISSN 0360-8352.
 
 \bibitem[{Sarris et~al.(2020)Sarris, Spiliotis, \protect\BIBand{}
   Assimakopoulos}]{sarris2020exploiting}
