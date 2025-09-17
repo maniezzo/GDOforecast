@@ -400,7 +400,7 @@ The results of the predictive module become a structural component of the prescr
 
 The core optimization problem is a split allocation problem. This variant of the basic allocation problem has already received attention in the optimization literature, mainly in the context of survivable communication network design \citep{EK98,MKE75}, and more generally as the splittable capacitated multiple allocation hub location problems \citep{M05}, and finds applications in fiber optic access networks \citep{KLH11}, split delivery routing \citep{DT89}, and even in school timetabling \citep{BBL07}.The problem we are interested in is closely related to one that is presented in \citep{ZHHY21}, but it is approached in a very different way.
 
-The mathematical model we use is a direct extension of the standard model for the allocation problem. Since the framework we propose has validity beyond the specific case study described in the paper, in the following, we will refer to the actual application elements (stores and DCs) by a more standard allocation nomenclature, using the terms {\it clients} for stores and {\it servers} for DCs interchangeably. In our case, assignment constraints can accept up to a parametric number of assignments, allowing the service of requests to be distributed across multiple servers. The notation used in the model is as follows:
+The mathematical model that we use is a direct extension of the standard model for the allocation problem. As the framework we propose is valid beyond the specific case study described in the paper, in the following we will refer to the application elements (stores and data centres) using standard allocation terminology. We will use the term 'clients' for stores and 'servers' for data centres to emphasise the generality of the analysis. In our context, assignment constraints can accept a parametric number of assignments, enabling requests to be serviced across multiple servers. The notation used in the model is as follows:
 
 \begin{enumerate}
     \item[$n$] number of clients (stores)
@@ -433,10 +433,9 @@ The mathematical model used for this problem was as in the following formulation
 
 Constraints \ref{ALLnumserv} are formulated as equalities because of the need to impose specific splits in what-if settings. If this is not of particular interest, these constraints could be replaced by less-than-or-equal-to inequalities combined with inequalities that force allocations to at least one server.
 
-Note that when $b_j = 1$ for all clients, i.e., when each client $j \in J$ can be served by only one server, constraints \ref{ALLcontin} and \ref{ALLrequest} force the entire quantity requested by client $j$, $req_j$, to be supplied by a single server. The constraints \ref{ALLcontin} thus become equations, the constraints \ref{ALLrequest} become redundant, and the constraints \ref{ALLcapacity} can be expressed by replacing $\sum_{j \in J}q_{ij}$ with $\sum_{j \in J}req_j x_{ij}$. Problem P reduces to the standard GAP and can be solved by any of the methods described in \citep{matheuristics}.
+Note that when $b_j = 1$ for all clients, i.e., when each client $j \in J$ can be served by only one server, constraints \ref{ALLcontin} and \ref{ALLrequest} force the entire quantity requested by client $j$, $req_j$, to be supplied by a single server. The constraints \ref{ALLcontin} thus become equations, the constraints \ref{ALLrequest} become redundant, and the constraints \ref{ALLcapacity} can be expressed by replacing $\sum_{j \in J}q_{ij}$ with $\sum_{j \in J}req_j x_{ij}$. Problem P reduces to the standard GAP and can be solved by any of the methods described in \citet{matheuristics}.
 
 However, we are interested in the general case that allows some multiple assignments, and since the cost is derived from the assignments, the problem can be considered a fixed-cost, split-assignment allocation problem.
-
 Moreover, since future client requests can only be forecast, the problem can be more conveniently formulated as a stochastic optimization problem \citep{KM10,BL11}, where future requests are random variables $\rho_j$, $j \in J$, whose distributions can be derived from the forecast results. The problem becomes a single-stage stochastic problem, since there is no subsequent recourse, whose formulation is as follows.
 
 \begin{align}
@@ -470,36 +469,35 @@ The resulting formulation is as follows. The random variables $\rho_j$ are sampl
 & &  & \epsilon_{js} \in \mathbb{Z}^+_0 & j \in J, s \in S \label{DEeps}
 \end{align}
 
-In this formulation, since each variable $\rho_j^s$ corresponds to a specific realization of the corresponding random variable $\rho_j$, the amounts to be delivered to each store $j \in J$ are scenario-specific. However, it is required to determine a unique allocation that allows to serve all stores in any proposed scenario. This last requirement may be infeasible, so the slack variables $\epsilon_{js}$ are needed in the formulation. They are lexicographically penalized in the objective function by appropriately high costs, in order to implement the primary concern of achieving feasibility.
+In this formulation, since each variable $\rho_j^s$ derives from a specific realization of the corresponding random variable $\rho_j$, the amounts to be delivered to each store $j \in J$ are scenario-specific. However, it is required to determine a unique allocation that allows to serve all stores in any proposed scenario. This last requirement may be infeasible, so the slack variables $\epsilon_{js}$ are needed in the formulation. They are lexicographically penalized in the objective function by appropriately high costs, in order to implement the primary concern of achieving feasibility.
 
 Optimizing formulation (DE) makes it possible to determine the quantities that each server must be able to supply to each client, i.e. the total quantity that each server must handle. 
-
 In terms of our logistical application, since each DC must maintain sufficient inventory to meet the anticipated demand during the designated period, the optimization of the client (retailer) allocation translates directly into a quantification of the DC inventory and therefore of its required minimum size. The solution of the allocation problems permits therefore to directly solve the dimensioning question that motivated this research.
 
 \section{Computational results} \label{Sec:results}
 
-The two modules, predictive and prescriptive, are run in sequence, the first generating input to the second. This section reports the results obtained for the validation of each of them, when implemented according to the specifications previously described.
+The predictive and prescriptive modules are run in sequence; the first generates elements for the second. This section reports the results obtained when validating each module according to the previously described specifications.
 
 \subsection{Predictive module tests} \label{Subsec:predictive}
 
-The objective of the predictive module is to forecast the demand for each of the stores considered,  asking for a forecast three months ahead.
+The objective of the predictive module is to forecast demand for each store, asking for a forecast three months ahead.
+The available data consists of a time series for each of the 52 stores. Each series contains 45 values corresponding to four years of monthly data on relevant requests for each store, minus the values for the last three months to be forecast.
 
-The available data consists of a time series for each of the 52 stores considered. Each series contains 45 values, corresponding to 4 years of monthly data of relevant requests for each store, minus the values for the last 3 months to be forecast.
+The core approach set out in this paper is the bootstrap method, which is described in Section \ref{Sec:forecasting}. The results obtained using this method were validated against those obtained using several alternative forecasting algorithms: SARIMAX, Holt-Winters, MLP, RNN (LSTM), Random Forest and Gradient Boosting (XGBoost). The relevant hyperparameters were determined by grid search for integer-valued algorithms such as SARIMAX, and by Hammersley sampling \citep{H60} for real-valued algorithms.
 
-The core approach put forth in this paper is the bootstrap method described in section \ref{Sec:forecasting}. These results are validated against those obtained by means of several alternative forecasting algorithms, namely SARIMAX, Holt-Winters, MLP, RNN (LSTM), random forest and gradient boosting (XGboost). For each of these algorithms, the relevant hyperparameters were determined by grid search when they were all integer-valued, such as in the case of SARIMAX, and by Hammersley sampling \citep{H60} when real valued parameters were involved. 
-
-All series were pre-processed with a log-diff transform to approach stationarity and with a max-min scaler for the artificial intelligence derived methods. The implementation language was python, version 3.11, in all cases and the codes were run on a Windows PC workstation equipped with four Intel Core i7-4790 CPUs running at 3.60GHz and 32 GB of RAM.
+All series were pre-processed using a 'log-diff' transform to approach stationarity, and a max–min scaler was applied to the artificial intelligence-derived methods. Python version 3.11 was used for all implementations and the codes were run on a Windows PC workstation equipped with four Intel Core i7-4790 CPUs running at 3.60 GHz and with 32 GB of RAM.
 
 The focus of this part of the research is on the bootstrap method. To this end, we tested the approach with the following settings:
 \begin{itemize}
 \item bootstrap sets containing 75, 125 and 175 series;
 \item bootstrap sets generated by simple autoregressive AR(p) with p=5 model (the default in python's statsmodels), where parameters are estimated using Yule-Walker equations \citep{BD91}, and by ARIMA, where autoarima is run on each of the seed series and the optimized orders are then applied to each boosted series;
-\item the forecasting of all the boosted series generated as above to obtain the boosted forecasts was tested with AR(p), Random Forest or ARIMA. In the case of ARIMA, autoarima was only repeated on the first series of each bootstrap set. In the case of AR, the parameter p was set for each series after a loop on different p values, keeping the one that maximised the corresponding AIC value.
+\item the forecasting of all the boosted series generated as above to obtain the boosted forecasts was tested with AR($p$), Random Forest or ARIMA. In the case of ARIMA, autoarima was only repeated on the first series of each bootstrap set. In the case of AR, the parameter $p$ was set for each series after a loop on different $p$ values, keeping the one that maximised the corresponding AIC value.
 \end{itemize}
 
-We also tried to generate the bootstrap sets with and without backcasting and with simple extraction with repetitions among the residuals of the seed series and with their scrambling. The results of these tests are not reported because backcasting induces a worsening of the results, while scrambling the residuals shows no difference with respect to the extraction with repetitions, so we decided to use the latter in line with the literature.
+We also attempted to generate bootstrap sets with and without backcasting, as well as with simple extraction and repetitions among the residuals of the seed series, and compared these with their scrambling. We did not report the results of these tests because backcasting worsened the results, while scrambling the residuals showed no difference compared to extraction with repetitions. Therefore, we decided to use the latter approach, in line with the literature.
 
-Forecasts were compared using 3 cost functions, Mean Absolute Error (MAE), Mean Square Error (MSE), and Bias. The results are obtained by ranking the corresponding forecasts for each series according to the quality of the function considered, as we want to emphasize how the algorithms perform relative to each other, and then averaging each function rank over all series. Absolute values for the error measures, not rank-based, are reported for all boostset sizes in the appendix \ref{app:errcost}. Table \ref{table:YWARranks} presents results where the forecasts obtained with the standard algorithms are compared with the forecasts obtained by boosting, where the boosted series were computed by an AR(5) model based on the Yule Walker equations, the forecast of these series was then obtained by a simple autoregressive model, and the boosted sets consisted of 75 series (columns under heading $YW\_AR\_75$), 125 series (heading $YW\_AR\_125$), and 175 series (heading $YW\_AR\_75$).
+The forecasts were compared using three cost functions: mean absolute error (MAE), mean square error (MSE) and bias. The results are reported by ranking the corresponding forecasts for each series according to the quality of the considered function, to emphasise how the algorithms perform relative to each other, and then averaging the rank of each function over all series. The Appendix reports absolute values for the error measures, not rank-based values, for all boostset sizes. 
+Table \ref{table:YWARranks} presents the results of comparing the forecasts obtained using standard algorithms with those obtained using boosting. The boosted series were computed using an AR(5) model based on Yule-Walker equations. The forecasts of these series were obtained using a simple autoregressive model. The boosted sets consisted of 75, 125, and 175 series, which are labelled $YW\_AR\_75$, $YW\_AR\_125$, and $YW\_AR\_175$, respectively.
 
 The columns show the average ranking of each cost function (MAE, MSE or bias) for each boostset size, while on the rows we report:
 
@@ -568,7 +566,7 @@ Figure \ref{fig:distr} shows two examples of forecast distributions obtained for
 
 The relative merits of the different forecasting approaches are better highlighted by critical difference diagrams based on the non-parametric Friedman test followed by a post-hoc Nemenyi test. They allow for a visual comparison of performance ranks, and show whether differences between classifiers are statistically significant \citep{D06}. The graphs, generated in our case by their SciKit version \citep{SciKitCD}, plot the average rank across all series for each algorithm along the x-axis and connect by a horizontal bar those that could not be considered statistically different.
 
-Figures \ref{fig:ywar75} and \ref{fig:ywar175} show a comparison of the ranks on MAE for the 75 series boostset and on MSE for the 175 series boostset. In both cases, as in all those tested, the accuracy of the boost forecasts is significantly higher than that obtained with alternative models. The tables in Appendix \ref{app:errcost} confirm that the comparison gives consistent results across all boostset sizes and cost functions, except for bias. The bias rankings are in fact unrelated to those obtained with the other cost functions, but this is due to the fact that the bias is very small in all cases, less than 1\% of the average of the empirical values, which ensures that all the forecasting models are free of systematic errors on our data and makes the difference in the rankings insignificant.
+Figures \ref{fig:ywar75} and \ref{fig:ywar175} show a comparison of the ranks on MAE for the 75 series boostset and on MSE for the 175 series boostset. In both cases, as in all those tested, the accuracy of the boost forecasts is significantly higher than that obtained with alternative models. The tables in the Appendix confirm that the comparison gives consistent results across all boostset sizes and cost functions, except for bias. The bias rankings are in fact unrelated to those obtained with the other cost functions, but this is due to the fact that the bias is very small in all cases, less than 1\% of the average of the empirical values, which ensures that all the forecasting models are free of systematic errors on our data and makes the difference in the rankings insignificant.
 
 \begin{figure*}[ht] 
     \centering
@@ -584,9 +582,9 @@ Figures \ref{fig:ywar75} and \ref{fig:ywar175} show a comparison of the ranks on
     \label{fig:ywar175}
 \end{figure*}
 
-These relatively short time series require a forecasting approach that is robust to both limited data and nonstationarity.  While sophisticated machine learning models such as Recurrent Neural Networks (RNNs) and Gradient Boosting Machines (GBMs) have gained prominence in recent years, their performance can be negatively affected by limited data availability, especially in cases with non-stationary properties, leading to potential overfitting.  The autoregressive (AR) model, combined with maximum entropy bootstrap, offers a powerful and promising alternative.  This technique demonstrates excellent performance in the context of this study, consistently outperforming more complex machine learning models, and offers an approach based on robust statistical principles that mitigates the risk of overfitting inherent in many AI approaches. The AR model, combined with the bootstrap methodology, moreover provides reliable forecasts that are ideally suited for integration into the subsequent optimization module.  
+Our relatively short time series require a forecasting approach that can handle both limited data and non-stationarity.  Although sophisticated machine learning models such as recurrent neural networks (RNNs) and gradient boosting machines (GBMs) have become more popular in recent years, they can perform less well when there is limited data available, particularly when the data has non-stationary properties. This can lead to overfitting.  The autoregressive (AR) model combined with maximum entropy bootstrap offers a powerful and promising alternative.  This technique performed excellently in the context of this study, consistently outperforming more complex machine learning models. It offers an approach based on robust statistical principles that mitigates the risk of overfitting inherent in many AI approaches. Moreover, the AR model combined with the bootstrap methodology provides reliable forecasts ideally suited to integration into the subsequent optimization module.  
 
-The choice of an autoregressive (AR) model, in addition to its better accuracy in our case, offers several crucial advantages over more complex machine learning approaches. First, the inherent simplicity of the AR model contributes to its ease of implementation and interpretation.  Unlike many machine learning algorithms that operate as "black boxes," the parameters of the AR model have clear statistical interpretations that provide insights into the underlying dynamics of the time series data. Second, the AR model's well-established theoretical framework and readily available diagnostic tools allow for robust validation and assessment of model performance.  
+In addition to its superior accuracy in our case, the choice of an autoregressive (AR) model offers several crucial advantages over more complex machine learning approaches. Firstly, the AR model's inherent simplicity contributes to its ease of implementation and interpretation.  Unlike many machine learning algorithms that operate as 'black boxes', the parameters of the AR model have clear statistical interpretations that provide insight into the underlying dynamics of the time series data. Secondly, the well-established theoretical framework of the AR model and the readily available diagnostic tools allow for robust validation and assessment of model performance.  
 
 \subsection{Prescriptive module tests}  \label{Subsec:prescriptive}
 
@@ -594,7 +592,8 @@ The results reported in section \ref{Subsec:predictive} suggested instantiating 
 
 When the problem to be solved is modeled as in the (FD) formulation, using the average predictions obtained by boosting as deterministic data, the instance is easily solved by any state-of-the-art MILP solver, thus ensuring the viability of dealing with a significant deterministic equivalent of the stochastic formulation (FS). The optimal deterministic value, $z_{FP}=$15553, is used as a benchmark in the following tests.
 
-We moved on to the (DE) formulation generating $|S|=100$ scenarios by randomly sampling the stochastic variables $\rho_j$ over the associated probability distributions of the values resulting from the forecasts on all series that are part of a boostset. 
+We moved on to the (DE) formulation generating a value for each of the stochastic variables $\rho_j$ in correspondence to each bootstrap forecast.
+%$|S|=100$ scenarios by randomly sampling the stochastic variables $\rho_j$ over the associated probability distributions of the values resulting from the forecasts on all series that are part of a boostset. 
 Given these input data, we ran experiments to assess the impact of the variation of the remaining sets of parameters of the formulation, i.e., cardinality of the boostsets, number of splittable clients, and assumptions on inventory costs. 
 
 All reported tests were run on the same machine as in subsection \ref{Subsec:predictive}, a Windows PC workstation equipped with four Intel Core i7-4790 CPUs running at 3.60 GHz and 32 GB of RAM, but in this case the implementation language was C++ to allow finer control over the MILP solver used, which was CPLEX v. 22.11.
@@ -614,13 +613,13 @@ We conducted experiments to ascertain this using 75, 125 and 175 series boostset
 
 Figure \ref{fig:bsize} has a red horizontal line at the value of the cost of the deterministic case. The increase in cost can therefore be considered as a quantification of the value of the information about the storage requests. We notice that the cost is essentially stable in the cases of the 75 and 125 series sets, but increases significantly in the case of the 175 boostset. This is due to the increased difficulty of the larger boostset instances, which leads to some instances being solved only heuristically within the time limit. All instances were feasible, but 7 out of 35 still had a gap between lower and upper bound after 600 seconds of CPU time. 
 
-Finally, we note that if we take the optimal solution obtained with the coefficients imposed by the 75 series and evaluate it with the coefficients of the 125 series, we obtain (obviously) a more costly solution than the optimal one computed with the coefficients of the 125 series, but more interestingly, we have a solution that is not feasible with the coefficients of the 175 series.
+Finally, we note that if we take the optimal solution obtained with the coefficients imposed by the 75 series and evaluate it with the coefficients of the 125 series, we obtain (as expected) a more costly solution than the optimal one computed with the coefficients of the 125 series, but more interestingly, we have a solution that is not feasible with the coefficients of the 175 series.
 
 \subsubsection*{Increasing number of splittable clients}
 
 A defining feature of the problem we face is the possibility of accepting split service for some clients. This is unusual for allocation problems and results from the requirement to perform specific what-if analyses on the results. The number of clients allowed to split, and which ones they are, is given in input. In the actual case, the service to a client, if splittable, could be split between at most two servers, and the quantities delivered had to be integer, as specified in all formulations..
 
-Obviously, the clients to split are chosen from the most requesting clients. We ran a series of tests based on 75 series boostsets, allowing the 0, 4, 8, and 12 most requesting clients to be split. Figure \ref{fig:bmult} shows the corresponding boxplots.
+The clients to split are chosen from the most requesting clients. We ran a series of tests based on 75 series boostsets, allowing the 0, 4, 8, and 12 most requesting clients to be split. Figure \ref{fig:bmult} shows the corresponding boxplots.
 
 \begin{figure*}[ht] 
     \centering
@@ -633,7 +632,7 @@ Allowing the service to a client to be split is a partial relaxation of the corr
 
 \subsubsection*{Impact of different inventory cost assumptions}
 
-A further set of tests was conducted to determine the impact of inventory costs $d_i$, $i \in I$ on the search process. Recall that in the original case study, one of the objectives was to determine how much space should be rented in the only DC not owned by the company, where storage space needs to be leased. The case study reported in \citep{MZ23} did not include storage costs. Here, we consider storage costs that are inversely proportional to the average distance of the DC from the stores. We consider three settings, one with no storage costs, one where only the most distant DC incurs costs, and one where all DCs need to lease space. Costs are proportional to the quantities stored and are therefore influenced by the allocation policy.
+A further set of tests was conducted to determine the impact of inventory costs $d_i$, $i \in I$ on the search process. Recall that in the original case study, one of the objectives was to determine how much space should be rented in the only DC not owned by the company, where storage space needs to be leased. The case study reported in \citet{MZ23} did not include storage costs. Here, we consider storage costs that are inversely proportional to the average distance of the DC from the stores. We consider three settings, one with no storage costs, one where only the most distant DC incurs costs, and one where all DCs need to lease space. Costs are proportional to the quantities stored and are therefore influenced by the allocation policy.
 
 All tests were performed on the 75 series boostset. The interest of the analysis does not lie in the increase of the optimal costs, since an increase of the costs of the decision variables clearly leads to an increase of the global costs, but rather in the variation of the complexity of the search, as it is reflected in the CPU time to reach the final result, and in the optimality or feasibility of the solutions. To assess the effectiveness of increasingly longer searches, we report results after 600, 1200 and 3600 seconds of CPU time.
 
@@ -695,7 +694,7 @@ Figure \ref{fig:compDistr75} shows the distributions of the forecasts of the 75 
 
 The wider distribution has an impact on the proposed allocation. We had empirical proof of this when we tested the BESO and ETS solutions on the validation data obtained by the end of the year — i.e. when we finally received the data on which we were asked to provide a forecast.
 
-Table ref{table:compETS} presents a comparison of solutions in the first two columns when no rental cost was added for the use of leased floor space and in the last two columns when the rental cost was included in the objective function. As expected, given that the constraints were less restrictive, the ETS solution is less expensive in both cases. However, in both cases, the solution was infeasible as it did not provide all the goods requested by one of the retailers. This result was obtained in a single instance; therefore, it may not have happened. However, it is significant that, even in the first instance in which we tested our model, its robustness proved important in dealing with a limit case.
+Table \ref{table:compETS} presents a comparison of solutions in the first two columns when no rental cost was added for the use of leased floor space and in the last two columns when the rental cost was included in the objective function. As expected, given that the constraints were less restrictive, the ETS solution is less expensive in both cases. However, in both cases, the solution was infeasible as it did not provide all the goods requested by one of the retailers. This result was obtained in a single instance; therefore, it may not have happened. However, it is significant that, even in the first instance in which we tested our model, its robustness proved important in dealing with a limit case.
 
 \begin{table}
 \centering
@@ -709,7 +708,7 @@ Infeasibilities  & 0     & 1     & 0       & 1       \\
 t.Cpu            & 33    & 29    & 3600    & 3600    \\
 \hline
 \end{tabular}
-\caption{pitopiro}
+\caption{Solution cost with and without rental cost}
 \label{table:compETS}
 \end{table}
 
@@ -727,7 +726,7 @@ DC 2 & 257 / 300 & 301 / 300 & 257 / 300 & 303 / 300 \\
 DC 3 & 128 / 180 & 173 / 180 & 152 / 180 & 176 / 180 \\
 \hline
 \end{tabular}
-\caption{piropiro}
+\caption{DC usage with and without rental cost}
 \label{table:resETS}
 \end{table}
 
@@ -737,7 +736,7 @@ Finally, we note that Table \ref{table:compETS} shows that including the rental 
 
 All analyses reported in sections \ref{Subsec:predictive} and \ref{Subsec:prescriptive} refer to the case study at the heart of this paper, but the interest of the method is not limited to this particular case study as it can be effective on any instance of this 2-echelon supply chain problem. To test the generality of the results, we generated a benchmark set with varying dimensions and coefficients. The study was conducted only with respect to the deterministic setting, and is therefore significant for assessing the computational complexity of the split-allocation problem as a deterministic combinatorial optimization problem.
 
-We generated 5 instances for each configuration of number of clients ($n$), number of servers ($m$), and number of splittable clients. The travel costs were obtained by randomly selecting $m$ rows and $n$ columns from a large distance matrix, whose values were computed as the actual road distances between points located in the same area as the test case. Server inventory costs were inversely proportional to the average travel cost from the server to the clients and client requests were inversely proportional to the average travel cost from the client to the servers (note that the distance matrix is asymmetric being computed within a city area). The number $n_b$ of splittable clients was progressively increased as the number $n_q$ of servers with nonzero inventory costs. Specifically, the range of the defining parameters were:
+We generated 5 instances for each configuration of number of clients ($n$), number of servers ($m$), and number of splittable clients. The travel costs were obtained by randomly selecting $m$ rows and $n$ columns from a large distance matrix, whose values were computed as the actual road distances between points located in the same area as the test case. Server inventory costs were inversely proportional to the average travel cost from the server to the clients and client requests were inversely proportional to the average travel cost from the client to the servers. Note that the distance matrix is asymmetric, as it was computed within a city area. The number $n_b$ of splittable clients was progressively increased as the number $n_q$ of servers with nonzero inventory costs. Specifically, the range of the defining parameters were:
 \begin{itemize}
     \item $n$: \{50, 52, 100, 200, 300\};
     \item $m$: \{4, 5, 10, 25, 50\};
@@ -843,8 +842,8 @@ n & m & ncols & nrows & lb0 & t0 & lb1 & t1 & lb2 & t2 & lb3 & t3 & lb4 & t4 & l
 \label{table:extsetq}
 \end{table}
 
-For both increasing and decreasing inventory costs, the complexity of solving instances increases nonmonotonically with the number of costly servers. In fact, while the 0 costly instances are comparatively easy to solve, the CPU time to prove optimality increases with the first costly servers, and then decreases as more servers are paid to store inventory. Interestingly, this is not true for the gap between the linear relaxation bound and the optimal solution cost, where the 0 costly instances always have the largest gap.
-It is also not surprising that the CPU time required for proving optimality in all cases increases with the dimension of the case, and that the case with an inverse correlation between storage cost and travel cost is more difficult to solve than the case with a positive correlation.
+The complexity of solving instances increases non-monotonically with the number of costly servers, for both increasing and decreasing inventory costs. While the 0-cost instances are comparatively easy to solve, the CPU time required to prove optimality increases with the addition of the first costly servers and then decreases as more servers are paid to store inventory. However, this is not true of the gap between the linear relaxation bound and the cost of the optimal solution, where the instances with no costly servers always have the largest gap.
+As expected, the CPU time required to prove optimality increases with the dimension of the case, and the case with an inverse correlation between storage cost and travel cost is more difficult to solve than the case with a positive correlation.
 
 % \section{Conclusions and future directions} \label{Sec:conclusions}
 
@@ -868,15 +867,14 @@ It is also not surprising that the CPU time required for proving optimality in a
 
 \section{Conclusions and future directions} \label{Sec:conclusions}
 
-This paper builds on a case study in distribution logistics to propose a more general framework for prescriptive analytics called Bootstrap Enhanced Scenario Optimization (BESO). The case study is based on a 2-echelon supply chain where retail stores are allocated to distribution centers (DCs). The problem we analyzed was to minimize the allocation cost and the corresponding aggregated demand to each DC when the retailer requests are forecast based on historical data. This process allows us to ultimately determine the inventory required to be stocked in each DCs, and consequently the size needed to accommodate it. 
+This paper uses a case study in distribution logistics to propose a general framework for prescriptive analytics called Bootstrap Enhanced Scenario Optimization (BESO). The case study is based on a two-echelon supply chain in which retail stores are allocated to distribution centers (DCs). The problem analyzed was how to minimize the allocation cost and the corresponding aggregated demand for each DC when retailer requests are forecast based on historical data. This process enables us to determine the inventory required for each DC and the size of the DCs needed to accommodate it. 
 
-The study advocates integrating forecasting and optimization. We propose grounding the forecasting phase on bootstrapped autoregressive models, which demonstrated effectiveness compared to alternative methods. Bootstrapped forecasting identifies a probability distribution of future retailer requests, supporting stochastic optimization of allocations while considering both costs and forecast uncertainty. 
+The study advocates the integration of forecasting and optimization. We propose basing the forecasting phase on bootstrapped autoregressive models, as these have been shown to be more effective than alternative methods. Bootstrapped forecasting identifies the probability distribution of future retailer requests, thereby supporting the stochastic optimization of allocations while taking into account both costs and forecast uncertainty.
+This integration eliminates the need for ad hoc scenario generation techniques, ensuring that the optimization model operates on trajectories that are simultaneously consistent with historical dynamics and forecast uncertainty. We thus contribute a methodological bridge that reduces the gap between predictive modeling and decision-making under uncertainty, offering both conceptual simplicity and practical robustness.
 
-ZZZZ This integration eliminates the need for ad hoc scenario generation techniques, ensuring that the optimization model operates on trajectories that are simultaneously consistent with historical dynamics and forecast uncertainty. We thus contribute a methodological bridge that reduces the gap between predictive modeling and decision-making under uncertainty, offering both conceptual simplicity and practical robustness.
+We considered cases where clients had to be fully allocated to a server, as well as a split allocation version. We validated our framework using transportation logistics data from a real-world use case, as well as artificial data to better analyse the fitness landscape and reveal which parameters most impact instance complexity. We obtained results showing how complexity changes when different parameters defining problem instances vary.
 
-We considered both the cases where clients had to be fully allocated to a server and a split allocation version, and we  validated our framework using the transportation logistics data provided with the real-world use case and using artificial data for a better analysis of the fitness landscape revealing which defining parameters have the most impact on the instance complexity, obtaining results on the increase of complexity deriving from the variation of different parameters defining the problem instances.
-
-We believe that this study is of wide interest, both because it is an innovative case of predictive analytics and because the framework composed by the forecasting methodology presented, Maximum Entropy Bootstrap (MEB), and deterministic equivalent based on the bootstrapped series, can be of particular interest from a managerial perspective because of the justified insights offered.
+We believe that this study will be of wide interest, both because it is an innovative application of predictive analytics, and because the Maximum Entropy Bootstrap (MEB) forecasting methodology and the deterministic equivalent based on the bootstrapped series can offer valuable insights from a managerial perspective.
 
 Future research could explore integrating MEB methods into preprocessing procedures, such as Box-Cox transformations, to enhance predictive accuracy. Additionally, investigating ensemble methods, including weighted averaging, may yield robust predictions in variable environments. The interplay between predictive analytics and real-time decision-making deserves attention, particularly regarding how strategies informed by bootstrapped predictions influence logistics efficiency. Lastly, the closure properties of the MEB framework allow for enhancements, such as incorporating Bayesian prior information, refining estimates by integrating external knowledge. Exploring hybrid models that merge Bayesian updating with maximum entropy may yield richer representations of uncertainty and enhanced predictive accuracy.
 
@@ -888,10 +886,10 @@ Future research could explore integrating MEB methods into preprocessing procedu
 %             (2) APPENDICES (if it has more than one unrelated sections)
 % Outcomment the appropriate case if necessary
 %
-\begin{APPENDIX}{Bootstrap sets error costs} \label{app:errcost}
 \clearpage % Ensures all pending floats are placed before this point
+\begin{APPENDIX}{Bootstrap sets error costs} \label{app:errcost}
 
-This section reports the absolute values of the different cost functions calculated on the forecast error obtained as an average of the corresponding errors on each of the 52 series of the test case described in the paper.
+This section reports the absolute values of the various cost functions, which were calculated using the forecast errors obtained by averaging the corresponding errors for each of the 52 test case series described in the paper.
 
 The functions reported in the columns are: bias, Means Absolute Percentage Error (MAPE), Mean Error (ME), Mean Absolute Error (MAE), Mean Percentage Error (MPE) and Root Mean Square Error (RMSE). Table \ref{table:app75} gives the cost values for the case of a boost set composed of 75 series, table \ref{table:app125} for the 125 series and table \ref{table:app175} for the 175 series sets.
 
