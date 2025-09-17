@@ -6,44 +6,48 @@ The style file: elsarticle-harv.bst
 Reallocating 'name_of_file' (item size: 1) to 10 items.
 Database file #1: GDObiblio.bib
 Reallocating 'singl_function' (item size: 4) to 100 items.
-You've used 1 entry,
+Warning--empty pages in DAK17
+Warning--empty chapter and pages in R18
+Warning--empty pages in WDT19
+You've used 70 entries,
             2990 wiz_defined-function locations,
-            634 strings with 5256 characters,
-and the built_in function-call counts, 677 in all, are:
-= -- 50
-> -- 18
-< -- 1
-+ -- 7
-- -- 6
-* -- 69
-:= -- 101
-add.period$ -- 3
-call.type$ -- 1
-change.case$ -- 7
-chr.to.int$ -- 1
-cite$ -- 1
-duplicate$ -- 49
-empty$ -- 51
-format.name$ -- 11
-if$ -- 121
+            1089 strings with 16206 characters,
+and the built_in function-call counts, 43373 in all, are:
+= -- 3336
+> -- 1420
+< -- 58
++ -- 571
+- -- 477
+* -- 4473
+:= -- 6256
+add.period$ -- 204
+call.type$ -- 70
+change.case$ -- 504
+chr.to.int$ -- 70
+cite$ -- 73
+duplicate$ -- 3417
+empty$ -- 3414
+format.name$ -- 722
+if$ -- 8223
 int.to.chr$ -- 1
 int.to.str$ -- 1
-missing$ -- 9
-newline$ -- 20
-num.names$ -- 4
-pop$ -- 17
+missing$ -- 630
+newline$ -- 359
+num.names$ -- 288
+pop$ -- 1295
 preamble$ -- 1
-purify$ -- 6
+purify$ -- 435
 quote$ -- 0
-skip$ -- 14
+skip$ -- 1039
 stack$ -- 0
-substring$ -- 32
-swap$ -- 34
-text.length$ -- 0
+substring$ -- 1873
+swap$ -- 2288
+text.length$ -- 8
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 9
-warning$ -- 0
-while$ -- 4
+type$ -- 600
+warning$ -- 3
+while$ -- 285
 width$ -- 0
-write$ -- 28
+write$ -- 979
+(There were 3 warnings)
