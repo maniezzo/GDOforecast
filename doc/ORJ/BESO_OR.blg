@@ -1,6 +1,6 @@
 This is BibTeX, Version 0.99d
 Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
-The top-level auxiliary file: BESO_C&OR.aux
+The top-level auxiliary file: BESO_OR.aux
 Reallocating 'name_of_file' (item size: 1) to 16 items.
 The style file: elsarticle-harv.bst
 Reallocating 'name_of_file' (item size: 1) to 10 items.
@@ -9,45 +9,45 @@ Reallocating 'singl_function' (item size: 4) to 100 items.
 Warning--empty pages in DAK17
 Warning--empty chapter and pages in R18
 Warning--empty pages in WDT19
-You've used 70 entries,
+You've used 69 entries,
             2990 wiz_defined-function locations,
-            1089 strings with 16206 characters,
-and the built_in function-call counts, 43373 in all, are:
-= -- 3336
-> -- 1420
-< -- 58
-+ -- 571
-- -- 477
-* -- 4473
-:= -- 6256
-add.period$ -- 204
-call.type$ -- 70
-change.case$ -- 504
-chr.to.int$ -- 70
-cite$ -- 73
-duplicate$ -- 3417
-empty$ -- 3414
-format.name$ -- 722
-if$ -- 8223
+            1081 strings with 16033 characters,
+and the built_in function-call counts, 42745 in all, are:
+= -- 3286
+> -- 1402
+< -- 57
++ -- 564
+- -- 471
+* -- 4406
+:= -- 6167
+add.period$ -- 201
+call.type$ -- 69
+change.case$ -- 497
+chr.to.int$ -- 69
+cite$ -- 72
+duplicate$ -- 3368
+empty$ -- 3364
+format.name$ -- 711
+if$ -- 8103
 int.to.chr$ -- 1
 int.to.str$ -- 1
-missing$ -- 630
-newline$ -- 359
-num.names$ -- 288
-pop$ -- 1295
+missing$ -- 621
+newline$ -- 354
+num.names$ -- 284
+pop$ -- 1278
 preamble$ -- 1
-purify$ -- 435
+purify$ -- 429
 quote$ -- 0
-skip$ -- 1039
+skip$ -- 1026
 stack$ -- 0
-substring$ -- 1873
-swap$ -- 2288
+substring$ -- 1841
+swap$ -- 2254
 text.length$ -- 8
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 600
+type$ -- 591
 warning$ -- 3
-while$ -- 285
+while$ -- 281
 width$ -- 0
-write$ -- 979
+write$ -- 965
 (There were 3 warnings)
