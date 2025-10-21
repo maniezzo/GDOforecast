@@ -2,52 +2,49 @@ This is BibTeX, Version 0.99d
 Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: BESO_JOR.aux
 Reallocating 'name_of_file' (item size: 1) to 12 items.
-I couldn't open style file informs2014.bst
----line 136 of file BESO_JOR.aux
- : \bibstyle{informs2014
- :                      }
-I'm skipping whatever remains of this command
+The style file: informs2014.bst
 Reallocating 'name_of_file' (item size: 1) to 10 items.
-I found no style file---while reading file BESO_JOR.aux
+Database file #1: GDObiblio.bib
+Warning--can't use both volume and number fields in JWCZ22
 You've used 69 entries,
-            0 wiz_defined-function locations,
-            207 strings with 1311 characters,
-and the built_in function-call counts, 0 in all, are:
-= -- 0
-> -- 0
-< -- 0
-+ -- 0
-- -- 0
-* -- 0
-:= -- 0
-add.period$ -- 0
-call.type$ -- 0
-change.case$ -- 0
-chr.to.int$ -- 0
-cite$ -- 0
-duplicate$ -- 0
-empty$ -- 0
-format.name$ -- 0
-if$ -- 0
-int.to.chr$ -- 0
-int.to.str$ -- 0
-missing$ -- 0
-newline$ -- 0
-num.names$ -- 0
-pop$ -- 0
-preamble$ -- 0
-purify$ -- 0
+            2869 wiz_defined-function locations,
+            1055 strings with 15701 characters,
+and the built_in function-call counts, 61695 in all, are:
+= -- 6236
+> -- 1454
+< -- 53
++ -- 564
+- -- 472
+* -- 4441
+:= -- 7731
+add.period$ -- 129
+call.type$ -- 69
+change.case$ -- 489
+chr.to.int$ -- 70
+cite$ -- 70
+duplicate$ -- 6156
+empty$ -- 4924
+format.name$ -- 711
+if$ -- 12731
+int.to.chr$ -- 1
+int.to.str$ -- 1
+missing$ -- 691
+newline$ -- 213
+num.names$ -- 284
+pop$ -- 2975
+preamble$ -- 1
+purify$ -- 429
 quote$ -- 0
-skip$ -- 0
+skip$ -- 1169
 stack$ -- 0
-substring$ -- 0
-swap$ -- 0
-text.length$ -- 0
+substring$ -- 6236
+swap$ -- 1591
+text.length$ -- 4
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 0
-warning$ -- 0
-while$ -- 0
+type$ -- 591
+warning$ -- 1
+while$ -- 446
 width$ -- 0
-write$ -- 0
-(There were 2 error messages)
+write$ -- 762
+(There was 1 warning)

@@ -1,7 +1,6 @@
 \documentclass[opre,sglanonrev,11pt]{informs4}
 %% Use the option review to obtain double line spacing
 %% \documentclass[authoryear,preprint,review,12pt]{elsarticle}
-
 %\usepackage[a4paper, total={14cm, 19cm}]{geometry}
 
 \usepackage{url}
@@ -62,18 +61,19 @@
 
 \begin{document}
 
-\RUNAUTHOR{L.Fenga, V.Maniezzo}
+\RUNAUTHOR{X.XX, Y.YY}%{L.Fenga, V.Maniezzo}
 \RUNTITLE{Bootstrap Enhanced Scenario Optimization}
 
 \TITLE{Bootstrap Enhanced Scenario Optimization, a Case Study in Two-Echelon Logistics for Large-Scale Retail}
 
-\ARTICLEAUTHORS{%
-	\AUTHOR{Livio Fenga}
-	\AFF{Center for Simulation, Analytics and Modelling, University of Exeter Business School, Exeter, UK, \EMAIL{L.Fenga@exeter.ac.uk}}
-	
-	\AUTHOR{Vittorio Maniezzo}
-	\AFF{Department of Computer Science, University of Bologna, 47521 Cesena, Italy, \EMAIL{vittorio.maniezzo@unibo.it}}
-} % end of the authors block
+%
+%\ARTICLEAUTHORS{%
+%	\AUTHOR{Livio Fenga}
+%	\AFF{Center for Simulation, Analytics and Modelling, University of Exeter Business School, Exeter, UK, \EMAIL{L.Fenga@exeter.ac.uk}}
+%	
+%	\AUTHOR{Vittorio Maniezzo}
+%	\AFF{Department of Computer Science, University of Bologna, 47521 Cesena, Italy, \EMAIL{vittorio.maniezzo@unibo.it}}
+%} % end of the authors block
 
 
 \ABSTRACT{%
@@ -257,9 +257,11 @@ Another requirement characterizes the problem we are addressing: large stores lo
 
 The analysis was conducted during the summer of 2022 in preparation for the subsequent Christmas season. At the time of the analysis, the anticipated demand requests were unknown and required forecasting. The analysis underwent iterative refinements throughout the summer, culminating in the final forecast produced in September. Consequently, the data presented in this paper correspond to a three-month forecasting case. 
 
-The same data as this test case were used in \citep{MZ23}, but a fundamentally different approach was taken in the previous work, a deterministic Lagrangian matheuristic that did not consider bootstrapping and its stochastic/robust optimization integration. In this paper, we therefore propose a genuinely novel approach that greatly expands the significance of the test case. The extended benchmark set is also entirely new.
+The data for this test case were proposed by \citep{MZ23}, but that previous work took a fundamentally different approach, consisting of a Lagrangian matheuristic applied to a deterministic model with different objective and constraints to those considered here. This paper therefore presents a genuinely novel approach that greatly expands the significance of the test case. The extended benchmark set is also entirely new.
 
-All codes and data are available in an anonymized format from the project repository \citep{GDOforecastRepo}. Specifically, the file containing the request time series can be downloaded from the repository, where all series are complete up to the most recent actual values. However, it should be noted that the last three values were unknown at the time the final forecast was generated. 
+All codes and data are available in an anonymized format from the project repository 
+%\citep{GDOforecastRepo}
+{\it (public upon acceptance)}. Specifically, the file containing the request time series can be downloaded from the repository, where all series are complete up to the most recent actual values. However, it should be noted that the last three values were unknown at the time the final forecast was generated. 
 
 According to the classification proposed in \cite{DEKOK2018} our contribution is described by the following typology string: 2,D,D,G|F,C|D,G|b,F,N|SC|E,O
 standing for: {\it System specification}: 2 echelons, Divergent material structure, Discrete events, Global information; {\it Resources specifications}: bounded storage, Constant delivery time; {\it Market specifications}: Discrete stochastic demand, Guaranteed service; {\it Control type specifications}: installation base stock policy, Flexible release quantities, No other means to satisfy unexpected requirements; {\it Performance specifications}: meeting service requirements and minimization of costs; {\it Generic scientific aspects}: Exact techniques, Optimization.
