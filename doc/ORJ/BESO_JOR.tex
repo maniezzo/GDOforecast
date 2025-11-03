@@ -432,10 +432,8 @@ The objective function now incorporates the various quantities that must be deli
 The resulting formulation is as follows. The random variables $\rho_j$ are sampled in a finite number of scenarios. Let $\rho^s_j$ denote the realization of $\rho_j$ in scenario $s$, $s \in S$, and let $p_s = \frac{1}{|S|}$ be the probability associated with scenario $s \in S$. The variables $\epsilon_{js}$ are slack variables for the customer service constraints.
 
 \begin{align}
-	&(DE) & z_{DE} = \textbf{min } & \sum_{s \in S} \left( p_s \sum_{j \in J} \left( \sum_{i \in I} ( c_{ij}x_{ij} + d_i q_{ij}^s) + M \epsilon_{js} \right) \right) \label{DEobj}
-\end{align}
-\begin{align}
-	& &  \textbf{subject to }
+	&(DE)\quad z_{DE} = & \textbf{min} &\sum_{s \in S} \left( p_s \sum_{j \in J} \left( \sum_{i \in I} ( c_{ij}x_{ij} + d_i q_{ij}^s) + M \epsilon_{js} \right) \right) \label{DEobj}\\
+	& &  \textbf{s.t.}
 	& \sum_{i \in I} q_{ij}^s + \epsilon_{js} = \rho_j^s & j \in J, s \in S \label{DErequest}\\
 	& &  & \sum_{j \in J}q_{ij}^s \leq Q_i & i \in I, s \in S \label{DEcapacity}\\
 	& &  & \sum_{i \in I} x_{ij} = b_j & j \in J  \label{DEnumserv}\\
@@ -708,7 +706,116 @@ Table \ref{table:resETS} details the proposed usage of the  DCs inthe different 
 
 Finally, we note that Table \ref{table:compETS} shows that including the rental cost makes otherwise identical instances much harder to solve. In fact, the time limit of 3600 CPU seconds was too short to reach optimality, and a duality gap was left in the proposed solutions, a substantial one in the case of the BESO instance.
 
-\subsection{Extended deterministic benchmark set} \label{Subsec:extend}
+% \section{Conclusions and future directions} \label{Sec:conclusions}
+
+%The paper describes a case study in distribution logistics where retail stores need to be allocated to DCs in order to minimize allocation costs and to estimate inventory requests at the DCs. The retailer requests have to be forecast based on historical data series.
+
+%The study calls for an approach that integrates forecasting and optimization. We proposed to ground the forecasting phase on bootstrapped autoregressive models, which, in addition to possessing properties particularly suited for integration with the subsequent optimization phase, also showed an effectiveness that was confirmed by computational comparisons with alternative forecasting methods.
+
+%Bootstrapped forecasting allows the identification of a probability distribution of future retailer requests, which can be used to support stochastic optimization of allocations, taking into account both allocation costs and uncertainty in the forecasts.
+
+%The combinatorial optimization problem at the core of the stochastic optimization module is a split allocation problem, which has been studied in the literature mainly in the design of survivable networks, in its deterministic version. On the contrary, we conducted a study on the fitness landscape of the problem when defined on transportation logistics data and in a stochastic context, obtaining results on the increase of complexity deriving from the variation of different parameters defining the problem instances.
+
+%We believe that this study is of wide interest, both because it is an innovative case of predictive analytics and because the forecasting methodology presented, Maximum Entropy Bootstrap (MEB), offers justified insights that are of particular interest from a managerial perspective.
+
+%This case study also provides the backbone for more detailed analysis. In fact, there are several directions in which the study can be extended. For example, we were interested in the optimal solution of the deterministic problems encountered, but an analysis of the effectiveness of heuristics may be of interest to managers. We solved the stochastic problem via its deterministic equivalent, but other stochastic optimization techniques may provide results that offer different perspectives on the case.
+
+%Future research could also explore the integration of MEB methods within the preprocessing procedures usually needed in real life scenarios, e.g., of the type Box-Cox, to enhance predictive accuracy of the  algorithms considered. Additionally, examining various ensemble methods, including forecast combination techniques such as weighted averaging or regression-based methods, could yield valuable insights into achieving more robust predictions in highly variable environments. The interplay between predictive analytics and real-time decision-making processes warrants investigation, particularly how dynamic reallocation strategies informed by bootstrapped predictions impact overall logistics efficiency. Furthermore, extending the analysis to incorporate newly proposed machine learning algorithms could provide fresh perspectives on improving forecasting accuracy and operational flexibility, thereby fostering innovative solutions in logistics management.
+%Finally, the closure properties of the MEB framework present opportunities for further enhancements, such as the integration of Bayesian prior information, which could refine estimations by incorporating external knowledge into the constraint mechanism. The exploration of hybrid models that merge Bayesian updating with maximum entropy principles may lead to richer representations of uncertainty and enhanced predictive accuracy. 
+
+% the whole section starting from line 643 (Conclusions and future directions) is replaced as below reported
+
+\section{Conclusions and future directions} \label{Sec:conclusions}
+
+This paper uses a case study in distribution logistics to propose a general framework for prescriptive analytics called Bootstrap Enhanced Scenario Optimization (BESO). The case study is based on a two-echelon supply chain in which retail stores are allocated to distribution centers (DCs). The problem analyzed was how to minimize the allocation cost and the corresponding aggregated demand for each DC when retailer requests are forecast based on historical data. This process enables us to determine the inventory required for each DC and the size of the DCs needed to accommodate it. 
+
+The study advocates the integration of forecasting and optimization. We propose basing the forecasting phase on bootstrapped autoregressive models, as these have been shown to be more effective than alternative methods. Bootstrapped forecasting identifies the probability distribution of future retailer requests, thereby supporting the stochastic optimization of allocations while taking into account both costs and forecast uncertainty.
+This integration eliminates the need for ad hoc scenario generation techniques, ensuring that the optimization model operates on trajectories that are simultaneously consistent with historical dynamics and forecast uncertainty. We thus contribute a methodological bridge that reduces the gap between predictive modeling and decision-making under uncertainty, offering both conceptual simplicity and practical robustness.
+
+We considered cases where clients had to be fully allocated to a server, as well as a split allocation version. We validated our framework using transportation logistics data from a real-world use case, as well as artificial data to better analyse the fitness landscape and reveal which parameters most impact instance complexity. We obtained results showing how complexity changes when different parameters defining problem instances vary.
+
+We believe that this study will be of wide interest, both because it is an innovative application of predictive analytics, and because the Maximum Entropy Bootstrap (MEB) forecasting methodology and the deterministic equivalent based on the bootstrapped series can offer valuable insights from a managerial perspective.
+
+Future research could explore integrating MEB methods into preprocessing procedures, such as Box-Cox transformations, to enhance predictive accuracy. Additionally, investigating ensemble methods, including weighted averaging, may yield robust predictions in variable environments. The interplay between predictive analytics and real-time decision-making deserves attention, particularly regarding how strategies informed by bootstrapped predictions influence logistics efficiency. Lastly, the closure properties of the MEB framework allow for enhancements, such as incorporating Bayesian prior information, refining estimates by integrating external knowledge. Exploring hybrid models that merge Bayesian updating with maximum entropy may yield richer representations of uncertainty and enhanced predictive accuracy.
+
+\clearpage % Ensures all pending floats are placed before this point
+\begin{APPENDICES}
+\section{Bootstrap sets error costs} \label{app:errcost}
+
+This section reports the absolute values of the various cost functions, which were calculated using the forecast errors obtained by averaging the corresponding errors for each of the 52 test case series described in the paper.
+
+\begin{table}[h]
+	\centering
+	\renewcommand{\arraystretch}{0.75}
+	\begin{tabular}{ccccccc}
+		model & bias & MAPE & ME & MAE & MPE & RMSE \\
+		\hline
+		fcast\_50   &-0.27 & 0.09 &-1.02 & 1.63 &-0.05 &  2.12 \\
+		fcast\_avg  & 0.02 & 0.07 & 0.07 & 1.25 & 0.01 &  1.68 \\
+		yar         & 0.36 & 0.34 & 1.36 & 5.86 & 0.07 &  9.75 \\
+		yhw         & 0.63 & 0.34 & 2.41 & 5.99 & 0.13 & 10.59 \\
+		ysvm        & 0.69 & 0.36 & 2.66 & 6.20 & 0.14 & 10.99 \\
+		ylstm       & 0.56 & 0.35 & 2.13 & 6.01 & 0.11 & 10.41 \\
+		ymlp        & 0.47 & 0.36 & 1.79 & 6.26 & 0.09 & 10.60 \\
+		yrf         & 1.50 & 0.44 & 5.73 & 7.79 & 0.31 & 13.54 \\
+		yxgb        & 2.28 & 0.58 & 8.74 &10.12 & 0.49 & 17.05 \\
+		yarima      & 0.44 & 0.34 & 1.67 & 5.80 & 0.09 &  9.77 \\
+		\hline
+	\end{tabular}
+	\caption{Error costs for the 75 series boostset.}
+	\label{table:app75}
+\end{table}
+
+\begin{table}[h]
+	\centering
+	\renewcommand{\arraystretch}{0.75}
+	\begin{tabular}{ccccccc}
+		model & bias & MAPE & ME & MAE & MPE & RMSE \\
+		\hline
+		fcast\_50   & -0.56 & 0.09 & -1.08 & 1.59 & -0.06 & 2.25  \\
+		fcast\_avg  &  0.02 & 0.07 &  0.05 & 1.18 &  0.01 & 1.65  \\
+		yar         & -0.59 & 0.25 & -1.13 & 4.36 & -0.07 & 6.31  \\
+		yhw         & -0.13 & 0.24 & -0.26 & 4.33 & -0.02 & 6.39  \\
+		ysvm        & -0.06 & 0.24 & -0.11 & 4.18 & -0.01 & 6.39  \\
+		ylstm       & -0.30 & 0.24 & -0.58 & 4.15 & -0.04 & 6.34  \\
+		ymlp        & -0.47 & 0.24 & -0.90 & 4.22 & -0.05 & 5.99  \\
+		yrf         &  1.27 & 0.28 &  2.44 & 5.01 &  0.14 & 7.48  \\
+		yxgb        &  2.52 & 0.38 &  4.85 & 6.52 &  0.28 & 9.46  \\
+		yarima      & -0.40 & 0.25 & -0.76 & 4.44 & -0.05 & 6.83  \\
+		\hline
+	\end{tabular}
+	\caption{Error costs for the 125 series boostset.}
+	\label{table:app125}
+\end{table}
+
+\begin{table}[h]
+	\centering
+	\renewcommand{\arraystretch}{0.75}
+	\begin{tabular}{ccccccc}
+		model & bias & MAPE & ME & MAE & MPE & RMSE \\
+		\hline
+		fcast\_50  & -0.04 & 0.07 & -0.07 & 1.22 & 0     & 1.51 \\
+		fcast\_avg & 0.99  & 0.12 & 1.90  & 2.04 & 0.12  & 2.76 \\
+		yar        & -0.22 & 0.35 & -0.42 & 5.84 & -0.03 & 7.64 \\
+		yhw        & 0.25  & 0.34 & 0.48  & 5.75 & 0.02  & 7.90 \\
+		ysvm       & 0.30  & 0.33 & 0.58  & 5.66 & 0.03  & 7.76 \\
+		ylstm      & 0.10  & 0.34 & 0.20  & 5.76 & 0     & 7.74 \\
+		ymlp       & -0.19 & 0.34 & -0.36 & 5.69 & -0.02 & 7.57 \\
+		yrf        & 1.72  & 0.37 & 3.31  & 6.39 & 0.18  & 9.66 \\
+		yxgb       & 3.01  & 0.46 & 5.78  & 7.96 & 0.33  & 11.83\\
+		yarima     & -0.04 & 0.34 & -0.08 & 5.69 & -0.01 & 7.63 \\
+		\hline
+	\end{tabular}
+	\caption{Error costs for the 175 series boostset.}
+	\label{table:app175}
+\end{table}
+
+The functions reported in the columns are: bias, Means Absolute Percentage Error (MAPE), Mean Error (ME), Mean Absolute Error (MAE), Mean Percentage Error (MPE) and Root Mean Square Error (RMSE). Table \ref{table:app75} gives the cost values for the case of a boost set composed of 75 series, table \ref{table:app125} for the 125 series and table \ref{table:app175} for the 175 series sets.
+
+All tables show significantly consistent results across all boost set sizes.
+
+
+\section{Extended deterministic benchmark set} \label{Subsec:extend}
 
 All analyses reported in sections \ref{Subsec:predictive} and \ref{Subsec:prescriptive} refer to the case study at the heart of this paper, but the interest of the method is not limited to this particular case study as it can be effective on any instance of this 2-echelon supply chain problem. To test the generality of the results, we generated a benchmark set with varying dimensions and coefficients. The study was conducted only with respect to the deterministic setting, and is therefore significant for assessing the computational complexity of the split-allocation problem as a deterministic combinatorial optimization problem.
 
@@ -821,115 +928,8 @@ The table reports results on two sets of instances. The top 4 rows contain aggre
 The complexity of solving instances increases non-monotonically with the number of costly servers, for both increasing and decreasing inventory costs. While the 0-cost instances are comparatively easy to solve, the CPU time required to prove optimality increases with the addition of the first costly servers and then decreases as more servers are paid to store inventory. However, this is not true of the gap between the linear relaxation bound and the cost of the optimal solution, where the instances with no costly servers always have the largest gap.
 As expected, the CPU time required to prove optimality increases with the dimension of the case, and the case with an inverse correlation between storage cost and travel cost is more difficult to solve than the case with a positive correlation.
 
-% \section{Conclusions and future directions} \label{Sec:conclusions}
 
-%The paper describes a case study in distribution logistics where retail stores need to be allocated to DCs in order to minimize allocation costs and to estimate inventory requests at the DCs. The retailer requests have to be forecast based on historical data series.
-
-%The study calls for an approach that integrates forecasting and optimization. We proposed to ground the forecasting phase on bootstrapped autoregressive models, which, in addition to possessing properties particularly suited for integration with the subsequent optimization phase, also showed an effectiveness that was confirmed by computational comparisons with alternative forecasting methods.
-
-%Bootstrapped forecasting allows the identification of a probability distribution of future retailer requests, which can be used to support stochastic optimization of allocations, taking into account both allocation costs and uncertainty in the forecasts.
-
-%The combinatorial optimization problem at the core of the stochastic optimization module is a split allocation problem, which has been studied in the literature mainly in the design of survivable networks, in its deterministic version. On the contrary, we conducted a study on the fitness landscape of the problem when defined on transportation logistics data and in a stochastic context, obtaining results on the increase of complexity deriving from the variation of different parameters defining the problem instances.
-
-%We believe that this study is of wide interest, both because it is an innovative case of predictive analytics and because the forecasting methodology presented, Maximum Entropy Bootstrap (MEB), offers justified insights that are of particular interest from a managerial perspective.
-
-%This case study also provides the backbone for more detailed analysis. In fact, there are several directions in which the study can be extended. For example, we were interested in the optimal solution of the deterministic problems encountered, but an analysis of the effectiveness of heuristics may be of interest to managers. We solved the stochastic problem via its deterministic equivalent, but other stochastic optimization techniques may provide results that offer different perspectives on the case.
-
-%Future research could also explore the integration of MEB methods within the preprocessing procedures usually needed in real life scenarios, e.g., of the type Box-Cox, to enhance predictive accuracy of the  algorithms considered. Additionally, examining various ensemble methods, including forecast combination techniques such as weighted averaging or regression-based methods, could yield valuable insights into achieving more robust predictions in highly variable environments. The interplay between predictive analytics and real-time decision-making processes warrants investigation, particularly how dynamic reallocation strategies informed by bootstrapped predictions impact overall logistics efficiency. Furthermore, extending the analysis to incorporate newly proposed machine learning algorithms could provide fresh perspectives on improving forecasting accuracy and operational flexibility, thereby fostering innovative solutions in logistics management.
-%Finally, the closure properties of the MEB framework present opportunities for further enhancements, such as the integration of Bayesian prior information, which could refine estimations by incorporating external knowledge into the constraint mechanism. The exploration of hybrid models that merge Bayesian updating with maximum entropy principles may lead to richer representations of uncertainty and enhanced predictive accuracy. 
-
-% the whole section starting from line 643 (Conclusions and future directions) is replaced as below reported
-
-\section{Conclusions and future directions} \label{Sec:conclusions}
-
-This paper uses a case study in distribution logistics to propose a general framework for prescriptive analytics called Bootstrap Enhanced Scenario Optimization (BESO). The case study is based on a two-echelon supply chain in which retail stores are allocated to distribution centers (DCs). The problem analyzed was how to minimize the allocation cost and the corresponding aggregated demand for each DC when retailer requests are forecast based on historical data. This process enables us to determine the inventory required for each DC and the size of the DCs needed to accommodate it. 
-
-The study advocates the integration of forecasting and optimization. We propose basing the forecasting phase on bootstrapped autoregressive models, as these have been shown to be more effective than alternative methods. Bootstrapped forecasting identifies the probability distribution of future retailer requests, thereby supporting the stochastic optimization of allocations while taking into account both costs and forecast uncertainty.
-This integration eliminates the need for ad hoc scenario generation techniques, ensuring that the optimization model operates on trajectories that are simultaneously consistent with historical dynamics and forecast uncertainty. We thus contribute a methodological bridge that reduces the gap between predictive modeling and decision-making under uncertainty, offering both conceptual simplicity and practical robustness.
-
-We considered cases where clients had to be fully allocated to a server, as well as a split allocation version. We validated our framework using transportation logistics data from a real-world use case, as well as artificial data to better analyse the fitness landscape and reveal which parameters most impact instance complexity. We obtained results showing how complexity changes when different parameters defining problem instances vary.
-
-We believe that this study will be of wide interest, both because it is an innovative application of predictive analytics, and because the Maximum Entropy Bootstrap (MEB) forecasting methodology and the deterministic equivalent based on the bootstrapped series can offer valuable insights from a managerial perspective.
-
-Future research could explore integrating MEB methods into preprocessing procedures, such as Box-Cox transformations, to enhance predictive accuracy. Additionally, investigating ensemble methods, including weighted averaging, may yield robust predictions in variable environments. The interplay between predictive analytics and real-time decision-making deserves attention, particularly regarding how strategies informed by bootstrapped predictions influence logistics efficiency. Lastly, the closure properties of the MEB framework allow for enhancements, such as incorporating Bayesian prior information, refining estimates by integrating external knowledge. Exploring hybrid models that merge Bayesian updating with maximum entropy may yield richer representations of uncertainty and enhanced predictive accuracy.
-
-\clearpage % Ensures all pending floats are placed before this point
-
-\begin{APPENDIX}{Bootstrap sets error costs} \label{app:errcost}
-
-This section reports the absolute values of the various cost functions, which were calculated using the forecast errors obtained by averaging the corresponding errors for each of the 52 test case series described in the paper.
-
-The functions reported in the columns are: bias, Means Absolute Percentage Error (MAPE), Mean Error (ME), Mean Absolute Error (MAE), Mean Percentage Error (MPE) and Root Mean Square Error (RMSE). Table \ref{table:app75} gives the cost values for the case of a boost set composed of 75 series, table \ref{table:app125} for the 125 series and table \ref{table:app175} for the 175 series sets.
-
-All tables show significantly consistent results across all boost set sizes.
-
-\begin{table}[h]
-	\centering
-	\renewcommand{\arraystretch}{0.75}
-	\begin{tabular}{ccccccc}
-		model & bias & MAPE & ME & MAE & MPE & RMSE \\
-		\hline
-		fcast\_50   &-0.27 & 0.09 &-1.02 & 1.63 &-0.05 &  2.12 \\
-		fcast\_avg  & 0.02 & 0.07 & 0.07 & 1.25 & 0.01 &  1.68 \\
-		yar         & 0.36 & 0.34 & 1.36 & 5.86 & 0.07 &  9.75 \\
-		yhw         & 0.63 & 0.34 & 2.41 & 5.99 & 0.13 & 10.59 \\
-		ysvm        & 0.69 & 0.36 & 2.66 & 6.20 & 0.14 & 10.99 \\
-		ylstm       & 0.56 & 0.35 & 2.13 & 6.01 & 0.11 & 10.41 \\
-		ymlp        & 0.47 & 0.36 & 1.79 & 6.26 & 0.09 & 10.60 \\
-		yrf         & 1.50 & 0.44 & 5.73 & 7.79 & 0.31 & 13.54 \\
-		yxgb        & 2.28 & 0.58 & 8.74 &10.12 & 0.49 & 17.05 \\
-		yarima      & 0.44 & 0.34 & 1.67 & 5.80 & 0.09 &  9.77 \\
-		\hline
-	\end{tabular}
-	\caption{Error costs for the 75 series boostset.}
-	\label{table:app75}
-\end{table}
-
-\begin{table}
-	\centering
-	\renewcommand{\arraystretch}{0.75}
-	\begin{tabular}{ccccccc}
-		model & bias & MAPE & ME & MAE & MPE & RMSE \\
-		\hline
-		fcast\_50   & -0.56 & 0.09 & -1.08 & 1.59 & -0.06 & 2.25  \\
-		fcast\_avg  &  0.02 & 0.07 &  0.05 & 1.18 &  0.01 & 1.65  \\
-		yar         & -0.59 & 0.25 & -1.13 & 4.36 & -0.07 & 6.31  \\
-		yhw         & -0.13 & 0.24 & -0.26 & 4.33 & -0.02 & 6.39  \\
-		ysvm        & -0.06 & 0.24 & -0.11 & 4.18 & -0.01 & 6.39  \\
-		ylstm       & -0.30 & 0.24 & -0.58 & 4.15 & -0.04 & 6.34  \\
-		ymlp        & -0.47 & 0.24 & -0.90 & 4.22 & -0.05 & 5.99  \\
-		yrf         &  1.27 & 0.28 &  2.44 & 5.01 &  0.14 & 7.48  \\
-		yxgb        &  2.52 & 0.38 &  4.85 & 6.52 &  0.28 & 9.46  \\
-		yarima      & -0.40 & 0.25 & -0.76 & 4.44 & -0.05 & 6.83  \\
-		\hline
-	\end{tabular}
-	\caption{Error costs for the 125 series boostset.}
-	\label{table:app125}
-\end{table}
-
-\begin{table}
-	\centering
-	\renewcommand{\arraystretch}{0.75}
-	\begin{tabular}{ccccccc}
-		model & bias & MAPE & ME & MAE & MPE & RMSE \\
-		\hline
-		fcast\_50  & -0.04 & 0.07 & -0.07 & 1.22 & 0     & 1.51 \\
-		fcast\_avg & 0.99  & 0.12 & 1.90  & 2.04 & 0.12  & 2.76 \\
-		yar        & -0.22 & 0.35 & -0.42 & 5.84 & -0.03 & 7.64 \\
-		yhw        & 0.25  & 0.34 & 0.48  & 5.75 & 0.02  & 7.90 \\
-		ysvm       & 0.30  & 0.33 & 0.58  & 5.66 & 0.03  & 7.76 \\
-		ylstm      & 0.10  & 0.34 & 0.20  & 5.76 & 0     & 7.74 \\
-		ymlp       & -0.19 & 0.34 & -0.36 & 5.69 & -0.02 & 7.57 \\
-		yrf        & 1.72  & 0.37 & 3.31  & 6.39 & 0.18  & 9.66 \\
-		yxgb       & 3.01  & 0.46 & 5.78  & 7.96 & 0.33  & 11.83\\
-		yarima     & -0.04 & 0.34 & -0.08 & 5.69 & -0.01 & 7.63 \\
-		\hline
-	\end{tabular}
-	\caption{Error costs for the 175 series boostset.}
-	\label{table:app175}
-\end{table}
-
-\end{APPENDIX}
+\end{APPENDICES}
 
 \bibliographystyle{informs2014}
 \bibliography{GDObiblio}
