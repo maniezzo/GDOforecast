@@ -182,7 +182,9 @@ def solve_saa_pyomo(rho_samples, c, d, cap, I, J, eps_penalty=0.0, lip_constant=
 
    model.Linking = Constraint(model.Scenarios, model.Servers, model.Clients, rule=linking_rule)
 
-   # 6. Solve the Model using Gurobi
+   model.write("model.lp", io_options={'symbolic_solver_labels':True})
+
+   # 6. Solve the Model
    solver = SolverFactory('gurobi')
    results = solver.solve(model, tee=False)  # tee=True shows solver output
 
