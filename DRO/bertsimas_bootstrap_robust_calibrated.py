@@ -28,6 +28,7 @@ def read_instance(filePath,boostSize=75):
     cost     = np.transpose(np.loadtxt(filePath, delimiter=','))
 
     boostReq = np.loadtxt(f"ETSboosts_{boostSize}.csv", delimiter=',')
+    boostReq = np.round(boostReq).astype(int)
 
     return name,n,m,req,cap,qcost,cost,boostReq
 
