@@ -205,7 +205,7 @@ def solve_saa_pyomo(rho_samples, c, d, cap, I, J, eps_penalty=0.0, lip_constant=
    return {"status": "ok", "x": x_val, "obj": final_obj}
 
 # compute_recourse_linprog is fine as it solves a continuous LP for a fixed x.
-def compute_recourse_linprog(x_val, rho_s, d, Q, I, J):
+def old_compute_recourse_linprog(x_val, rho_s, d, Q, I, J):
    # This function is unchanged and correctly uses linprog for the second stage.
    Nq = I * J
    c_q = np.array([d[i] for i in range(I) for j in range(J)])
@@ -232,24 +232,101 @@ def compute_recourse_linprog(x_val, rho_s, d, Q, I, J):
    qsol = res.x.reshape((I, J))
    return float(res.fun), qsol
 
+def compute_recourse_pyomo(x_val, rho_s, d, cap, I, J):
+   """
+   Computes the minimum recourse cost for a fixed first-stage decision x_val
+   and a specific demand scenario rho_s, using Pyomo.
+
+   Args:
+       x_val (np.array): Fixed first-stage allocation (I x J).
+       rho_s (np.array): Single demand scenario (J).
+       d (np.array): Second-stage recourse costs (I).
+       cap (list/np.array): Server capacities (I).
+       I (int): Number of servers/rows.
+       J (int): Number of clients/columns.
+
+   Returns:
+       tuple: (Minimum recourse cost (float), Recourse solution q (np.array or None))
+   """
+   # 1. Model Initialization
+   model = ConcreteModel()
+
+   # 2. Sets (Indices)
+   model.Servers = RangeSet(0, I - 1)
+   model.Clients = RangeSet(0, J - 1)
+
+   # 3. Variables
+   # q: Recourse quantity (Continuous LP variable)
+   model.q = Var(model.Servers, model.Clients, domain=NonNegativeReals)
+
+   # 4. Objective Function (Minimize Recourse Cost)
+   def objective_rule(model):
+      return sum(d[i] * model.q[i, j] for i in model.Servers for j in model.Clients)
+
+   model.objective = Objective(rule=objective_rule, sense=minimize)
+
+   # 5. Constraints
+
+   # a. Demand balance: sum_i q_i,j = rho_s,j (Demand must be met)
+   def demand_rule(model, j):
+      # rho_s must be integer here for consistency with the MIP problem
+      return sum(model.q[i, j] for i in model.Servers) == int(rho_s[j])
+
+   model.Demand = Constraint(model.Clients, rule=demand_rule)
+
+   # b. Capacity constraints: sum_j q_i,j <= cap_i (Total allocated quantity cannot exceed capacity)
+   def capacity_rule(model, i):
+      return sum(model.q[i, j] for j in model.Clients) <= int(cap[i])
+
+   model.Capacity = Constraint(model.Servers, rule=capacity_rule)
+
+   # c. Allocation/Linking constraints: q_i,j <= rho_s,j * x_val_i,j
+   # Recourse is only possible if the client is assigned to the server in x_val.
+   def linking_rule(model, i, j):
+      # The upper bound is the maximum amount server 'i' can supply to client 'j'
+      # given the fixed x_val and the demand rho_s.
+      upper_bound = float(rho_s[j] * x_val[i, j])
+      return model.q[i, j] <= upper_bound
+
+   model.Linking = Constraint(model.Servers, model.Clients, rule=linking_rule)
+
+   # 6. Solve the Model
+   # Use 'gurobi' or 'glpk'/'cbc' since it's an LP. 'glpk' is often readily available.
+   solver = SolverFactory('gurobi')
+   results = solver.solve(model, tee=False)
+
+   # 7. Extract Solution
+   if results.solver.termination_condition != TerminationCondition.optimal:
+      # Return a large penalty cost for infeasible solutions
+      return 1e6, None
+
+   recourse_cost = value(model.objective)
+
+   # Extract q solution (optional, but helpful for debugging/analysis)
+   q_sol = np.zeros((I, J))
+   for i in model.Servers:
+      for j in model.Clients:
+         q_sol[i, j] = value(model.q[i, j])
+
+   return recourse_cost, q_sol
+
 # estimate_lipschitz_numeric is a heuristic.
 def estimate_lipschitz_numeric(x_val, rho_samples, d, Q, I, J, delta=1e-3):
    diffs = []
    for s in range(len(rho_samples)):
       rho_s = rho_samples[s]
-      base, _ = compute_recourse_linprog(x_val, rho_s, d, Q, I, J)
+      base, _ = compute_recourse_pyomo(x_val, rho_s, d, Q, I, J)
       if base > 1e5: continue
       for j in range(J):
          rho_pert = rho_s.copy();
          # Note: Perturbation might make rho_pert[j] non-integer. This is allowed
          # for Lipschitz estimate if the recourse function is Lipschitz on R^n.
          rho_pert[j] += delta
-         pert, _ = compute_recourse_linprog(x_val, rho_pert, d, Q, I, J)
+         pert, _ = compute_recourse_pyomo(x_val, rho_pert, d, Q, I, J)
          if pert > 1e5: continue
          diffs.append(abs(pert - base) / delta)
    if len(diffs) == 0: return 1e6
    return max(diffs)
-
 
 def solve_approx_wdro_pulp(rho_samples, eps, c, d, Q, I, J, n_iter=6):
    """
@@ -293,8 +370,6 @@ def solve_approx_wdro_pulp(rho_samples, eps, c, d, Q, I, J, n_iter=6):
    return {"x": x_cur, "lip": lip_cur, "history": history, "final_obj": res.get("obj", None)}
 
 
-# Other helper functions (calibration, evaluation) are unchanged
-
 def multivariate_wasserstein_proxy(X, Y, mode="max"):
    dists = []
    for j in range(X.shape[1]):
@@ -327,7 +402,7 @@ def evaluate_solution(x_val, rho_test):
    infeas = 0
    for s in range(len(rho_test)):
       rho_s = np.round(rho_test[s]).astype(int)
-      val, _ = compute_recourse_linprog(x_val, rho_s, qcost, cap, m, n)
+      val, _ = compute_recourse_pyomo(x_val, rho_s, qcost, cap, m, n)
       if val > 1e5:
          infeas += 1
       else:
