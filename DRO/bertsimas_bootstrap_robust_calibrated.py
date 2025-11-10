@@ -1,21 +1,16 @@
 import numpy as np
 from scipy.optimize import linprog
 import pulp, time, json
-
 """
 bertsimas_bootstrap_robust_calibrated.py
-
-Toy implementation illustrating the Bertsimas & Kallus (2020) bootstrap-robust
+Implementation illustrating the Bertsimas & Kallus (2020) bootstrap-robust
 prescriptive analytics idea, including a bootstrap-based calibration loop.
-
 Steps:
  1. Solve the baseline SAA problem.
  2. Bootstrap the empirical sample of ρ to produce B resamples.
  3. For each bootstrap, solve its SAA version and compute out-of-sample regret.
  4. Use percentile of regrets to calibrate the robustness parameter ε*.
  5. Compute the bootstrap-robust adjusted objective with calibrated ε*.
-
-Continuous relaxations are used for simplicity.
 """
 
 def read_instance(filePath,boostSize=75):
@@ -310,12 +305,43 @@ def compute_recourse(x, rho_s, qcost, cap, m, n):
       return 99999999
    return res.fun
 
+
+# DRO solution
+def solve_bootstrap_robust_ip(rho_samples, cost, qcost, cap, m, n, eps_star):
+   """
+   Placeholder: The actual implementation involves a major extension
+   of the SAA IP to minimize the mean objective PLUS
+   eps_star * (measure of deviation).
+
+   For the Bertsimas & Kallus (2020) 'worst-case mean' idea, this
+   translates to minimizing:
+
+   min E[C(x, rho)] + eps_star * max |C(x, rho) - E[C(x, rho)]|
+
+   This requires introducing new variables and constraints to model
+   the max deviation, turning it into a convex-ish (or mixed-integer) problem.
+   """
+   print("\n[WARNING] Now solving the Epsilon*-Robust Optimization problem...")
+   print("    This section requires significant reformulation of the MIP.")
+   print("    Returning SAA result as placeholder for demonstration.")
+
+   x_robust, obj_robust = solve_saa_pulp(rho_samples, cost, qcost, cap, m, n)
+
+   # If the robust problem were solved, we would evaluate its true objective:
+   L_vals_robust = np.array([compute_recourse(x_robust, rho_samples[s], qcost, cap, m, n)
+                             for s in range(len(rho_samples))])
+   mean_L_robust = L_vals_robust.mean()
+   robust_obj_value = mean_L_robust + eps_star * np.max(np.abs(L_vals_robust - mean_L_robust))
+
+   return x_robust, robust_obj_value, mean_L_robust
+
 if __name__ == "__main__":
    np.random.seed(995)
-
    tStart = time.process_time()
 
    name, n, m, req, cap, qcost, cost, boostReq = read_instance("inst_52_4_0_0.json", 75)
+
+   # Load sample data (rho_samples contains the training/empirical distribution)
    rho_samples = np.loadtxt("ETSboosts_75.csv", delimiter=',')
    n_train = len(rho_samples)
 
@@ -353,34 +379,52 @@ if __name__ == "__main__":
    regrets = []
    for b in range(n_bootstrap):
       print(f"b={b}")
+      # Sample with replacement from the original sample
       idx = np.random.choice(len(rho_samples), size=len(rho_samples), replace=True)
       rho_boot = rho_samples[idx]
-      x_boot, obj_boot = solve_saa_pulp(rho_boot, cost, qcost, cap, m, n)
 
-      # Evaluate out-of-sample regret on full sample
+      # Solve SAA on the bootstrap sample
+      x_boot, _ = solve_saa_pulp(rho_boot, cost, qcost, cap, m, n)
+
+      # Evaluate out-of-sample recourse on the original sample (rho_samples)
+      # SAA_boot regret = E[Cost(x_boot)] - E[Cost(x_saa)]
       L_boot = np.mean([compute_recourse(x_boot, rho_samples[s], qcost, cap, m, n)
                         for s in range(len(rho_samples))])
       L_saa = np.mean([compute_recourse(x_saa, rho_samples[s], qcost, cap, m, n)
                        for s in range(len(rho_samples))])
       regrets.append(L_boot - L_saa)
 
+      # Optional print for progress
+      if (b + 1) % 50 == 0 or b == n_bootstrap - 1:
+         print(f"Processed {b + 1}/{n_bootstrap} bootstraps.")
+
    regrets = np.array(regrets)
+   # Calibrate epsilon*
    eps_star = np.percentile(np.abs(regrets), quantile_level * 100)
 
    # === Step 3: Compute bootstrap-robust adjusted objective ===
-   L_vals = np.array([compute_recourse(x_saa, rho_samples[s], qcost, cap, m, n)
-                      for s in range(len(rho_samples))])
-   mean_L = L_vals.mean()
-   robust_obj = mean_L + eps_star * np.max(np.abs(L_vals - mean_L))
+   x_robust, robust_obj, mean_L_robust = solve_bootstrap_robust_ip(
+      rho_samples, cost, qcost, cap, m, n, eps_star)
 
-   print("\\n=== Bootstrap-Calibrated Bertsimas Robust Prototype ===")
+   # fine
+   print("\n=== Results: Bootstrap-Calibrated Robust Optimization ===")
    print(f"Baseline SAA obj: {obj_saa:.3f}")
-   print(f"Mean recourse: {mean_L:.3f}")
-   print(f"Calibrated epsilon* (90th perct of regrets): {eps_star:.4f}")
-   print(f"Bootstrap-robust adjusted objective: {robust_obj:.3f}")
-   print("\\nSAA x (rounded):\\n", np.round(x_saa, 3))
+   print(f"Calibrated epsilon* ({int(quantile_level * 100)}th perct of regrets): {eps_star:.4f}")
+
+   # Recalculate SAA's performance on the robust objective for comparison
+   L_vals_saa = np.array([compute_recourse(x_saa, rho_samples[s], qcost, cap, m, n)
+                          for s in range(len(rho_samples))])
+   mean_L_saa = L_vals_saa.mean()
+   robust_obj_saa = mean_L_saa + eps_star * np.max(np.abs(L_vals_saa - mean_L_saa))
+
+   print(f"SAA Solution's Adjusted Robust Objective: {robust_obj_saa:.3f}")
+
+   # The actual output from the solve_bootstrap_robust_ip function
+   print(f"Robust Solution's Adjusted Robust Objective: {robust_obj:.3f}")
+   print(f"Robust Solution's Mean Recourse: {mean_L_robust:.3f}")
+
+   print("\nOptimal Robust x (Placeholder/SAA):\n", np.round(x_robust, 3))
 
    tEnd = time.process_time()
    cpu_time = tEnd - tStart
-   print(f"CPU time used: {cpu_time:.4f} seconds")
-
+   print(f"\nCPU time used: {cpu_time:.4f} seconds")
