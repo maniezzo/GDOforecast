@@ -3,11 +3,11 @@ from scipy.optimize import linprog  # Used only for recourse calculation and Lip
 from scipy.stats import wasserstein_distance
 import pulp
 import random, json, time
+from pyomo.environ import *
 
 # --- Global Definitions (for helper functions) ---
 n = 0
 m = 0
-
 
 def read_instance(filePath, boostSize=75):
    global n, m
@@ -29,10 +29,7 @@ def read_instance(filePath, boostSize=75):
 
    return name, n, m, req, cap, qcost, cost, boostReq
 
-
-# Functions idx_x and idx_q are not needed for PuLP, but kept for context.
-
-def solve_saa_pulp(rho_samples, c, d, cap, I, J, eps_penalty=0.0, lip_constant=0.0):
+def old_solve_saa_pulp(rho_samples, c, d, cap, I, J, eps_penalty=0.0, lip_constant=0.0):
    """
    Solves the SAA (or the objective part of the W-DRO approx).
    The solution 'x' is forced to be Binary.
@@ -104,6 +101,106 @@ def solve_saa_pulp(rho_samples, c, d, cap, I, J, eps_penalty=0.0, lip_constant=0
 
    return {"status": "ok", "x": x_val, "obj": final_obj}
 
+def solve_saa_pyomo(rho_samples, c, d, cap, I, J, eps_penalty=0.0, lip_constant=0.0):
+   """
+   Solves the SAA (or the objective part of the W-DRO approx) using Pyomo/Gurobi.
+   The solution 'x' is forced to be Binary.
+
+   Args:
+       rho_samples (np.array): Demand scenarios (S x J).
+       c (np.array): First-stage costs (I x J).
+       d (np.array): Second-stage recourse costs (I).
+       cap (list/np.array): Server capacities (I).
+       I (int): Number of servers/rows.
+       J (int): Number of clients/columns.
+       eps_penalty (float): Epsilon (W-DRO radius).
+       lip_constant (float): Lipschitz constant L(x_k).
+
+   Returns:
+       dict: Status, x_val (I x J array), and objective value.
+   """
+   S = len(rho_samples)
+
+   # 1. Model Initialization
+   model = ConcreteModel()
+
+   # 2. Sets (Indices)
+   model.Servers = RangeSet(0, I - 1)
+   model.Clients = RangeSet(0, J - 1)
+   model.Scenarios = RangeSet(0, S - 1)
+
+   # 3. Variables
+   # x: Binary allocation decision (First-stage)
+   model.x = Var(model.Servers, model.Clients, domain=Binary)
+
+   # q: Integer recourse quantity (Second-stage)
+   model.q = Var(model.Scenarios, model.Servers, model.Clients, domain=NonNegativeIntegers)
+
+   # 4. Objective Function (SAA Cost + Fixed W-DRO Penalty)
+   def objective_rule(model):
+      # First-stage cost: sum(c_ij * x_ij)
+      first_stage_cost = sum(c[i, j] * model.x[i, j] for i in model.Servers for j in model.Clients)
+
+      # Expected second-stage cost: (1/S) * sum(d_i * q_s,i,j)
+      second_stage_cost = (1.0 / S) * sum(d[i] * model.q[s, i, j]
+                                          for s in model.Scenarios
+                                          for i in model.Servers
+                                          for j in model.Clients)
+
+      # W-DRO Penalty Term (fixed value added to the objective)
+      fixed_penalty = eps_penalty * lip_constant
+
+      return first_stage_cost + second_stage_cost + fixed_penalty
+
+   model.objective = Objective(rule=objective_rule, sense=minimize)
+
+   # 5. Constraints
+
+   # a. Assignment constraints: sum_i x_ij = 1 (Each client is assigned to one server)
+   def assignment_rule(model, j):
+      return sum(model.x[i, j] for i in model.Servers) == 1
+
+   model.Assignment = Constraint(model.Clients, rule=assignment_rule)
+
+   # b. Demand balance: sum_i q_s,i,j = rho_s,j (Demand must be met for each scenario)
+   def demand_rule(model, s, j):
+      return sum(model.q[s, i, j] for i in model.Servers) == int(rho_samples[s, j])
+
+   model.Demand = Constraint(model.Scenarios, model.Clients, rule=demand_rule)
+
+   # c. Capacity constraints: sum_j q_s,i,j <= cap_i (Total allocated quantity cannot exceed capacity)
+   def capacity_rule(model, s, i):
+      return sum(model.q[s, i, j] for j in model.Clients) <= int(cap[i])
+
+   model.Capacity = Constraint(model.Scenarios, model.Servers, rule=capacity_rule)
+
+   # d. Linking constraints: q_s,i,j <= rho_s,j * x_i,j
+   # (Recourse only possible if client is assigned to server, using rho as Big-M)
+   def linking_rule(model, s, i, j):
+      # rho_samples[s, j] is the Big-M here.
+      return model.q[s, i, j] <= int(rho_samples[s, j]) * model.x[i, j]
+
+   model.Linking = Constraint(model.Scenarios, model.Servers, model.Clients, rule=linking_rule)
+
+   # 6. Solve the Model using Gurobi
+   solver = SolverFactory('gurobi')
+   results = solver.solve(model, tee=False)  # tee=True shows solver output
+
+   # 7. Extract Solution
+   if results.solver.termination_condition != TerminationCondition.optimal:
+      # Handle cases where Gurobi fails or finds no optimal solution
+      return {"status": "fail", "message": str(results.solver.termination_condition)}
+
+   x_val = np.zeros((I, J))
+   for i in range(I):
+      for j in range(J):
+         # Pyomo's value() function is used to get the solution value
+         x_val[i, j] = value(model.x[i, j])
+
+   final_obj = value(model.objective)
+
+   # The objective value returned by Pyomo *includes* the fixed penalty term
+   return {"status": "ok", "x": x_val, "obj": final_obj}
 
 # compute_recourse_linprog is fine as it solves a continuous LP for a fixed x.
 def compute_recourse_linprog(x_val, rho_s, d, Q, I, J):
@@ -157,7 +254,7 @@ def solve_approx_wdro_pulp(rho_samples, eps, c, d, Q, I, J, n_iter=6):
    Alternating scheme using solve_saa_pulp
    """
    # 1. Initialize with SAA solution (eps=0, lip=0)
-   res = solve_saa_pulp(rho_samples, c, d, Q, I, J, eps_penalty=0.0, lip_constant=0.0)
+   res = solve_saa_pyomo(rho_samples, c, d, Q, I, J, eps_penalty=0.0, lip_constant=0.0)
    if res["status"] != "ok":
       raise RuntimeError("Initial SAA failed in W-DRO solver")
 
@@ -168,7 +265,7 @@ def solve_approx_wdro_pulp(rho_samples, eps, c, d, Q, I, J, n_iter=6):
    # 2. Alternating Optimization
    for it in range(n_iter):
       # Step A: Solve for x using the current fixed Lipschitz constant (lip_cur)
-      res = solve_saa_pulp(rho_samples, c, d, Q, I, J, eps_penalty=eps, lip_constant=lip_cur)
+      res = solve_saa_pyomo(rho_samples, c, d, Q, I, J, eps_penalty=eps, lip_constant=lip_cur)
       if res["status"] != "ok":
          print(f"W-DRO iteration {it} failed: {res['message']}")
          break
@@ -255,7 +352,7 @@ if __name__ == "__main__":
 
    # 2. Solve SAA Baseline (Now a proper MIP)
    print("=== Solving SAA MIP Baseline ===")
-   saa_res = solve_saa_pulp(rho_samples, cost, qcost, cap, m, n)
+   saa_res = solve_saa_pyomo(rho_samples, cost, qcost, cap, m, n)
    if saa_res["status"] != "ok":
       raise RuntimeError(f"SAA failed: {saa_res['message']}")
    x_saa = saa_res["x"]
