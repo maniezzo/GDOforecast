@@ -39,10 +39,6 @@ def idx_x(i,j):
 def idx_q(s,i,j,n_x,n_q_block):
    return n_x + s*n_q_block + i*n + j
 
-
-from pyomo.environ import *
-
-
 def solve_bertsimas_dro_pyomo(rho_samples, c, d, cap, I, J, eps_star):
    """
    Solves the Bertsimas & Kallus (2020) Bootstrap-Robust Optimization problem
@@ -578,10 +574,12 @@ if __name__ == "__main__":
    print("Starting calibrated bertsimas")
    tStart = time.process_time()
 
-   name, n, m, req, cap, qcost, cost, boostReq = read_instance("inst_52_4_0_0.json", 75)
+   instance = "inst_8_2_0_0.json" # "inst_52_4_0_0.json"
+   datiVeri = "datiVeriTest.csv" # "datiVeri.csv"
+   boostSet = "15_test" # 75
 
-   # Load sample data (rho_samples contains the training/empirical distribution)
-   rho_samples = np.loadtxt("ETSboosts_75.csv", delimiter=',')
+   name, n, m, req, cap, qcost, cost, boostReq = read_instance(instance, boostSet)
+   rho_samples = boostReq
    n_train = len(rho_samples)
 
    rho_test = np.loadtxt("datiVeri.csv", delimiter=',')

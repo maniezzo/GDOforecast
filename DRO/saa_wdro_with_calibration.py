@@ -416,12 +416,15 @@ if __name__ == "__main__":
 
    tStart = time.process_time()
 
-   # 1. Load and Prepare Data (rho is now Integer)
-   name, n, m, req, cap, qcost, cost, boostReq = read_instance("inst_52_4_0_0.json", 75)
-   rho_samples = boostReq  # Using the integer-casted data
+   instance = "inst_8_2_0_0.json" # "inst_52_4_0_0.json"
+   datiVeri = "datiVeriTest.csv" # "datiVeri.csv"
+   boostSet = "15_test" # 75
+   # 1. Load and Prepare Data (rho is integer)
+   name, n, m, req, cap, qcost, cost, boostReq = read_instance(instance, boostSet)
+   rho_samples = boostReq
 
    # Ensure test data is also integer for evaluation consistency
-   rho_test_raw = np.loadtxt("datiVeri.csv", delimiter=',')
+   rho_test_raw = np.loadtxt(datiVeri, delimiter=',')
    rho_test = np.round(rho_test_raw).astype(int)
 
    n_train = len(rho_samples)
