@@ -416,9 +416,9 @@ if __name__ == "__main__":
 
    tStart = time.process_time()
 
-   instance = "inst_8_2_0_0.json" # "inst_52_4_0_0.json"
-   datiVeri = "datiVeriTest.csv" # "datiVeri.csv"
-   boostSet = "15_test" # 75
+   instance = "inst_52_4_0_0.json" # "inst_8_2_0_0.json" "inst_52_4_0_0.json"
+   datiVeri = "datiVeri.csv" # "datiVeriTest.csv"  "datiVeri.csv"
+   boostSet = 75 # "15_test"  75
    # 1. Load and Prepare Data (rho is integer)
    name, n, m, req, cap, qcost, cost, boostReq = read_instance(instance, boostSet)
    rho_samples = boostReq
@@ -426,6 +426,11 @@ if __name__ == "__main__":
    # Ensure test data is also integer for evaluation consistency
    rho_test_raw = np.loadtxt(datiVeri, delimiter=',')
    rho_test = np.round(rho_test_raw).astype(int)
+   # Check if the array is 1D
+   if rho_test.ndim == 1:
+      # Reshape to 2D with one row
+      rho_test = rho_test.reshape(1, -1)
+   n_test   = len(rho_test)
 
    n_train = len(rho_samples)
    n_test = len(rho_test)
@@ -440,6 +445,7 @@ if __name__ == "__main__":
    # 3. Calibrate Epsilon
    print("\n=== Calibrating Wasserstein Radius ===")
    eps_calibrated, boot_dists = calibrate_epsilon_bootstrap(rho_samples, B=200, percentile=0.9, mode="max")
+   #eps_calibrated = 20000.0
    print(f"Calibrated epsilon (90th pct of max 1D distances): {eps_calibrated:.4f}")
 
    # 4. Solve Approximate W-DRO (Alternating MIP/LP)
