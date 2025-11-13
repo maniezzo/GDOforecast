@@ -89,6 +89,7 @@ def solve_bertsimas_dro_pyomo(rho_samples, c, d, cap, I, J, eps_star):
 
       # Risk Penalty: eps_star * eta
       risk_penalty = eps_star * model.eta
+      print(f"Risk penalty {risk_penalty}")
 
       return first_stage_cost + mean_recourse + risk_penalty
 
@@ -574,9 +575,9 @@ if __name__ == "__main__":
    print("Starting calibrated bertsimas")
    tStart = time.process_time()
 
-   instance = "inst_8_2_0_0.json" # "inst_52_4_0_0.json"
-   datiVeri = "datiVeriTest.csv" # "datiVeri.csv"
-   boostSet = "15_test" # 75
+   instance = "inst_52_4_0_0.json"# "inst_8_2_0_0.json" "inst_52_4_0_0.json"
+   datiVeri = "datiVeri.csv" # "datiVeriTest.csv" "datiVeri.csv"
+   boostSet = 75 # "15_test" 75
 
    name, n, m, req, cap, qcost, cost, boostReq = read_instance(instance, boostSet)
    rho_samples = boostReq
@@ -642,6 +643,8 @@ if __name__ == "__main__":
    regrets = np.array(regrets)
    # Calibrate epsilon*
    eps_star = np.percentile(np.abs(regrets), quantile_level * 100)
+   eps_star = 20
+   print(f"sing eps_star {eps_star}")
 
    # === Step 3: Compute Bootstrap-Robust Optimal Solution ===
    print("\n=== Step 3: Solving DRO MIP with Pyomo/Gurobi ===")
