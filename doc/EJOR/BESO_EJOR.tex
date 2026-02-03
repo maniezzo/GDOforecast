@@ -6,14 +6,14 @@
 %%
 %% $Id: elsarticle-template-num.tex 190 2020-11-23 11:12:32Z rishi $
 %%
-%%
-\documentclass[a4paper,fleqn]{cas-sc}
-
-\usepackage[authoryear,longnamesfirst]{natbib}
 
 %% Use the option review to obtain double line spacing
 %% \documentclass[preprint,review,12pt]{elsarticle}
-%\usepackage{natbib}
+\documentclass[review,a4paper,fleqn,3p,11pt]{elsarticle}
+
+\usepackage{natbib}
+%\usepackage[authoryear]{natbib}
+
 \usepackage[onehalfspacing]{setspace}
 %\usepackage[a4paper, total={14cm, 19cm}]{geometry}
 \usepackage{url}
@@ -59,104 +59,57 @@
 \def\floatpagepagefraction{1}
 \def\textpagefraction{.001}
 
-\shorttitle{Leveraging social media news}
-\shortauthors{J.K. Krishnan et~al.}
 %\begin{frontmatter}
 
-\title [mode = title]{Bootstrap Enhanced Scenario Optimization, a Case Study in Two-Echelon Logistics}                      
-\tnotemark[1,2]
+\title{Bootstrap Enhanced Scenario Optimization, a Case Study in Two-Echelon Logistics}                      
 
-\tnotetext[1]{This document is the results of the research
-   project funded by the National Science Foundation.}
+\author[1]{Livio Fenga\corref{cor1}}
+\ead{L.Fenga@exeter.ac.uk}
 
-\tnotetext[2]{The second title footnote which is a longer text matter
-   to fill through the whole text width and overflow into
-   another line in the footnotes area of the first page.}
+\affiliation[1]{organization={Center for Simulation, Analytics and Modelling},
+                addressline={University of Exeter Business School}, 
+                city={Exeter},
+%                postcode={695013}, 
+%                state={Kerala},
+                country={UK}}
 
+\author[2]{Vittorio Maniezzo}
+\ead{vittorio.maniezzo@unibo.it}
 
-\author[1,3]{J.K. Krishnan}[type=editor,
-                        auid=000,bioid=1,
-                        prefix=Sir,
-                        role=Researcher,
-                        orcid=0000-0001-0000-0000]
-\cormark[1]
-\fnmark[1]
-\ead{jkk@example.in}
-\ead[url]{www.jkkrishnan.in}
-
-\credit{Conceptualization of this study, Methodology, Software}
-
-\affiliation[1]{organization={Department of Physics, J.K. Institute of Science},
-                addressline={Jawahar Nagar}, 
-                city={Trivandrum},
-%               citysep={}, % Uncomment if no comma needed between city and postcode
-                postcode={695013}, 
-                state={Kerala},
-                country={India}}
-
-\author[2,4]{Han Thane}[style=chinese]
-
-\author[2,3]{William {J. Hansen}}[%
-   role=Co-ordinator,
-   suffix=Jr,
-   ]
-\fnmark[2]
-\ead{wjh@example.org}
-\ead[URL]{https://www.university.org}
-
-\credit{Data curation, Writing - Original draft preparation}
-
-\affiliation[2]{organization={World Scientific University},
-                addressline={Street 29}, 
-                postcode={1011 NX}, 
-                postcodesep={}, 
-                city={Amsterdam},
-                country={The Netherlands}}
-
-\author[1,3]{T. Rafeeq}
-\cormark[2]
-\fnmark[1,3]
-\ead{t.rafeeq@example.in}
-\ead[URL]{www.campus.in}
-
-\affiliation[3]{organization={University of Intelligent Studies},
-                addressline={Street 15}, 
-                city={Jabaldesh},
-                postcode={825001}, 
-                state={Orissa}, 
-                country={India}}
+\affiliation[2]{organization={Department of Computer Science},
+                addressline={University of Bologna}, 
+%                postcode={1011 NX}, 
+                city={Bologna},
+                country={Italy}}
 
 \cortext[cor1]{Corresponding author}
-\cortext[cor2]{Principal corresponding author}
-\fntext[fn1]{This is the first author footnote, but is common to third author as well.}
-\fntext[fn2]{Another author footnote, this is a very long footnote and
-  it should be a really long footnote. But this footnote is not yet
-  sufficiently long enough to make two lines of footnote text.}
-
-\nonumnote{This note has no numbers. In this work we demonstrate $a_b$
-  the formation Y\_1 of a new type of polariton on the interface
-  between a cuprous oxide slab and a polystyrene micro-sphere placed
-  on the slab.
-  }
 
 \begin{abstract}
 We introduce the Bootstrap Enhanced Scenario Optimization (BESO) framework, a novel methodology for prescriptive analytics under uncertainty. BESO addresses the critical challenge of generating reliable demand scenarios from volatile, short, and non-stationary time series data. The core innovation lies in delegating the modeling of uncertainties to the Maximum Entropy Bootstrap (MEB) integrated with bagging, a technique that uniquely preserves the complex autocorrelation structure of empirical time series forecasts, enabling the generation of statistically coherent scenarios. We further extend MEB through an objective-augmented formulation that incorporates downstream recourse signals into the resampling mechanism. These statistically rich scenarios are then integrated into a deterministic equivalent model to derive accountable and optimized prescriptions. We demonstrate the framework's power using a real-world case study in tactical inventory allocation. Our findings, also validated against an extensive set of artificial benchmark instances, demonstrate the effectiveness of MEB-enhanced forecasting in optimization. BESO establishes a new, generalizable paradigm for robust decision-making derived from noisy univariate data series.
 \end{abstract}
 
+%%Graphical abstract (commented out for review)
 \begin{graphicalabstract}
-\includegraphics{Visual-abstract.pdf}
+\includegraphics[width=\linewidth]{Visual-abstract}
 \end{graphicalabstract}
 
+%%Research highlights (commented out for review)
 \begin{highlights}
-\item Research highlights item 1
-\item Research highlights item 2
-\item Research highlights item 3
+	\item A new framework for integrating time series forecasting into stochastic programming.
+	\item Maximum Entropy Bootstrap with bagging for forecasting short logistic time series.
+	\item Bootstrap distributions for deterministic equivalent scenario generation.
+	\item Predictive analytics for client allocation and warehouse sizing.
+	\item Real-world 2-echelon logistics case study.
 \end{highlights}
 
-\begin{keywords}
-quadrupole exciton \sep polariton \sep \WGM \sep \BEC
-\end{keywords}
-
+\begin{keyword}
+	Distributionally Robust Optimization \sep
+	Stochastic programming \sep
+	forecasting \sep
+	Two-echelon logistics \sep
+	Maximum Entropy Bootstrap \sep 
+	Short time series
+\end{keyword}
 
 \maketitle
 
@@ -288,14 +241,14 @@ The supply chain consists of a large distribution center (DC) in the northern su
 	\centering
 	\begin{minipage}{0.48\textwidth}
 		\centering
-		\includegraphics[width=\linewidth]{gmap.png}
+		\includegraphics[width=\linewidth]{figs/gmap.png}
 		\vspace{0.5em}
 		\textit{(a) gmap view}
 	\end{minipage}
 	\hfill
 	\begin{minipage}{0.45\textwidth}
 		\centering
-		\includegraphics[width=\linewidth]{qgis.png}
+		\includegraphics[width=\linewidth]{figs/qgis.png}
 		\vspace{0.5em}
 		\textit{(b) GIS view}
 	\end{minipage}
@@ -417,9 +370,6 @@ The MEB resampling scheme adopted here offers a principled and flexible approach
 
 The pivotal advancement provided by MEB lies in its ability to formulate bootstrapped samples that adhere to a spectrum of constraints dictated by the original dataset, such as predetermined moments, probabilities, or other statistical characteristics \citep{berger1985statistical}. Specifically, under typical circumstances, these constraints can be specified in the form of normalized probabilities and empirical expectations, expressed as $\sum_{i=1}^{n} p_i = 1$ to ensure that the probabilities form a valid distribution, and $\sum_{i=1}^{n} p_i f_i = \bar{f}$, where $f_i$ represents measurements or statistics relevant to the analysis, with $\bar{f}$ being the empirical mean of these measurements. The formulation of the Maximum Entropy problem consequently leads to a constrained optimization framework. The optimization problem can be succinctly encapsulated in the Lagrangian: $ L(p, \lambda, \mu) = S(p) + \lambda \left(1 - \sum_{i=1}^{n} p_i\right) + \mu \left(\bar{f} - \sum_{i=1}^{n} p_i f_i\right)$, where $\lambda$ and $\mu$ are Lagrange multipliers that adjust the balance under the constraints of normalizing the distribution and matching the empirical mean, respectively. The solution to this maximization problem yields a probability distribution, which appears as $p_i = \frac{e^{\mu f_i}}{\sum_{j=1}^{n} e^{\mu f_j}}$, where the parameter $\mu$ is determined through the constraint equations, specifically via a numerical root-finding approach that satisfies the moment condition $\sum_{i=1}^{n} p_i f_i = \bar{f}$.
 
-Sure — below is a LaTeX-formatted version, ready to paste into a paper. I preserved structure, notation, and style consistency.
-
-```latex
 The pivotal advancement provided by MEB lies in its ability to formulate bootstrapped samples that adhere to a spectrum of constraints dictated by the original dataset, such as predetermined moments, probabilities, or other statistical characteristics \citep{berger1985statistical}. Specifically, under typical circumstances, these constraints can be specified in the form of normalized probabilities and empirical expectations, expressed as $\sum_{i=1}^{n} p_i = 1$ to ensure that the probabilities form a valid distribution, and $\sum_{i=1}^{n} p_i f_i = \bar{f}$, where $f_i$ represents measurements or statistics relevant to the analysis, with $\bar{f}$ being the empirical mean of these measurements. The formulation of the Maximum Entropy problem consequently leads to a constrained optimization framework. The optimization problem can be succinctly encapsulated in the Lagrangian:
 \[
 L(p, \lambda, \mu) = S(p) + \lambda \left(1 - \sum_{i=1}^{n} p_i\right) + \mu \left(\bar{f} - \sum_{i=1}^{n} p_i f_i\right),
@@ -602,7 +552,7 @@ Figure \ref{fig:distr} shows two examples of forecast distributions obtained for
 	\centering
 	\begin{minipage}{0.5\textwidth}
 		\centering
-		\includegraphics[width=\linewidth]{distr_75_0.png}
+		\includegraphics[width=\linewidth]{figs/distr_75_0.png}
 		\label{fig:dista}%
 		\vspace{0.5em}
 		\textit{(a) 75 bootset}
@@ -610,7 +560,7 @@ Figure \ref{fig:distr} shows two examples of forecast distributions obtained for
 	\hfill
 	\begin{minipage}{0.49\textwidth}
 		\centering
-		\includegraphics[width=\linewidth]{distr_75_9.png}
+		\includegraphics[width=\linewidth]{figs/distr_75_9.png}
 		\label{fig:distb}%
 		\vspace{0.5em}
 		\textit{(b) 125 boostset}
@@ -625,14 +575,14 @@ Figures \ref{fig:ywar75} and \ref{fig:ywar175} show a comparison of the ranks on
 
 \begin{figure*}[ht] 
 	\centering
-	\includegraphics[width=0.75\linewidth]{sp_MAE_res_YW_AR_75.eps}%
+	\includegraphics[width=0.75\linewidth]{figs/sp_MAE_res_YW_AR_75.eps}%
 	\caption{Average ranks for MAE on instance res\_YW\_AR\_75}
 	\label{fig:ywar75}
 \end{figure*}
 
 \begin{figure*}[ht] 
 	\centering
-	\includegraphics[width=0.75\linewidth]{sp_MSE_res_YW_AR_175.eps}%
+	\includegraphics[width=0.75\linewidth]{figs/sp_MSE_res_YW_AR_175.eps}%
 	\caption{Average ranks for MSE on instance res\_YW\_AR\_175}
 	\label{fig:ywar175}
 \end{figure*}
@@ -663,7 +613,7 @@ To ascertain this, we conducted experiments using 75, 125 and 175 series boostse
 
 \begin{figure*}[ht] 
 	\centering
-	\includegraphics[width=0.7\linewidth]{figb0.eps}%
+	\includegraphics[width=0.7\linewidth]{figs/figb0.eps}%
 	\caption{Allocation cost for increasing boostset size}
 	\label{fig:bsize}
 \end{figure*}
@@ -680,7 +630,7 @@ The clients to be split are chosen from the most requesting clients. We ran a se
 
 \begin{figure*}[ht] 
 	\centering
-	\includegraphics[width=0.7\linewidth]{figbmult.eps}%
+	\includegraphics[width=0.7\linewidth]{figs/figbmult.eps}%
 	\caption{Allocation cost for increasing number of splittable clients}
 	\label{fig:bmult}
 \end{figure*}
@@ -744,7 +694,7 @@ Figure \ref{fig:compDistr75} shows the distributions of the forecasts of the 75 
 
 \begin{figure*}[ht] 
 	\centering
-	\includegraphics[width=0.75\linewidth]{compDistr.eps}%
+	\includegraphics[width=0.75\linewidth]{figs/compDistr.eps}%
 	\caption{Comparison of distributions on 75 bootstrapped series}
 	\label{fig:compDistr75}
 \end{figure*}
@@ -799,209 +749,197 @@ Through both real logistics data and controlled artificial instances, we show ho
 
 Several promising research directions emerge. Future work could explore incorporating MEB into preprocessing pipelines, such as Box–Cox transformations, to enhance predictive accuracy. Ensemble strategies, including weighted or Bayesian model averaging, may strengthen robustness in environments with shifting dynamics. On the methodological level, deeper investigation into bootstrap-driven ambiguity representations could position BESO as a data-implicit alternative to DRO, retaining robustness while avoiding restrictive geometric assumptions. Finally, the closure properties of the MEB framework could facilitate the development of hybrid schemes that integrate external knowledge or Bayesian priors, while further refining the incorporation of optimization-aware elements within the resampling process. Crucially, further work is required to extend BESO's applicability to environments where reliable time-series forecasting models cannot be established, thereby removing the current framework's reliance on predictable data dynamics.
 
-\clearpage % Ensures all pending floats are placed before this point
-\begin{APPENDICES}
-	\section{Bootstrap sets error costs} \label{app:errcost}
-	
-	This section reports the absolute values of the various cost functions, which were calculated using the forecast errors obtained by averaging the corresponding errors for each of the 52 test case series described in the paper.
-	
-	\begin{table}[h]
-		\centering
-		\renewcommand{\arraystretch}{0.75}
-		\begin{tabular}{ccccccc}
-			model & bias & MAPE & ME & MAE & MPE & RMSE \\
-			\hline
-			fcast\_50   &-0.27 & 0.09 &-1.02 & 1.63 &-0.05 &  2.12 \\
-			fcast\_avg  & 0.02 & 0.07 & 0.07 & 1.25 & 0.01 &  1.68 \\
-			yar         & 0.36 & 0.34 & 1.36 & 5.86 & 0.07 &  9.75 \\
-			yhw         & 0.63 & 0.34 & 2.41 & 5.99 & 0.13 & 10.59 \\
-			ysvm        & 0.69 & 0.36 & 2.66 & 6.20 & 0.14 & 10.99 \\
-			ylstm       & 0.56 & 0.35 & 2.13 & 6.01 & 0.11 & 10.41 \\
-			ymlp        & 0.47 & 0.36 & 1.79 & 6.26 & 0.09 & 10.60 \\
-			yrf         & 1.50 & 0.44 & 5.73 & 7.79 & 0.31 & 13.54 \\
-			yxgb        & 2.28 & 0.58 & 8.74 &10.12 & 0.49 & 17.05 \\
-			yarima      & 0.44 & 0.34 & 1.67 & 5.80 & 0.09 &  9.77 \\
-			\hline
-		\end{tabular}
-		\caption{Error costs for the 75 series boostset.}
-		\label{table:app75}
-	\end{table}
-	
-	\begin{table}[h]
-		\centering
-		\renewcommand{\arraystretch}{0.75}
-		\begin{tabular}{ccccccc}
-			model & bias & MAPE & ME & MAE & MPE & RMSE \\
-			\hline
-			fcast\_50   & -0.56 & 0.09 & -1.08 & 1.59 & -0.06 & 2.25  \\
-			fcast\_avg  &  0.02 & 0.07 &  0.05 & 1.18 &  0.01 & 1.65  \\
-			yar         & -0.59 & 0.25 & -1.13 & 4.36 & -0.07 & 6.31  \\
-			yhw         & -0.13 & 0.24 & -0.26 & 4.33 & -0.02 & 6.39  \\
-			ysvm        & -0.06 & 0.24 & -0.11 & 4.18 & -0.01 & 6.39  \\
-			ylstm       & -0.30 & 0.24 & -0.58 & 4.15 & -0.04 & 6.34  \\
-			ymlp        & -0.47 & 0.24 & -0.90 & 4.22 & -0.05 & 5.99  \\
-			yrf         &  1.27 & 0.28 &  2.44 & 5.01 &  0.14 & 7.48  \\
-			yxgb        &  2.52 & 0.38 &  4.85 & 6.52 &  0.28 & 9.46  \\
-			yarima      & -0.40 & 0.25 & -0.76 & 4.44 & -0.05 & 6.83  \\
-			\hline
-		\end{tabular}
-		\caption{Error costs for the 125 series boostset.}
-		\label{table:app125}
-	\end{table}
-	
-	\begin{table}[h]
-		\centering
-		\renewcommand{\arraystretch}{0.75}
-		\begin{tabular}{ccccccc}
-			model & bias & MAPE & ME & MAE & MPE & RMSE \\
-			\hline
-			fcast\_50  & -0.04 & 0.07 & -0.07 & 1.22 & 0     & 1.51 \\
-			fcast\_avg & 0.99  & 0.12 & 1.90  & 2.04 & 0.12  & 2.76 \\
-			yar        & -0.22 & 0.35 & -0.42 & 5.84 & -0.03 & 7.64 \\
-			yhw        & 0.25  & 0.34 & 0.48  & 5.75 & 0.02  & 7.90 \\
-			ysvm       & 0.30  & 0.33 & 0.58  & 5.66 & 0.03  & 7.76 \\
-			ylstm      & 0.10  & 0.34 & 0.20  & 5.76 & 0     & 7.74 \\
-			ymlp       & -0.19 & 0.34 & -0.36 & 5.69 & -0.02 & 7.57 \\
-			yrf        & 1.72  & 0.37 & 3.31  & 6.39 & 0.18  & 9.66 \\
-			yxgb       & 3.01  & 0.46 & 5.78  & 7.96 & 0.33  & 11.83\\
-			yarima     & -0.04 & 0.34 & -0.08 & 5.69 & -0.01 & 7.63 \\
-			\hline
-		\end{tabular}
-		\caption{Error costs for the 175 series boostset.}
-		\label{table:app175}
-	\end{table}
-	
-	The functions reported in the columns are: bias, Means Absolute Percentage Error (MAPE), Mean Error (ME), Mean Absolute Error (MAE), Mean Percentage Error (MPE) and Root Mean Square Error (RMSE). Table \ref{table:app75} gives the cost values for the case of a boost set composed of 75 series, table \ref{table:app125} for the 125 series and table \ref{table:app175} for the 175 series sets.
-	
-	All tables show significantly consistent results across all boost set sizes.
-	
-	
-	\section{Extended deterministic benchmark set} \label{app:artificial}
-	
-	All analyses reported in sections \ref{Subsec:predictive} and \ref{Subsec:prescriptive} refer to the case study at the heart of this paper, but the interest of the method is not limited to this particular case study as it can be effective on any instance of this 2-echelon supply chain problem. To test the generality of the results, we generated a benchmark set with varying dimensions and coefficients. The study was conducted only with respect to the deterministic setting, and is therefore significant for assessing the computational complexity of the split-allocation problem as a deterministic combinatorial optimization problem.
-	
-	We generated 5 instances for each configuration of number of clients ($n$), number of servers ($m$), and number of splittable clients. The travel costs were obtained by randomly selecting $m$ rows and $n$ columns from a large distance matrix, whose values were computed as the actual road distances between points located in the same area as the test case. Server inventory costs were inversely proportional to the average travel cost from the server to the clients and client requests were inversely proportional to the average travel cost from the client to the servers. Note that the distance matrix is asymmetric, as it was computed within a city area. The number $n_b$ of splittable clients was progressively increased as the number $n_q$ of servers with nonzero inventory costs. Specifically, the range of the defining parameters were:
-	\begin{itemize}
-		\item $n$: \{50, 52, 100, 200, 300\};
-		\item $m$: \{4, 5, 10, 25, 50\};
-		\item $n_b$: \{0, 4, 5, 10, 25, 50\}
-		\item $n_q$: \{0, 1, 2, 3, 4, 5\}
-	\end{itemize}
-	
-	Not all combinations of values were generated, the larger values were used only for instances with higher number of clients. In particular, the values 4 and 52 were only used to generate instances with the same dimensionality as the case study, in order to check the generality of the results obtained. The first instance of this set was kept to be the case study one.
-	
-	The computational results in the case of no costly server, reported as averages over the 5 generated instances, are summarized in table \ref{table:extset}, whose columns show:
-	\begin{itemize}
-		\item $n$, $m$: number of clients and number of servers;
-		\item $n_b$: maximum number of splittable clients;
-		\item $ncols$, $nrows$: number of columns and number of rows in formulation FD;
-		\item $gaplb$: average percentage gap between the linear relaxation lower bound and the cost of the best solution found;
-		\item $gapfinal$: average percentage gap between the best lower bound at the end of the search (smallest cost of an unexpanded node) and the cost of the best solution found;
-		\item $ninf$: number of instances for which no feasible solution was found;
-		\item $nopt$: number of instances solved to proven optimality;
-		\item $tcpu$: average CPU time for solving the instance, time to optimality or 3600 if optimality could not be proven;
-	\end{itemize}
-	
-	The table shows two trends. One, with respect to instance size, shows an expected increase in complexity. While instances the size of our test case are easily solved to optimality by modern solvers, increasing the size, as defined by the number of variables and the number of constraints, quickly leads to instances that could not be solved to optimality within the 3600-second time limit. 
-	The number of splittable clients has an important effect on the complexity of the instance. Instances of the same absolute size, but with more splittable clients, usually have a looser linear relaxation (LP) bound and have more difficulty reaching optimality, as can be seen by the decreasing number of instances out of the 5 from each group that could be solved to optimality.
-	
-	\begin{table}
-		\centering
-		\renewcommand{\arraystretch}{0.75}
-		\begin{tabular}{cccccccccc}
-			$n$ & $m$ & $n_b$ & $ncols$ & $nrows$ & $gaplb$ & $gapfinal$ & $ninf$ & $nopt$ & $tcpu$\\
-			\hline
-			52 &  4 &  0 &   416 &   316 & 0.21 & 0.01 & 0 & 5 &    0  \\
-			\hline
-			50 &  5 &  0 &   500 &   355 & 0.39 & 0.00 & 0 & 5 &    3  \\
-			50 &  5 &  5 &   500 &   355 & 0.40 & 0.00 & 0 & 5 &    4  \\
-			50 & 10 &  0 &  1000 &   610 & 1.32 & 0.00 & 0 & 5 &  383  \\
-			50 & 10 &  5 &  1000 &   610 & 1.34 & 0.00 & 0 & 5 &  378  \\
-			50 & 10 & 10 &  1000 &   610 & 1.35 & 0.13 & 0 & 4 & 1150  \\
-			\hline
-			100 & 10 &  0 &  1000 &  1210 & 0.50 & 0.12 & 0 & 2 & 1920  \\
-			100 & 10 &  5 &  1000 &  1210 & 0.54 & 0.05 & 0 & 3 & 1514  \\
-			100 & 10 & 10 &  1000 &  1210 & 0.57 & 0.09 & 0 & 3 & 2063  \\
-			100 & 50 &  0 & 10000 &  5250 & 5.23 & 3.06 & 0 & 0 & 3600  \\
-			100 & 50 &  5 & 10000 &  5250 & 4.77 & 2.70 & 0 & 0 & 3600  \\
-			100 & 50 & 10 & 10000 &  5250 & 4.55 & 2.42 & 0 & 0 & 3600  \\
-			100 & 50 & 25 & 10000 &  5250 & 4.52 & 2.61 & 0 & 0 & 3600  \\
-			\hline
-			200 & 10 &  0 &  4000 &  2410 & 0.17 & 0.05 & 0 & 2 & 2369  \\
-			200 & 10 &  5 &  4000 &  2410 & 0.17 & 0.09 & 0 & 1 & 2893  \\
-			200 & 10 & 10 &  4000 &  2410 & 0.18 & 1.01 & 0 & 0 & 3600  \\
-			200 & 50 &  0 & 20000 & 10450 & 1.66 & 1.26 & 0 & 0 & 3600  \\
-			200 & 50 & 10 & 20000 & 10450 & 1.68 & 1.29 & 0 & 0 & 3600  \\
-			200 & 50 & 25 & 20000 & 10450 & 1.71 & 1.37 & 0 & 0 & 3600  \\
-			\hline
-			300 & 10 &  0 &  6000 &  3610 & 0.09 & 0.03 & 0 & 3 & 1798 \\
-			300 & 10 &  5 &  6000 &  3610 & 0.09 & 0.07 & 0 & 0 & 3600 \\
-			300 & 10 & 10 &  6000 &  3610 & 1.02 & 0.47 & 0 & 0 & 3600 \\
-			300 & 50 &  0 & 30000 & 15650 & 0.94 & 0.73 & 0 & 0 & 3600  \\
-			300 & 50 & 10 & 30000 & 15650 & 0.93 & 0.76 & 0 & 0 & 3600  \\
-			300 & 50 & 25 & 30000 & 15650 & 0.96 & 0.84 & 0 & 0 & 3600  \\
-			\hline
-		\end{tabular}
-		\caption{Extended benchmark set, deterministic case, no costly server}
-		\label{table:extset}
-	\end{table}
-	
-	Note that the optimality gap of the LP bound is usually small, except for the $n$=100 and $m$=50 instances, but the search still struggles to close this gap. Interestingly, the LP bound gets tighter as $n$ increases, but this does not make the search any easier.
-	The least-cost solution when optimality was not proven was usually found within the first 600 seconds of CPU time. However, we note that designing efficient heuristics for this problem is beyond the scope of this research. We could have tweaked the solver configuration to favor heuristic search at the expense of efficiency in proving optimality, or designed custom heuristics, but the focus here is on assessing the fitness landscape when road network costs are involved.
-	
-	Table \ref{table:extsetq} reports results about tests varying the number of costly servers, the columns show:
-	\begin{itemize}
-		\item $n$, $m$: number of clients and number of servers;
-		\item $ncols$, $nrows$: number of columns and number of rows in formulation FD;
-		\item lb0, t0: linear relaxation bound and CPU time in the case of no costly servers;
-		\item lb1, t1: linear relaxation bound and CPU time in the case of 1 costly server;
-		\item lb2, t2: linear relaxation bound and CPU time in the case of 2 costly servers;
-		\item lb3, t3: linear relaxation bound and CPU time in the case of 3 costly servers;
-		\item lb4, t4: linear relaxation bound and CPU time in the case of 4 costly servers;
-		\item lb5, t5: linear relaxation bound and CPU time in the case of 5 costly servers;
-	\end{itemize}
-	
-	The table reports results on two sets of instances. The top 4 rows contain aggregate results on a set of instances, 5 for each configuration, where inventory costs are directly proportional to average travel distances, while the bottom 4 rows have inventory costs inversely proportional to average travel distances.
-	
-	\begin{table}
-		\addtolength{\tabcolsep}{-3pt}
-		\footnotesize 
-		\centering
-		\renewcommand{\arraystretch}{1.2}
-		\begin{tabular}{cccc|cc|cc|cc|cc|cc|cc}
-			n & m & ncols & nrows & lb0 & t0 & lb1 & t1 & lb2 & t2 & lb3 & t3 & lb4 & t4 & lb5 & t5 \\
-			\hline
-			52 & 4  & 416 & 316 & 0.86 & 0.2 & 0.17 & 0.81 & 0.08 & 0.22 & 0.01 & 0.02 & 0.00 & 0.02 & - & - \\
-			50 & 5  & 500 & 355 & 1.33 & 0.06 & 2.77 & 0.06 & 1.46 & 0.13 & 0.11 & 14.31 & 0.06 & 7 & 0.05 & 0.93 \\
-			100 & 5 & 1000 & 705 & 0.41 & 0.24 & 0.09 & 6.39 & 0.06 & 3.2 & 0.01 & 0.06 & 0.02 & 4.8 & 0.02 & 2.71 \\
-			200 & 5 & 2000 & 1405 & 0.14 & 1.43 & 0.01 & 1.79 & 0.01 & 0.25 & 0.01 & 0.17 & 0.01 & 0.11 & 0.01 & 7.84 \\
-			\hline
-			52 & 4  & 416 & 316 & 0.86 & 0.36 & 0.24 & 0.22 & 0.22 & 0.14 & 0.26 & 0.09 & 0.05 & 1.9 & - & - \\
-			50 & 5  & 500 & 355 & 1.33 & 0.16 & 0.52 & 0.07 & 0.50 & 5.8 & 0.13 & 10.11 & 0.05 & 1.37 & 0.02 & 0.22 \\
-			100 & 5 & 1000 & 705 & 0.41 & 0.33 & 0.19 & 8.58 & 0.04 & 6.14 & 0.02 & 0.41 & 0.02 & 0.58 & 0.02 & 3.78 \\
-			200 & 5 & 2000 & 1405 & 0.14 & 1.55 & 0.07 & 39.07 & 0.04 & 9.44 & 0.01 & 0.12 & 0.02 & 4.48 & 0.01 & 6.66 \\
-			\hline
-		\end{tabular}
-		\caption{Extended benchmark set, deterministic case, increasing number of costly servers}
-		\label{table:extsetq}
-	\end{table}
-	
-	The complexity of solving instances increases non-monotonically with the number of costly servers, for both increasing and decreasing inventory costs. While the 0-cost instances are comparatively easy to solve, the CPU time required to prove optimality increases with the addition of the first costly servers and then decreases as more servers are paid to store inventory. However, this is not true of the gap between the linear relaxation bound and the cost of the optimal solution, where the instances with no costly servers always have the largest gap.
-	As expected, the CPU time required to prove optimality increases with the dimension of the case, and the case with an inverse correlation between storage cost and travel cost is more difficult to solve than the case with a positive correlation.
-	
-	
-\end{APPENDICES}
+%\clearpage % Ensures all pending floats are placed before this point
 
 \appendix
-\section{My Appendix}
-Appendix sections are coded under \verb+\appendix+.
+\section{Bootstrap sets error costs} \label{app:errcost}
 
-\verb+\printcredits+ command is used after appendix sections to list 
-author credit taxonomy contribution roles tagged using \verb+\credit+ 
-in frontmatter.
+This section reports the absolute values of the various cost functions, which were calculated using the forecast errors obtained by averaging the corresponding errors for each of the 52 test case series described in the paper.
 
-\printcredits
+\begin{table}[h]
+	\centering
+	\renewcommand{\arraystretch}{0.75}
+	\begin{tabular}{ccccccc}
+		model & bias & MAPE & ME & MAE & MPE & RMSE \\
+		\hline
+		fcast\_50   &-0.27 & 0.09 &-1.02 & 1.63 &-0.05 &  2.12 \\
+		fcast\_avg  & 0.02 & 0.07 & 0.07 & 1.25 & 0.01 &  1.68 \\
+		yar         & 0.36 & 0.34 & 1.36 & 5.86 & 0.07 &  9.75 \\
+		yhw         & 0.63 & 0.34 & 2.41 & 5.99 & 0.13 & 10.59 \\
+		ysvm        & 0.69 & 0.36 & 2.66 & 6.20 & 0.14 & 10.99 \\
+		ylstm       & 0.56 & 0.35 & 2.13 & 6.01 & 0.11 & 10.41 \\
+		ymlp        & 0.47 & 0.36 & 1.79 & 6.26 & 0.09 & 10.60 \\
+		yrf         & 1.50 & 0.44 & 5.73 & 7.79 & 0.31 & 13.54 \\
+		yxgb        & 2.28 & 0.58 & 8.74 &10.12 & 0.49 & 17.05 \\
+		yarima      & 0.44 & 0.34 & 1.67 & 5.80 & 0.09 &  9.77 \\
+		\hline
+	\end{tabular}
+	\caption{Error costs for the 75 series boostset.}
+	\label{table:app75}
+\end{table}
 
+\begin{table}[h]
+	\centering
+	\renewcommand{\arraystretch}{0.75}
+	\begin{tabular}{ccccccc}
+		model & bias & MAPE & ME & MAE & MPE & RMSE \\
+		\hline
+		fcast\_50   & -0.56 & 0.09 & -1.08 & 1.59 & -0.06 & 2.25  \\
+		fcast\_avg  &  0.02 & 0.07 &  0.05 & 1.18 &  0.01 & 1.65  \\
+		yar         & -0.59 & 0.25 & -1.13 & 4.36 & -0.07 & 6.31  \\
+		yhw         & -0.13 & 0.24 & -0.26 & 4.33 & -0.02 & 6.39  \\
+		ysvm        & -0.06 & 0.24 & -0.11 & 4.18 & -0.01 & 6.39  \\
+		ylstm       & -0.30 & 0.24 & -0.58 & 4.15 & -0.04 & 6.34  \\
+		ymlp        & -0.47 & 0.24 & -0.90 & 4.22 & -0.05 & 5.99  \\
+		yrf         &  1.27 & 0.28 &  2.44 & 5.01 &  0.14 & 7.48  \\
+		yxgb        &  2.52 & 0.38 &  4.85 & 6.52 &  0.28 & 9.46  \\
+		yarima      & -0.40 & 0.25 & -0.76 & 4.44 & -0.05 & 6.83  \\
+		\hline
+	\end{tabular}
+	\caption{Error costs for the 125 series boostset.}
+	\label{table:app125}
+\end{table}
+
+\begin{table}[h]
+	\centering
+	\renewcommand{\arraystretch}{0.75}
+	\begin{tabular}{ccccccc}
+		model & bias & MAPE & ME & MAE & MPE & RMSE \\
+		\hline
+		fcast\_50  & -0.04 & 0.07 & -0.07 & 1.22 & 0     & 1.51 \\
+		fcast\_avg & 0.99  & 0.12 & 1.90  & 2.04 & 0.12  & 2.76 \\
+		yar        & -0.22 & 0.35 & -0.42 & 5.84 & -0.03 & 7.64 \\
+		yhw        & 0.25  & 0.34 & 0.48  & 5.75 & 0.02  & 7.90 \\
+		ysvm       & 0.30  & 0.33 & 0.58  & 5.66 & 0.03  & 7.76 \\
+		ylstm      & 0.10  & 0.34 & 0.20  & 5.76 & 0     & 7.74 \\
+		ymlp       & -0.19 & 0.34 & -0.36 & 5.69 & -0.02 & 7.57 \\
+		yrf        & 1.72  & 0.37 & 3.31  & 6.39 & 0.18  & 9.66 \\
+		yxgb       & 3.01  & 0.46 & 5.78  & 7.96 & 0.33  & 11.83\\
+		yarima     & -0.04 & 0.34 & -0.08 & 5.69 & -0.01 & 7.63 \\
+		\hline
+	\end{tabular}
+	\caption{Error costs for the 175 series boostset.}
+	\label{table:app175}
+\end{table}
+
+The functions reported in the columns are: bias, Means Absolute Percentage Error (MAPE), Mean Error (ME), Mean Absolute Error (MAE), Mean Percentage Error (MPE) and Root Mean Square Error (RMSE). Table \ref{table:app75} gives the cost values for the case of a boost set composed of 75 series, table \ref{table:app125} for the 125 series and table \ref{table:app175} for the 175 series sets.
+
+All tables show significantly consistent results across all boost set sizes.
+
+
+\section{Extended deterministic benchmark set} \label{app:artificial}
+
+All analyses reported in sections \ref{Subsec:predictive} and \ref{Subsec:prescriptive} refer to the case study at the heart of this paper, but the interest of the method is not limited to this particular case study as it can be effective on any instance of this 2-echelon supply chain problem. To test the generality of the results, we generated a benchmark set with varying dimensions and coefficients. The study was conducted only with respect to the deterministic setting, and is therefore significant for assessing the computational complexity of the split-allocation problem as a deterministic combinatorial optimization problem.
+
+We generated 5 instances for each configuration of number of clients ($n$), number of servers ($m$), and number of splittable clients. The travel costs were obtained by randomly selecting $m$ rows and $n$ columns from a large distance matrix, whose values were computed as the actual road distances between points located in the same area as the test case. Server inventory costs were inversely proportional to the average travel cost from the server to the clients and client requests were inversely proportional to the average travel cost from the client to the servers. Note that the distance matrix is asymmetric, as it was computed within a city area. The number $n_b$ of splittable clients was progressively increased as the number $n_q$ of servers with nonzero inventory costs. Specifically, the range of the defining parameters were:
+\begin{itemize}
+	\item $n$: \{50, 52, 100, 200, 300\};
+	\item $m$: \{4, 5, 10, 25, 50\};
+	\item $n_b$: \{0, 4, 5, 10, 25, 50\}
+	\item $n_q$: \{0, 1, 2, 3, 4, 5\}
+\end{itemize}
+
+Not all combinations of values were generated, the larger values were used only for instances with higher number of clients. In particular, the values 4 and 52 were only used to generate instances with the same dimensionality as the case study, in order to check the generality of the results obtained. The first instance of this set was kept to be the case study one.
+
+The computational results in the case of no costly server, reported as averages over the 5 generated instances, are summarized in table \ref{table:extset}, whose columns show:
+\begin{itemize}
+	\item $n$, $m$: number of clients and number of servers;
+	\item $n_b$: maximum number of splittable clients;
+	\item $ncols$, $nrows$: number of columns and number of rows in formulation FD;
+	\item $gaplb$: average percentage gap between the linear relaxation lower bound and the cost of the best solution found;
+	\item $gapfinal$: average percentage gap between the best lower bound at the end of the search (smallest cost of an unexpanded node) and the cost of the best solution found;
+	\item $ninf$: number of instances for which no feasible solution was found;
+	\item $nopt$: number of instances solved to proven optimality;
+	\item $tcpu$: average CPU time for solving the instance, time to optimality or 3600 if optimality could not be proven;
+\end{itemize}
+
+The table shows two trends. One, with respect to instance size, shows an expected increase in complexity. While instances the size of our test case are easily solved to optimality by modern solvers, increasing the size, as defined by the number of variables and the number of constraints, quickly leads to instances that could not be solved to optimality within the 3600-second time limit. 
+The number of splittable clients has an important effect on the complexity of the instance. Instances of the same absolute size, but with more splittable clients, usually have a looser linear relaxation (LP) bound and have more difficulty reaching optimality, as can be seen by the decreasing number of instances out of the 5 from each group that could be solved to optimality.
+
+\begin{table}
+	\centering
+	\renewcommand{\arraystretch}{0.75}
+	\begin{tabular}{cccccccccc}
+		$n$ & $m$ & $n_b$ & $ncols$ & $nrows$ & $gaplb$ & $gapfinal$ & $ninf$ & $nopt$ & $tcpu$\\
+		\hline
+		52 &  4 &  0 &   416 &   316 & 0.21 & 0.01 & 0 & 5 &    0  \\
+		\hline
+		50 &  5 &  0 &   500 &   355 & 0.39 & 0.00 & 0 & 5 &    3  \\
+		50 &  5 &  5 &   500 &   355 & 0.40 & 0.00 & 0 & 5 &    4  \\
+		50 & 10 &  0 &  1000 &   610 & 1.32 & 0.00 & 0 & 5 &  383  \\
+		50 & 10 &  5 &  1000 &   610 & 1.34 & 0.00 & 0 & 5 &  378  \\
+		50 & 10 & 10 &  1000 &   610 & 1.35 & 0.13 & 0 & 4 & 1150  \\
+		\hline
+		100 & 10 &  0 &  1000 &  1210 & 0.50 & 0.12 & 0 & 2 & 1920  \\
+		100 & 10 &  5 &  1000 &  1210 & 0.54 & 0.05 & 0 & 3 & 1514  \\
+		100 & 10 & 10 &  1000 &  1210 & 0.57 & 0.09 & 0 & 3 & 2063  \\
+		100 & 50 &  0 & 10000 &  5250 & 5.23 & 3.06 & 0 & 0 & 3600  \\
+		100 & 50 &  5 & 10000 &  5250 & 4.77 & 2.70 & 0 & 0 & 3600  \\
+		100 & 50 & 10 & 10000 &  5250 & 4.55 & 2.42 & 0 & 0 & 3600  \\
+		100 & 50 & 25 & 10000 &  5250 & 4.52 & 2.61 & 0 & 0 & 3600  \\
+		\hline
+		200 & 10 &  0 &  4000 &  2410 & 0.17 & 0.05 & 0 & 2 & 2369  \\
+		200 & 10 &  5 &  4000 &  2410 & 0.17 & 0.09 & 0 & 1 & 2893  \\
+		200 & 10 & 10 &  4000 &  2410 & 0.18 & 1.01 & 0 & 0 & 3600  \\
+		200 & 50 &  0 & 20000 & 10450 & 1.66 & 1.26 & 0 & 0 & 3600  \\
+		200 & 50 & 10 & 20000 & 10450 & 1.68 & 1.29 & 0 & 0 & 3600  \\
+		200 & 50 & 25 & 20000 & 10450 & 1.71 & 1.37 & 0 & 0 & 3600  \\
+		\hline
+		300 & 10 &  0 &  6000 &  3610 & 0.09 & 0.03 & 0 & 3 & 1798 \\
+		300 & 10 &  5 &  6000 &  3610 & 0.09 & 0.07 & 0 & 0 & 3600 \\
+		300 & 10 & 10 &  6000 &  3610 & 1.02 & 0.47 & 0 & 0 & 3600 \\
+		300 & 50 &  0 & 30000 & 15650 & 0.94 & 0.73 & 0 & 0 & 3600  \\
+		300 & 50 & 10 & 30000 & 15650 & 0.93 & 0.76 & 0 & 0 & 3600  \\
+		300 & 50 & 25 & 30000 & 15650 & 0.96 & 0.84 & 0 & 0 & 3600  \\
+		\hline
+	\end{tabular}
+	\caption{Extended benchmark set, deterministic case, no costly server}
+	\label{table:extset}
+\end{table}
+
+Note that the optimality gap of the LP bound is usually small, except for the $n$=100 and $m$=50 instances, but the search still struggles to close this gap. Interestingly, the LP bound gets tighter as $n$ increases, but this does not make the search any easier.
+The least-cost solution when optimality was not proven was usually found within the first 600 seconds of CPU time. However, we note that designing efficient heuristics for this problem is beyond the scope of this research. We could have tweaked the solver configuration to favor heuristic search at the expense of efficiency in proving optimality, or designed custom heuristics, but the focus here is on assessing the fitness landscape when road network costs are involved.
+
+Table \ref{table:extsetq} reports results about tests varying the number of costly servers, the columns show:
+\begin{itemize}
+	\item $n$, $m$: number of clients and number of servers;
+	\item $ncols$, $nrows$: number of columns and number of rows in formulation FD;
+	\item lb0, t0: linear relaxation bound and CPU time in the case of no costly servers;
+	\item lb1, t1: linear relaxation bound and CPU time in the case of 1 costly server;
+	\item lb2, t2: linear relaxation bound and CPU time in the case of 2 costly servers;
+	\item lb3, t3: linear relaxation bound and CPU time in the case of 3 costly servers;
+	\item lb4, t4: linear relaxation bound and CPU time in the case of 4 costly servers;
+	\item lb5, t5: linear relaxation bound and CPU time in the case of 5 costly servers;
+\end{itemize}
+
+The table reports results on two sets of instances. The top 4 rows contain aggregate results on a set of instances, 5 for each configuration, where inventory costs are directly proportional to average travel distances, while the bottom 4 rows have inventory costs inversely proportional to average travel distances.
+
+\begin{table}
+	\addtolength{\tabcolsep}{-3pt}
+	\footnotesize 
+	\centering
+	\renewcommand{\arraystretch}{1.2}
+	\begin{tabular}{cccc|cc|cc|cc|cc|cc|cc}
+		n & m & ncols & nrows & lb0 & t0 & lb1 & t1 & lb2 & t2 & lb3 & t3 & lb4 & t4 & lb5 & t5 \\
+		\hline
+		52 & 4  & 416 & 316 & 0.86 & 0.2 & 0.17 & 0.81 & 0.08 & 0.22 & 0.01 & 0.02 & 0.00 & 0.02 & - & - \\
+		50 & 5  & 500 & 355 & 1.33 & 0.06 & 2.77 & 0.06 & 1.46 & 0.13 & 0.11 & 14.31 & 0.06 & 7 & 0.05 & 0.93 \\
+		100 & 5 & 1000 & 705 & 0.41 & 0.24 & 0.09 & 6.39 & 0.06 & 3.2 & 0.01 & 0.06 & 0.02 & 4.8 & 0.02 & 2.71 \\
+		200 & 5 & 2000 & 1405 & 0.14 & 1.43 & 0.01 & 1.79 & 0.01 & 0.25 & 0.01 & 0.17 & 0.01 & 0.11 & 0.01 & 7.84 \\
+		\hline
+		52 & 4  & 416 & 316 & 0.86 & 0.36 & 0.24 & 0.22 & 0.22 & 0.14 & 0.26 & 0.09 & 0.05 & 1.9 & - & - \\
+		50 & 5  & 500 & 355 & 1.33 & 0.16 & 0.52 & 0.07 & 0.50 & 5.8 & 0.13 & 10.11 & 0.05 & 1.37 & 0.02 & 0.22 \\
+		100 & 5 & 1000 & 705 & 0.41 & 0.33 & 0.19 & 8.58 & 0.04 & 6.14 & 0.02 & 0.41 & 0.02 & 0.58 & 0.02 & 3.78 \\
+		200 & 5 & 2000 & 1405 & 0.14 & 1.55 & 0.07 & 39.07 & 0.04 & 9.44 & 0.01 & 0.12 & 0.02 & 4.48 & 0.01 & 6.66 \\
+		\hline
+	\end{tabular}
+	\caption{Extended benchmark set, deterministic case, increasing number of costly servers}
+	\label{table:extsetq}
+\end{table}
+
+The complexity of solving instances increases non-monotonically with the number of costly servers, for both increasing and decreasing inventory costs. While the 0-cost instances are comparatively easy to solve, the CPU time required to prove optimality increases with the addition of the first costly servers and then decreases as more servers are paid to store inventory. However, this is not true of the gap between the linear relaxation bound and the cost of the optimal solution, where the instances with no costly servers always have the largest gap.
+As expected, the CPU time required to prove optimality increases with the dimension of the case, and the case with an inverse correlation between storage cost and travel cost is more difficult to solve than the case with a positive correlation.
+	
 %% Loading bibliography style file
 %\bibliographystyle{model1-num-names}
 \bibliographystyle{cas-model2-names} 

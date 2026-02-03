@@ -1,0 +1,53 @@
+This is BibTeX, Version 0.99d
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: BESO_EJOR.aux
+Reallocating 'name_of_file' (item size: 1) to 17 items.
+The style file: cas-model2-names.bst
+Reallocating 'name_of_file' (item size: 1) to 10 items.
+Database file #1: GDObiblio.bib
+Reallocating 'singl_function' (item size: 4) to 100 items.
+Warning--empty pages in DAK17
+Warning--empty chapter and pages in R18
+Warning--empty pages in WDT19
+You've used 55 entries,
+            2990 wiz_defined-function locations,
+            1108 strings with 15123 characters,
+and the built_in function-call counts, 34350 in all, are:
+= -- 2629
+> -- 1126
+< -- 46
++ -- 457
+- -- 378
+* -- 3557
+:= -- 4944
+add.period$ -- 161
+call.type$ -- 55
+change.case$ -- 397
+chr.to.int$ -- 55
+cite$ -- 58
+duplicate$ -- 2701
+empty$ -- 2708
+format.name$ -- 568
+if$ -- 6515
+int.to.chr$ -- 1
+int.to.str$ -- 1
+missing$ -- 501
+newline$ -- 286
+num.names$ -- 228
+pop$ -- 1022
+preamble$ -- 1
+purify$ -- 342
+quote$ -- 0
+skip$ -- 819
+stack$ -- 0
+substring$ -- 1491
+swap$ -- 1822
+text.length$ -- 7
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 471
+warning$ -- 3
+while$ -- 225
+width$ -- 0
+write$ -- 775
+(There were 3 warnings)
