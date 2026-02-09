@@ -156,47 +156,13 @@ The paper intersects different research threads, both in terms of the theoretica
 
 \subsection{Predictive Prescriptions and Distributionally Robust Optimization}
 
-%A primary branch is Chance-Constrained Programming (CCP, also Chance-Constrained Optimization) \cite{CC59,P95} where uncertain constraints must be satisfied with at least a prescribed probability level, i.e., they must be satisfied for a high percentage of possible uncertain outcomes, rather than absolutely all of them. The survey in \cite{KJ22} provides an overview of CCP, considering also cases with limited distributional information and discussing reformulations based on sampling and distributional robustness.
-
-%On the contrary, hard-constrained stochastic programming \cite{BL11,SDR09} refers to models in which certain constraints must be satisfied in all cases, regardless of the realization of uncertain parameters. These constraints can for example represent physical, safety, or regulatory requirements. The nomenclature tends to be less normative in these cases, but usually when there is some tolerance on constraint violation the name becomes Robust chance-constrained optimization \cite{RM22} and distributionally robust chance constraints when the distribution itself is uncertain \cite{DY10,RM22}. The name distributionally robust optimization (DRO) is also used when looking for the solution most resilient against the worst case probability distribution for the uncertain parameters \cite{DY10}. DRO has been proposed and applied in various logistics and supply chain contexts \cite{WC20,JWCZ22}.
-
-%The optimization framework of interest for this paper, where we seek to minimize expected costs while ensuring that constraints are satisfied across all generated scenarios, belongs to the category of scenario-based robust optimization. This area is of significant scientific interest. Recent contributions include \cite{CSX20}, a paper introducing the Robust Stochastic Optimization Made Easy (RSOME) framework. This integrates scenario-tree-based stochastic linear optimization with Distributionally Robust Optimization (DRO), and is available as a GitHub package \cite{CX23}. 
-
-%The stochastic inventory routing problem integrating scenario-based methods with DRO has been proposed in \cite{LCKZ23}, focusing on handling uncertainties in the demand by considering various scenarios and ensuring robust solutions that perform well across these scenarios, and in \cite{WAJ23}, proposing a scenario-based robust optimization approach that combines elements of stochastic programming and robust optimization. This approach emphasizes constructing probabilistic scenarios and protecting against adversarial perturbations within discrete uncertainty sets.
-
-% Robust Stochastic Approximation Approach to Stochastic Programming
-% Authors: B. Verweij, S. Ahmed, A.J. Kleywegt, G. Nemhauser, A. Shapiro
-% Publication: SIAM Journal on Optimization
-% Citation: Verweij, B., Ahmed, S., Kleywegt, A.J., Nemhauser, G., Shapiro, A. (2003). The sample average approximation method applied to stochastic routing problems: A computational study. Comput. Optim. Appl., 24, 289–333.
-% Link: SIAM Journal on Optimization 1
-% Optimal Robust Optimization Approximation for Chance Constrained Optimization Problem
-% Authors: Li, G., Floudas, C.A.
-% Publication: ScienceDirect
-% Citation: Li, G., Floudas, C.A. (2014). A posteriori probability bounds on constraint violation/satisfaction for robust optimization. Computers and Chemical Engineering.
-% Link: ScienceDirect 2
-% Optimal and Robust Methods for Stochastic Optimization
-% Authors: B. T. Polyak
-% Publication: ResearchGate
-% Citation: Polyak, B. T. (1997). Optimal and robust methods for stochastic optimization.
-% Link: ResearchGate 3
-% Stochastic Programming and Robust Optimization
-% Authors: Golub, B., Holmer, M., McKendall, R., Pohlman, L., Zenios, S.A.
-% Publication: SpringerLink
-% Citation: Golub, B., Holmer, M., McKendall, R., Pohlman, L., Zenios, S.A. (1995). Stochastic programming models for money management. European Journal of Operational Research, 85, 282–296.
-% Link: SpringerLink 4
-% Robust Optimization Approximation for Joint Chance Constrained Optimization Problem
-% Authors: Luedtke, J.R., Ahmed, S., Nemhauser, G.L.
-% Publication: Journal of Global Optimization
-% Citation: Luedtke, J.R., Ahmed, S., Nemhauser, G.L. (2010). An integer programming approach for linear programs with probabilistic constraints. Math. Program., 122(2), 247–272.
-% Link: Journal of Global Optimization 5
-
 Stochastic programming has long served as a fundamental framework for modeling decision-making under uncertainty, primarily through expected-value models and recourse formulations \citep{B55,D55}. As the field matured, methods evolved to address model robustness. Robust optimization \citep{BN98,BS04} proposes a deterministic reformulation considering worst-case outcomes within a defined uncertainty set. A major development is {\it Distributionally Robust Optimization} (DRO), which seeks a solution most resilient against the worst-case probability distribution for uncertain parameters, typically within an {\it ambiguity set} \citep{DY10}.
 
 The ambiguity set ($\mathcal{P}$) in DRO is a carefully constructed set of probability distributions that the true, but unknown, distribution of the uncertain parameters is assumed to belong to. The core of DRO is to optimize the worst-case performance over all distributions within this set, thus making the resulting solution robust to distributional uncertainty. Mainstream DRO approaches define this ambiguity set in several ways. Some utilize specific distance metrics to construct an ambiguity set centered around the empirical distribution, such as those based on the $\phi$-divergence (or $f$-divergence) \citep{BK19}. Others, such as in the work of \citet{EK17}, define the set based on measurable moment constraints (e.g., bounds on the mean and covariance) of the uncertain parameters. This methodology provides strong theoretical guarantees but requires the designer to make a post-hoc choice on the ambiguity set's structure and size, which may not fully reflect the true statistical dynamics of the input data.
 
 A primary technique for applying both stochastic programming and DRO is {\it Scenario-Based Optimization}. This approach discretizes the continuous probability distribution of uncertain parameters into a finite set of specific scenarios. The {\it Sample Average Approximation} (SAA) method is a pivotal technique here \citep{SH98}, approximating the true underlying distribution with an empirical distribution derived from a sample of independent and identically distributed realizations.
 
-The integration of forecasting and scenario-based optimization—often termed {\it predict-then-optimize} —is a growing body of literature \citep{R18,FTW18,BK19}. The typical workflow follows a two-stage paradigm: a forecasting model (e.g., SARIMA, GARCH, LSTM) first estimates future parameters, and a separate scenario generation phase simulates or samples future paths based on the forecast's predictive distribution. This sequential paradigm has been questioned because prediction errors, even small ones, can lead to severely suboptimal decisions when their impact on the downstream optimization problem is large. This realization motivated the development of methods that explicitly incorporate the optimization objective into the forecasting model's loss function \citep{DAK17,WDT19}, leading to the "Smart Predict, then Optimize" (SPO) framework \citep{EG22}, besides the aforementioned contributions.
+The integration of forecasting and scenario-based optimization—often termed {\it predict-then-optimize} —is a growing body of literature \citep{R18,FTW18,BK19}. The typical workflow follows a two-stage paradigm: a forecasting model (e.g., SARIMA, GARCH, LSTM) first estimates future parameters, and a separate scenario generation phase simulates or samples future paths based on the forecast's predictive distribution. This sequential paradigm has been questioned because prediction errors, even small ones, can lead to suboptimal decisions when their impact on the downstream optimization problem is large. This motivated the development of methods that explicitly incorporate the optimization objective into the forecasting model's loss function \citep{DAK17,WDT19}, leading to the "Smart Predict, then Optimize" (SPO) framework \citep{EG22}, besides the aforementioned contributions.
 
 Unlike these traditional DRO and predict-then-optimize approaches, our work introduces a novel framework that fundamentally links the statistical modeling of input data to the generation of the uncertainty set. Our {\it Bootstrap Enhanced Scenario Optimization} (BESO) framework leverages bootstrapped time series to generate future scenarios. This approach is conceptually aligned with DRO, as it seeks robustness across a set of statistically plausible distributions. However, by using the Maximum Entropy Bootstrap (MEB), BESO generates scenarios that directly preserve the complex autocorrelation and non-stationarity observed in the historical data, eliminating the need for post-hoc parametric ambiguity set design. Scenarios are not a post-processing step but emerge directly from a statistically robust model of the input data's empirical structure. Furthermore, we show how the MEB objective function can be extended to incorporate the downstream optimization's recourse objective, thereby aligning the statistical model directly with the desired prescriptive outcome, similar to SPO methods (see Section \ref{Sec:forecasting}).
 
@@ -206,7 +172,7 @@ This unification of forecasting and scenario generation is an innovatory feature
 
 Multi-echelon inventory management is a supply chain control strategy that coordinates inventory across multiple levels, called "echelons," of the chain \citep{Clark60}. The objective is to optimize inventory and routing costs across all levels of the supply chain rather than addressing each level in isolation. The literature on this strategy has expanded significantly, covering various aspects such as inventory control policies, replenishment strategies, and inventory risk management.
 
-The successful implementation of effective management policies hinges on sound forecasting and optimization processes. Specifically, in the context of 2-echelon logistics, prescriptions grounded in predictive analytics are essential for refining demand forecasting, inventory allocation, and transportation planning \citep{VAD12,KK10,A01}. Considerable attention has been paid to demand forecasting \citep{Shenstone01,Syntetos05,Keneley02,Ma15}, however, precise demand forecasting, especially within the context of dynamic retail environments characterized by fluctuating trends and seasonal variations, remains a significant obstacle. Multi-echelon demand forecasting commonly incorporates a variety of models that frequently rely on assumptions of stationarity and specific parametric distributional characteristics. These assumptions are often violated in dynamic retail environments characterized by short-horizon, non-stationary demand series, leading to model mismatch and suboptimal prescriptions.
+The successful implementation of effective management policies hinges on sound forecasting and optimization processes. Specifically, in the context of 2-echelon logistics, prescriptions grounded in predictive analytics are essential for refining demand forecasting, inventory allocation, and transportation planning \citep{KK10,A01}. Considerable attention has been paid to demand forecasting \citep{Shenstone01,Syntetos05,Ma15}, however, precise demand forecasting, especially within the context of dynamic retail environments characterized by fluctuating trends and seasonal variations, remains a significant obstacle. Multi-echelon demand forecasting commonly incorporates a variety of models that frequently rely on assumptions of stationarity and specific parametric distributional characteristics. These assumptions are often violated in dynamic retail environments characterized by short-horizon, non-stationary demand series, leading to model mismatch and suboptimal prescriptions.
 
 The application of prescriptive analytics in 2-echelon logistics systems thus faces a critical challenge: how to robustly model the underlying uncertainty to support efficient management decision processes. Most documented multi-echelon inventory policies in the literature rely on instances with generic demand, often generated according to parametric distributions \citep{Escorcia20,EG81}. Our work addresses this methodological gap.
 
@@ -235,27 +201,26 @@ By introducing the BESO framework, we provide a statistically-grounded approach 
 
 The test case, originally proposed in \citet{MZ23}, comes from an LSRT company that manages multiple retail stores in a large city in northern Italy. Among these, 52 stores provided aggregate sales time series data spanning at least 45 months prior to the forecast period, which is set at a three-month horizon, as detailed in the following. Each store maintains a small inventory, replenished by deliveries from one of four different distribution centers (DCs) in the area. The products are categorized into three lines: fresh, dry, and household. In this context, the focus has been exclusively on the logistics of dry and household goods, including product categories ranging from personal care items to basic electronics, from household goods to holiday decorations. For this product line, DCs are required to maintain an aggregate inventory sufficient to cover a demand for a period of two weeks.
 
-The supply chain consists of a large distribution center (DC) in the northern suburbs, a smaller DC in the south, and two small satellite facilities closer to the city center. While the satellites have limited storage capacity, they offer lower-cost and more timely service to the majority of the city's stores. Figure \ref{fig:locations}:a shows the (anonymized) geolocation of the DCs and stores and \ref{fig:locations}:b the GIS model of the locations (see also \citealt{MZ23}), where the DCs are the orange triangles and the stores are the azure blobs whose size is proportional to the corresponding request.
-
-\begin{figure}[ht]
-	\centering
-	\begin{minipage}{0.48\textwidth}
-		\centering
-		\includegraphics[width=\linewidth]{figs/gmap.png}
-		\vspace{0.5em}
-		\textit{(a) gmap view}
-	\end{minipage}
-	\hfill
-	\begin{minipage}{0.45\textwidth}
-		\centering
-		\includegraphics[width=\linewidth]{figs/qgis.png}
-		\vspace{0.5em}
-		\textit{(b) GIS view}
-	\end{minipage}
-	\caption{Stores and distribution centers locations.}
-	\label{fig:locations}
-\end{figure}
-
+The supply chain consists of a large distribution center (DC) in the northern suburbs, a smaller DC in the south, and two small satellite facilities closer to the city center. The satellites have limited storage capacity, but they offer lower-cost and more timely service to the majority of the city's stores. 
+%Figure \ref{fig:locations}:a shows the (anonymized) geolocation of the DCs and stores and \ref{fig:locations}:b the GIS model of the locations (see also \citealt{MZ23}), where the DCs are the orange triangles and the stores are the azure blobs whose size is proportional to the corresponding request.
+%\begin{figure}[ht]
+%	\centering
+%	\begin{minipage}{0.48\textwidth}
+%		\centering
+%		\includegraphics[width=\linewidth]{figs/gmap.png}
+%		\vspace{0.5em}
+%		\textit{(a) gmap view}
+%	\end{minipage}
+%	\hfill
+%	\begin{minipage}{0.45\textwidth}
+%		\centering
+%		\includegraphics[width=\linewidth]{figs/qgis.png}
+%		\vspace{0.5em}
+%		\textit{(b) GIS view}
+%	\end{minipage}
+%	\caption{Stores and distribution centers locations.}
+%	\label{fig:locations}
+%\end{figure}
 Each store must be allocated to a distribution center (DC), ensuring that the total requests made to a DC do not exceed its storage capacity. It is assumed that the handling and transportation capacities will always be sufficient. Both storage capacities and requests are quantified in terms of pallets, with no further granularity at this analytical level. The cost of servicing a store from a DC is assessed based on the travel time required to transport goods between the two entities. Notably, the three smaller DCs are fully owned by the company, whereas the fourth DC is situated in a leased facility.
 
 The ultimate goal of the analysis is to determine how much space to rent during the next peak demand period, the Christmas season. To achieve this, we first optimize the allocation of stores to DCs, taking into account transportation and storage costs, and from the solution it is immediate to derive the space required in each DC, therefore the space to rent in the largest one.
@@ -331,20 +296,16 @@ here, $\hat{y}_{b}(x)$  is  sorted in ascending order whereas $h$ is the number 
 
 %In recent years, resampling techniques, particularly the bootstrap method, have gained prominence as valuable tools for mitigating the inherent limitations of conventional forecasting approaches \citep{hasni2019spare}.  The bootstrap method, a non-parametric procedure, generates multiple simulated time series through resampling with replacement from the observed data. This methodology proves particularly advantageous when confronting the complexities of non-stationary, non-linear, intermittent and asymmetric cyclical patterns as well as scenarios characterized by a low signal-to-noise ratio \citep{chandran2024strategic,feliu2024enhancing,suman2024deep,zhang2024forecasting,kreiss2012bootstrap}.  Furthermore, resampling methods offer considerable utility in mitigating the effects of limited sample sizes \citep{dominguez2022machine} and in addressing model uncertainty \citep{sarris2020exploiting}. This provides logistics organizations with a more nuanced understanding of forecast uncertainty, enabling more precise risk management strategies and facilitating the adoption of more confident, data-driven decision-making processes \citep{ferrari2018bootstrap}.  The utility of bootstrap methods in statistical model selection has been extensively demonstrated through various studies. Fenga and Politis \citep{fenga2011bootstrap} introduced a bootstrap-based approach for autoregressive moving average (ARMA) order selection, showcasing its effectiveness in enhancing model accuracy and reliability in the presence of finite sample sizes. Their subsequent work \citep{fenga2013bootstrap} extended this methodology to threshold autoregressive models (SETAR), further validating bootstrap techniques as a robust mechanism for determining optimal model specifications. Moreover, Fenga and Politis \citep{fenga2017lasso} explored the application of the LASSO technique for sparse autoregression, underscoring a bootstrap framework that effectively addresses model selection in high-dimensional contexts. Collectively, these studies highlight how bootstrap methods can significantly improve order selection processes across various statistical modeling frameworks, demonstrating their broader applicability and relevance in contemporary statistical analysis.
 
-%CAPOVERSO CHE COMINCIA DA RIGA 139 è SOSTITUITA DA QUESTO CHE SEGUE. \citep{dominguez2022machine} è stata sostiuita da  davison1997bootstrap che è piu' breve
+In recent years, resampling techniques, especially the bootstrap method, have become valuable for overcoming the limitations of conventional forecasting methods \citep{hasni2019spare}. The bootstrap method creates simulated time series through resampling from observed data. This approach is useful for non-stationary, non-linear, intermittent, and asymmetric cyclical patterns, as well as low signal-to-noise scenarios \citep{feliu2024enhancing, kreiss2012bootstrap}. Moreover, resampling methods help address the effects of limited sample sizes \citep{davison1997bootstrap}  and model uncertainty \citep{sarris2020exploiting}. 
 
-In recent years, resampling techniques, especially the bootstrap method, have become valuable for overcoming the limitations of conventional forecasting methods \citep{hasni2019spare}. The bootstrap method creates simulated time series through resampling from observed data. This approach is useful for non-stationary, non-linear, intermittent, and asymmetric cyclical patterns, as well as low signal-to-noise scenarios \citep{feliu2024enhancing, suman2024deep, kreiss2012bootstrap}. Moreover, resampling methods help address the effects of limited sample sizes \citep{davison1997bootstrap}  and model uncertainty \citep{sarris2020exploiting}. 
-
-The utility of bootstrap methods in model selection has been extensively validated. Fenga and Politis \citep{fenga2011bootstrap} introduced a bootstrap-based approach for autoregressive moving average (ARMA) order selection, demonstrating its effectiveness in enhancing model accuracy with finite sample sizes. Their work \citep{fenga2013bootstrap} extended this to threshold autoregressive models (SETAR), validating bootstrap techniques for optimal model specifications. Furthermore, Fenga and Politis \citep{fenga2017lasso} explored the LASSO technique for sparse autoregression, illustrating a bootstrap framework for model selection in high-dimensional contexts. These studies collectively show how bootstrap methods can enhance order selection across statistical modeling frameworks, underscoring their relevance in modern statistical analysis.
+The utility of bootstrap methods in model selection has been extensively validated. Fenga and Politis \citep{fenga2011bootstrap} introduced a bootstrap-based approach for autoregressive moving average (ARMA) order selection, demonstrating its effectiveness in enhancing model accuracy with finite sample sizes. Furthermore, they explored the LASSO technique for sparse autoregression, illustrating a bootstrap framework for model selection in high-dimensional contexts \citep{fenga2017lasso}. These studies collectively show how bootstrap methods can enhance order selection across statistical modeling frameworks, underscoring their relevance in modern statistical analysis.
 
 %The resampling scheme adopted here is called Maximum Entropy Bootstrap (MEB) \citep{meb1}. As it will be explained, MEB offers a principled and flexible approach to bootstrapping time series data, addressing many of the limitations of traditional block bootstrap methods. Its ability to handle complex dependencies and non-stationarity, coupled with its robust performance, makes it a valuable tool for a wide range of time series analysis tasks This powerful nonparametric resampling technique has revolutionized time series analysis by offering a principled and elegant approach to constructing bootstrap distributions \citep{meb2,meb3}. Unlike traditional block bootstrap methods (see, e.g., \citep{bb1,bb2}), which resample blocks of data to preserve the serial correlation structure, MEB seeks to maximize the entropy of the bootstrap distribution subject to constraints derived from the observed data. This approach leads to more flexible and less restrictive bootstrap distributions, offering several advantages over traditional methods, especially when dealing with complex time series data. A critical aspect of MEB’s application is its robustness in nonstationary environments, where traditional forecasting methods often falter. MEB can capture the evolving dynamics of the time series, thereby enhancing the predictive accuracy of the forecasts \citep{chen2020}. By generating multiple bootstrap samples, MEB facilitates the construction of confidence intervals and prediction intervals, which are paramount for effective decision-making in fields like finance and risk management \citep{shafer2019}. Furthermore, MEB allows for the incorporation of complex models, such as those involving seasonal patterns or autoregressive structures, into the resampling framework. This flexibility enables researchers to model intricate temporal dynamics, making MEB particularly suitable for various applications ranging from economic forecasting to climate modeling. Its capacity to integrate both linear and nonlinear dependencies provides a significant advantage over traditional methods that may oversimplify these relationships \citep{lopez2023}.
 
 %CAPOVERSO CHE COMINCIA DA RIGA 146 è SOSTITUITO DA QUESTO CHE SEGUE
 
 The standard bootstrap assumes independent and identically distributed (i.i.d.) data — an assumption that fails for time series, where observations are dependent and ordered.
-
 This failure is more pronounced when the series is short, making dependence patterns more influential, the data exhibits autocorrelation, seasonality, or trend and when resampling destroys the structure and underrepresents variability.
-
 In these cases Maximum Entropy Bootstrap (MEB) guarantees the following advantages:
 
 \begin{itemize}
@@ -407,7 +368,7 @@ The core optimization problem is a split allocation problem. This variant of the
 
 The mathematical model we use is a direct extension of the standard model for allocation problems. As our proposed framework is valid beyond the specific case study described in the paper, we will refer to the application elements (stores and data centers) using standard allocation terminology in what follows. To emphasize the generality of the analysis, we will use the term 'clients' for stores and 'servers' for data centers. In our context, assignment constraints can accept a parametric number of assignments, enabling requests to be serviced across multiple servers. The notation used in the model is as follows:
 
-\begin{enumerate}
+\begin{enumerate}[noitemsep, topsep=3pt]
 	\item[$n$] number of clients (stores)
 	\item[J] index set of clients, $J=\{1, \ldots, n\}$
 	\item[$m$] number of servers (DCs)
@@ -459,7 +420,6 @@ Furthermore, as future client requests can only be forecast, it is more convenie
 Different methods can be used to deal with this case \citep{SDR09}. We transformed the formulation (FS) into its {\it deterministic equivalent} \citep{D55} using the forecasts computed on the bootstrap sets. This transformed the original stochastic problem into a deterministic optimization one. We generated multiple scenarios each containing a realization of the stochastic variable $\rho$, which is defined as a forecast of one series from the bootstrap set in use. For each scenario $s$, we thus created a version of the constraint with $b_i^{s}$ as the right-hand side. The final solution must satisfy these constraints across all scenarios.
 
 The objective function now incorporates the quantities to be delivered to each client in different scenarios. Therefore, we consider the expected cost as a weighted average across these scenarios and include it in the objective function. 
-
 The resulting formulation is as follows. The random variables $\rho_j$ are sampled in a finite number of scenarios. Let $\rho^s_j$ denote the realization of $\rho_j$ in scenario $s$, $s \in S$, and let $p_s = \frac{1}{|S|}$ be the probability associated with scenario $s \in S$. The variables $\epsilon_{js}$ are slack variables for the customer service constraints.
 
 \begin{align}
@@ -544,7 +504,7 @@ The columns show the average ranking of each cost function (MAE, MSE or bias) fo
 	\label{table:YWARranks}
 \end{table}
 
-The table shows that boosting is consistently the most reliable method for minimizing forecast errors, even when forecasts are obtained from a model as simple as AR[p], while ARIMA produces the least bias.
+The table shows that boosting is consistently the most reliable method for minimizing forecast errors, even when forecasts are obtained from a model as simple as AR($p$), while ARIMA produces the least bias.
 
 Figure \ref{fig:distr} shows two examples of forecast distributions obtained for two different series. The green bars correspond to the distribution of the results obtained by the AR[p] model over the differently recolored alternatives of a series. The distribution is superimposed with lines representing the results of other forecasting algorithms applied to the original series.
 
@@ -593,7 +553,7 @@ In our case, the choice of an autoregressive (AR) model not only offers superior
 
 \subsection{Prescriptive module tests}  \label{Subsec:prescriptive}
 
-The results reported in section \ref{Subsec:predictive} provided the basis for instantiating the optimization on the results obtained by the bootstrap forecasts. The prescriptive module was first run in a deterministic setting, to define a benchmark solution, then extended to the stochastic setting described in section \ref{Sec:optimization}.
+The bootstrap forecasts results reported in section \ref{Subsec:predictive} provided the basis for instantiating the optimization phase. The prescriptive module was first run in a deterministic setting, to define a benchmark solution, then extended to the stochastic setting described in section \ref{Sec:optimization}.
 
 When the problem is modelled using the (FD) formulation and the average predictions obtained by boosting are used as deterministic data, it can be easily solved by any state-of-the-art MILP solver. This demonstrates the feasibility of dealing with a significant deterministic equivalent of the stochastic formulation (FS). The optimal deterministic value of $z_{FP} =$ 15553 is used as a benchmark in the following tests.
 
@@ -642,7 +602,6 @@ Allowing a service to be split for a client is a partial relaxation of the corre
 A further set of tests was conducted to determine the impact of inventory costs $d_i$, $i \in I$ on the search process. Recall that in the original case study, one of the objectives was to determine how much space should be rented in the only DC not owned by the company, where storage space needs to be leased. The case study proposed in \citet{MZ23} did not report storage costs. Here, we consider storage costs that are inversely proportional to the average distance of the DC from the stores. We consider three settings, one with no storage costs, one where only the most distant DC incurs costs, and one where all DCs need to lease space. Costs are proportional to the quantities stored and are therefore influenced by the allocation policy.
 
 All the tests were performed using the 75-series BoostSet. The focus of the analysis is not on the increase in optimal costs, since an increase in the costs of the decision variables clearly leads to an increase in the total costs. Rather, the focus is on the variation in the complexity of the search, as reflected in the CPU time required to reach the final result, and on the optimality or feasibility of the solutions. To evaluate the effectiveness of increasingly lengthy searches, we present results after 600, 1200, and 3600 seconds of CPU time.
-
 The results are summarized in the table \ref{table:qcost}. All results are based on 15 repetitions, and the columns show:
 
 \begin{itemize}[noitemsep,nolistsep]
@@ -682,7 +641,7 @@ The results are summarized in the table \ref{table:qcost}. All results are based
 	\label{table:qcost}
 \end{table}
 
-Table \ref{table:qcost} illustrates an interesting feature of the fitness landscape of this split-cost allocation problem: the complexity of the search is not monotonic with respect to the number of leased servers. In fact, CPLEX was able to solve all instances to optimality for 0, 3 and 4 leased servers. However, for 1 or 2 leased servers, it was never able to prove the optimality of the best solution found within the time limit of 3600 seconds. Furthermore, instances with one leased server are more challenging than those with two, as demonstrated by the gap between the lower and upper bounds, both between the linear relaxation bound and the best solution found and between the best lower bound at the end of the search and the best solution. This feature is discussed further in subsection \ref{Subsec:extend}.
+Table \ref{table:qcost} illustrates an interesting feature of the fitness landscape of this split-cost allocation problem: the complexity of the search is not monotonic with respect to the number of leased servers. In fact, CPLEX was able to solve all instances to optimality for 0, 3 and 4 leased servers. However, for 1 or 2 leased servers, it was never able to prove the optimality of the best solution found within the time limit of 3600 seconds. Furthermore, instances with one leased server are more challenging than those with two, as demonstrated by the gap between the lower and upper bounds, both between the linear relaxation bound and the best solution found and between the best final lower bound and the best solution. This feature is discussed further in \ref{app:artificial}.
 
 As a final note, we point out that the objective function was structured to lexicographically first strive for feasibility and then optimize within the feasible domain. In fact, all instances have always resulted in feasible solutions. Reducing the cost coefficient of the request slack variables allows us to explore the trade-off between solution cost and the probability of reaching an infeasible solution. However, we did not explore this further.
 

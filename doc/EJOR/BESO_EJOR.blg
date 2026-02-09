@@ -11,37 +11,37 @@ Warning--empty chapter and pages in R18
 Warning--empty pages in WDT19
 You've used 55 entries,
             2990 wiz_defined-function locations,
-            1108 strings with 15123 characters,
-and the built_in function-call counts, 34350 in all, are:
-= -- 2629
-> -- 1126
+            1108 strings with 15030 characters,
+and the built_in function-call counts, 34227 in all, are:
+= -- 2626
+> -- 1114
 < -- 46
-+ -- 457
-- -- 378
-* -- 3557
-:= -- 4944
-add.period$ -- 161
++ -- 453
+- -- 374
+* -- 3530
+:= -- 4930
+add.period$ -- 160
 call.type$ -- 55
 change.case$ -- 397
 chr.to.int$ -- 55
 cite$ -- 58
-duplicate$ -- 2701
-empty$ -- 2708
-format.name$ -- 568
-if$ -- 6515
+duplicate$ -- 2693
+empty$ -- 2704
+format.name$ -- 564
+if$ -- 6496
 int.to.chr$ -- 1
 int.to.str$ -- 1
-missing$ -- 501
-newline$ -- 286
+missing$ -- 497
+newline$ -- 285
 num.names$ -- 228
-pop$ -- 1022
+pop$ -- 1024
 preamble$ -- 1
 purify$ -- 342
 quote$ -- 0
-skip$ -- 819
+skip$ -- 818
 stack$ -- 0
 substring$ -- 1491
-swap$ -- 1822
+swap$ -- 1805
 text.length$ -- 7
 text.prefix$ -- 0
 top$ -- 0
@@ -49,5 +49,5 @@ type$ -- 471
 warning$ -- 3
 while$ -- 225
 width$ -- 0
-write$ -- 775
+write$ -- 773
 (There were 3 warnings)

@@ -121,10 +121,9 @@
   \bibinfo{author}{Kolter, J.Z.}, \bibinfo{year}{2017}.
 \newblock \bibinfo{title}{Task-based end-to-end model learning in stochastic
   optimization}, in: \bibinfo{editor}{Guyon, I.}, \bibinfo{editor}{Luxburg,
-  U.V.}, \bibinfo{editor}{Bengio, S.}, \bibinfo{editor}{Wallach, H.},
-  \bibinfo{editor}{Fergus, R.}, \bibinfo{editor}{Vishwanathan, S.},
-  \bibinfo{editor}{Garnett, R.} (Eds.), \bibinfo{booktitle}{Advances in Neural
-  Information Processing Systems}, \bibinfo{publisher}{Curran Associates, Inc.}
+  U.V.}, \bibinfo{editor}{et~al., S.B.} (Eds.), \bibinfo{booktitle}{Advances in
+  Neural Information Processing Systems}, \bibinfo{publisher}{Curran
+  Associates, Inc.}
 %Type = Article
 \bibitem[{Dror and Trudeau(1989)}]{DT89}
 \bibinfo{author}{Dror, M.}, \bibinfo{author}{Trudeau, P.},
@@ -289,9 +288,8 @@
 \bibinfo{author}{Maniezzo, V.}, \bibinfo{author}{Boschetti, M.},
   \bibinfo{author}{St{\"u}tzle, T.}, \bibinfo{year}{2021}.
 \newblock \bibinfo{title}{Matheuristics, algorithms and implementations}.
-\newblock EURO Advanced Tutorials on Operational Research. Springer,
-  \bibinfo{publisher}{Springer International Publishing}, \bibinfo{address}{New
-  {Y}ork}.
+\newblock EURO Advanced Tutorials on Operational Research,
+  \bibinfo{publisher}{Springer}, \bibinfo{address}{New {Y}ork}.
 %Type = Inproceedings
 \bibitem[{Maniezzo and Zhou(2023)}]{MZ23}
 \bibinfo{author}{Maniezzo, V.}, \bibinfo{author}{Zhou, T.},
@@ -299,8 +297,8 @@
 \newblock \bibinfo{title}{Integrated forecast and optimization for retailer
   allocation in a two-echelon inventory system}, in: \bibinfo{editor}{Bringas,
   P.}, \bibinfo{editor}{et~al.} (Eds.), \bibinfo{booktitle}{proc. of 18th Int.
-  Conf. on Soft Computing Models in Industrial and Environmental Applications
-  (SOCO 2023)}, \bibinfo{publisher}{Springer}. pp. \bibinfo{pages}{279 -- 289}.
+  Conf. on Soft Computing Models in Industrial and Environmental Applications},
+  \bibinfo{publisher}{Springer}. pp. \bibinfo{pages}{279 -- 289}.
 %Type = Article
 \bibitem[{Marín(2005)}]{M05}
 \bibinfo{author}{Marín, A.}, \bibinfo{year}{2005}.
@@ -329,7 +327,6 @@
 \newblock \bibinfo{title}{Stochastic Programming, Scenario Generation In}.
   \bibinfo{publisher}{John Wiley and Sons, Ltd}.
 \newblock pp. \bibinfo{pages}{1--5}.
-\newblock \DOIprefix\doi{https://doi.org/10.1002/9781118445112.stat08075}.
 %Type = Article
 \bibitem[{Sarris et~al.(2020)Sarris, Spiliotis and
   Assimakopoulos}]{sarris2020exploiting}
@@ -373,7 +370,7 @@
   \bibinfo{year}{2001}.
 \newblock \bibinfo{title}{A literature review on approaches to the forecasting
   of intermittent demand}.
-\newblock \bibinfo{journal}{Jou. of the Oper. Research Society} .
+\newblock \bibinfo{journal}{Journal of the Oper. Research Society} .
 %Type = Masterthesis
 \bibitem[{Suman(2024)}]{suman2024deep}
 \bibinfo{author}{Suman, D.}, \bibinfo{year}{2024}.
@@ -386,14 +383,14 @@
   \bibinfo{year}{2005}.
 \newblock \bibinfo{title}{Demand forecasting and inventory control for
   intermittent demand using a weighted moving average approach}.
-\newblock \bibinfo{journal}{International Journal of Production Economics} .
+\newblock \bibinfo{journal}{Int. Journal of Production Economics} .
 %Type = Article
 \bibitem[{Van~Kampen et~al.(2012)Van~Kampen, Akkerman and Donk}]{VAD12}
 \bibinfo{author}{Van~Kampen, T.}, \bibinfo{author}{Akkerman, R.},
   \bibinfo{author}{Donk, D.}, \bibinfo{year}{2012}.
 \newblock \bibinfo{title}{Sku classification: A literature review and
   conceptual framework}.
-\newblock \bibinfo{journal}{International Journal of Operations and Production
+\newblock \bibinfo{journal}{Int. Journal of Operations and Production
   Management} \bibinfo{volume}{32}, \bibinfo{pages}{850--876}.
 %Type = Article
 \bibitem[{Vinod and Kourentzes(2006)}]{Vinod2006}
@@ -416,7 +413,7 @@
   \bibinfo{author}{Junghee, H.}, \bibinfo{year}{2011}.
 \newblock \bibinfo{title}{A splitter location–allocation problem in designing
   fiber optic access networks}.
-\newblock \bibinfo{journal}{European Journal of Operational Research}
+\newblock \bibinfo{journal}{Eur. Journal of Operational Research}
   \bibinfo{volume}{210}, \bibinfo{pages}{425--435}.
 %Type = Article
 \bibitem[{Zhu et~al.(2021)Zhu, Hu, Huang and Yuan}]{ZHHY21}
