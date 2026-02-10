@@ -9,45 +9,45 @@ Reallocating 'singl_function' (item size: 4) to 100 items.
 Warning--empty pages in DAK17
 Warning--empty chapter and pages in R18
 Warning--empty pages in WDT19
-You've used 55 entries,
+You've used 52 entries,
             2990 wiz_defined-function locations,
-            1108 strings with 15030 characters,
-and the built_in function-call counts, 34227 in all, are:
-= -- 2626
-> -- 1114
-< -- 46
-+ -- 453
-- -- 374
-* -- 3530
-:= -- 4930
-add.period$ -- 160
-call.type$ -- 55
-change.case$ -- 397
-chr.to.int$ -- 55
-cite$ -- 58
-duplicate$ -- 2693
-empty$ -- 2704
-format.name$ -- 564
-if$ -- 6496
+            1093 strings with 14682 characters,
+and the built_in function-call counts, 32478 in all, are:
+= -- 2491
+> -- 1052
+< -- 44
++ -- 429
+- -- 353
+* -- 3353
+:= -- 4671
+add.period$ -- 151
+call.type$ -- 52
+change.case$ -- 376
+chr.to.int$ -- 52
+cite$ -- 55
+duplicate$ -- 2555
+empty$ -- 2572
+format.name$ -- 530
+if$ -- 6170
 int.to.chr$ -- 1
 int.to.str$ -- 1
-missing$ -- 497
-newline$ -- 285
-num.names$ -- 228
-pop$ -- 1024
+missing$ -- 473
+newline$ -- 270
+num.names$ -- 216
+pop$ -- 964
 preamble$ -- 1
-purify$ -- 342
+purify$ -- 323
 quote$ -- 0
-skip$ -- 818
+skip$ -- 779
 stack$ -- 0
-substring$ -- 1491
-swap$ -- 1805
+substring$ -- 1422
+swap$ -- 1721
 text.length$ -- 7
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 471
+type$ -- 444
 warning$ -- 3
-while$ -- 225
+while$ -- 215
 width$ -- 0
-write$ -- 773
+write$ -- 732
 (There were 3 warnings)

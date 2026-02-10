@@ -1,4 +1,4 @@
-\begin{thebibliography}{55}
+\begin{thebibliography}{52}
 \expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
 \providecommand{\url}[1]{\texttt{#1}}
 \providecommand{\href}[2]{#2}
@@ -115,6 +115,13 @@
   uncertainty with application to data-driven problems}.
 \newblock \bibinfo{journal}{Operations Research} \bibinfo{volume}{58},
   \bibinfo{pages}{595–612}.
+%Type = Article
+\bibitem[{Dem{\v{s}}ar(2006)}]{D06}
+\bibinfo{author}{Dem{\v{s}}ar, J.}, \bibinfo{year}{2006}.
+\newblock \bibinfo{title}{Statistical comparisons of classifiers over multiple
+  data sets}.
+\newblock \bibinfo{journal}{The Journal of Machine learning research}
+  \bibinfo{volume}{7}, \bibinfo{pages}{1--30}.
 %Type = Inproceedings
 \bibitem[{Donti et~al.(2017)Donti, Amos and Kolter}]{DAK17}
 \bibinfo{author}{Donti, P.}, \bibinfo{author}{Amos, B.},
@@ -210,13 +217,6 @@
 \newblock \bibinfo{journal}{Journal of Statistical Computation and Simulation}
   .
 %Type = Article
-\bibitem[{Fenga and Politis(2013)}]{fenga2013bootstrap}
-\bibinfo{author}{Fenga, L.}, \bibinfo{author}{Politis, D.N.},
-  \bibinfo{year}{2013}.
-\newblock \bibinfo{title}{Bootstrap order selection for setar models}.
-\newblock \bibinfo{journal}{Journal of Statistical Computation and Simulation}
-  \bibinfo{volume}{83}, \bibinfo{pages}{1749--1762}.
-%Type = Article
 \bibitem[{Fenga and Politis(2017)}]{fenga2017lasso}
 \bibinfo{author}{Fenga, L.}, \bibinfo{author}{Politis, D.N.},
   \bibinfo{year}{2017}.
@@ -254,13 +254,6 @@
 \newblock \bibinfo{title}{Information theory and statistical mechanics}.
 \newblock \bibinfo{journal}{Physical Review} \bibinfo{volume}{106},
   \bibinfo{pages}{620--630}.
-%Type = Article
-\bibitem[{Keneley and Van Der~Zwaan(2002)}]{Keneley02}
-\bibinfo{author}{Keneley, M.J.}, \bibinfo{author}{Van Der~Zwaan, B.},
-  \bibinfo{year}{2002}.
-\newblock \bibinfo{title}{Demand forecasting and inventory control: A
-  zero-inflated approach}.
-\newblock \bibinfo{journal}{European Journal of Operational Research} .
 %Type = Article
 \bibitem[{Kim and Kim(2010)}]{KK10}
 \bibinfo{author}{Kim, D.}, \bibinfo{author}{Kim, S.}, \bibinfo{year}{2010}.
@@ -371,12 +364,6 @@
 \newblock \bibinfo{title}{A literature review on approaches to the forecasting
   of intermittent demand}.
 \newblock \bibinfo{journal}{Journal of the Oper. Research Society} .
-%Type = Masterthesis
-\bibitem[{Suman(2024)}]{suman2024deep}
-\bibinfo{author}{Suman, D.}, \bibinfo{year}{2024}.
-\newblock \bibinfo{title}{Deep Learning Methods for Demand Time Series
-  Forecasting}.
-\newblock Master's thesis. Aalto Unniversity.
 %Type = Article
 \bibitem[{Syntetos and Boylan(2005)}]{Syntetos05}
 \bibinfo{author}{Syntetos, A.A.}, \bibinfo{author}{Boylan, J.E.},
@@ -384,14 +371,6 @@
 \newblock \bibinfo{title}{Demand forecasting and inventory control for
   intermittent demand using a weighted moving average approach}.
 \newblock \bibinfo{journal}{Int. Journal of Production Economics} .
-%Type = Article
-\bibitem[{Van~Kampen et~al.(2012)Van~Kampen, Akkerman and Donk}]{VAD12}
-\bibinfo{author}{Van~Kampen, T.}, \bibinfo{author}{Akkerman, R.},
-  \bibinfo{author}{Donk, D.}, \bibinfo{year}{2012}.
-\newblock \bibinfo{title}{Sku classification: A literature review and
-  conceptual framework}.
-\newblock \bibinfo{journal}{Int. Journal of Operations and Production
-  Management} \bibinfo{volume}{32}, \bibinfo{pages}{850--876}.
 %Type = Article
 \bibitem[{Vinod and Kourentzes(2006)}]{Vinod2006}
 \bibinfo{author}{Vinod, H.D.}, \bibinfo{author}{Kourentzes, N.},
