@@ -338,6 +338,48 @@ This formulation transforms the problem into one that allows for flexible adapta
 
 This resampling process can be iterated to generate a comprehensive set of bootstrapped samples, enabling a multitude of statistical analyses, including confidence interval estimation, hypothesis testing, and model validation \citep{efron1993introduction}. 
 
+\subsection{subsub}
+
+\begin{equation}
+	\textbf{Setting:}\quad D_n={\xi_i}{i=1}^n,\quad \widehat{P}n=\frac{1}{n}\sum{i=1}^n\delta{\xi_i},\quad X\subset\mathbb{R}^d,\quad c:X\times\Xi\to\mathbb{R}.
+\end{equation}
+
+Claim (informal). The bootstrap cardinality $m$ parametrizes ambiguity sets $\mathcal{U}m$ and therefore the DRO solution $x^\star(m)=\arg\min{x\in X}\sup_{P\in\mathcal{U}_m}\mathbb{E}_P[c(x,\xi)]$, while optimality with respect to $c$ induces a selection criterion on $m$. Consequently there is an intrinsic bidirectional coupling (feedback) between $m$ and $x^\star(m)$; the MEB-extension we propose yields a formulation that accounts for this dependence.
+
+Core proof (sketch).
+
+Construction of bootstrap-induced ambiguity sets. Fix a resampling scheme and let $\widehat{P}_n^{(1)},\dots,\widehat{P}_n^{(m)}$ be $m$ bootstrap empirical measures. Define, for instance,
+\begin{equation}
+	\mathcal{U}_m:=\operatorname{conv}{\widehat{P}_n^{(1)},\dots,\widehat{P}_n^{(m)}}.
+\end{equation}
+Then $\mathcal{U}_m$ is a closed convex set of probability measures whose geometry (extreme points, diameter) depends on $m$ and on the particular resamples.
+
+Dependence of the DRO solution on $m$. Define
+\begin{equation}
+	x^\star(m)\in\arg\min_{x\in X}; \Psi_m(x),\qquad \Psi_m(x):=\sup_{P\in\mathcal{U}_m}\mathbb{E}P[c(x,\xi)].
+\end{equation}
+Since $\Psi_m$ is the pointwise supremum of linear functionals $x\mapsto \mathbb{E}{\widehat{P}n^{(j)}}[c(x,\xi)]$ over the finite ensemble, $\Psi_m$ depends on the set of extreme points ${\widehat{P}n^{(j)}}{j=1}^m$. If $m\neq m'$ then generically $\mathcal{U}m\neq\mathcal{U}{m'}$ and hence $\Psi_m\neq\Psi{m'}$, implying $x^\star(m)\neq x^\star(m')$ in general. Thus $m\mapsto x^\star(m)$ is nontrivial.
+
+Decision-dependence and bilevel formulation. Suppose the resampling mechanism or the construction of $\mathcal{U}m$ depends on residuals or model choices influenced by $x$ (as in MEB extensions). Then write $\mathcal{U}m=\mathcal{U}m(x)$ and consider the joint problem
+\begin{equation}
+	\min{x\in X,; m\in\mathcal{M}}; \Phi(x,m):=\sup{P\in\mathcal{U}m(x)}\mathbb{E}P[c(x,\xi)]+\lambda\operatorname{Pen}(m).
+\end{equation}
+Eliminating $m$ yields the bilevel selection problem
+\begin{equation}
+	\min{m\in\mathcal{M}}; \Phi\big(x^\star(m),m\big)\quad\text{s.t.}\quad x^\star(m)\in\arg\min{x\in X}\sup{P\in\mathcal{U}_m(x)}\mathbb{E}_P[c(x,\xi)].
+\end{equation}
+This formalizes the feedback: $m$ shapes the feasible ambiguity for $x$, and $x$ (through $\mathcal{U}_m(x)$ or the validation criterion) selects $m$.
+
+Consistency and finite-sample sensitivity (sketch). Let $d$ be a metric metrizing weak convergence. Assume bootstrap consistency: for suitable $m=m(n)\to\infty$ with $m(n)/n\to 0$ (or other standard regimes), $\mathrm{dist}(\mathcal{U}{m(n)},{P^\star})\to0$. If $c$ is bounded Lipschitz then $\Psi{m(n)}(x)\to\mathbb{E}{P^\star}[c(x,\xi)]$ uniformly on compact $X$, hence $x^\star(m(n))\to x^\star\infty$. Conversely, for finite $n$ the deviation
+\begin{equation}
+	\sup_{x\in X}\big|\Psi_m(x)-\Psi_{m'}(x)\big|\le L\cdot\mathrm{Haus}(\mathcal{U}m,\mathcal{U}{m'}),
+\end{equation}
+for some $L$ determined by the Lipschitz constant of $c$ in the dual norm; thus finite-sample changes in $m$ produce quantitatively controlled changes in the DRO objective and in $x^\star$.
+
+Role of the MEB-extension. The MEB-extension explicitly allows $\mathcal{U}_m$ to incorporate decision-dependent quantities (e.g., residual variance used in resampling weights) and regularizes $m$ within the joint objective. Therefore it converts the criticized serial "forecast-then-optimize" pipeline into a model in which the forecasting-induced ambiguity and the optimization objective are coupled and jointly selected. This yields well-posed bilevel/joint problems that capture the feedback described above.
+
+Conclusion. The above equations formalize the claim: the bootstrap cardinality $m$ materially affects $\mathcal{U}_m$ and thus $x^\star(m)$, while optimality considerations impose a selection on $m$. The MEB-extension provides a principled mathematical device to model and resolve this feedback within a unified DRO framework.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{The prescriptive module} \label{Sec:optimization}
 
