@@ -25,6 +25,7 @@
 %\usepackage{subfig}         % two aligned subfigures
 \usepackage{mathtools}  
 \usepackage{amsfonts}       % mathbb
+\usepackage{amsmath}        % aligned equations
 \usepackage{xfrac}          % slanted fractions
 \usepackage{bm}             % bold greeks 
 \usepackage [autostyle, english = american]{csquotes} % left and right opening quotes with "
@@ -32,9 +33,10 @@
 \usepackage{array}          % Needed for custom column types
 \usepackage{xcolor}
 \colorlet{added}{blue!80!black} 
-%\usepackage{setspace}       % for controlled interline
+%\usepackage{setspace}      % for controlled interline
 % \usepackage{lineno}
 \usepackage{enumitem}
+\usepackage{tikz}           % drawing figures
 
 \usepackage{caption}
 \usepackage[labelfont=sf]{subcaption}
@@ -212,7 +214,7 @@ Another requirement characterizes the problem we are addressing: large stores lo
 
 The analysis was conducted during the summer of 2022 in preparation for the subsequent Christmas season. At the time of the analysis, the anticipated demand requests were unknown and required forecasting. The analysis underwent iterative refinements throughout the summer, culminating in the final forecast produced in September. Consequently, the data presented in this paper correspond to a three-month forecasting case. 
 
-The data for this test case were proposed by \citet{MZ23}, but that previous work took a fundamentally different approach, consisting of a Lagrangian matheuristic applied to a deterministic model of a different problem, with different objective and constraints to those considered here. This paper therefore presents a genuinely novel approach that greatly expands the significance of the test case. The extended benchmark set is also entirely new.
+%The data for this test case were proposed by \citet{MZ23}, but that previous work took a fundamentally different approach, consisting of a Lagrangian matheuristic applied to a deterministic model of a different problem, with different objective and constraints to those considered here. This paper therefore presents a genuinely novel approach that greatly expands the significance of the test case. The extended benchmark set is also entirely new.
 
 All codes and data are available in an anonymized format from the project repository 
 %\citep{GDOforecastRepo}
@@ -254,24 +256,21 @@ Recent work has explored the integration of these empirical distribution estimat
 
 In our proposal, we utilize the MEB methodology in conjunction with the ensemble learning technique known as {\it bagging} (Bootstrap Aggregating). This combination enhances the accuracy and robustness of predictive models through the generation of multiple bootstrapped datasets from the original data. By training individual models on these datasets and aggregating their predictions through averaging, we adhere to MEB's principles while capturing the underlying statistical variability. Maximizing entropy under empirical constraints allows the integration of bagging with MEB to produce more robust models. In more details, each model trained on distinct bootstrapped samples incorporates uncertainty characteristics from the original data, allowing for a comprehensive representation of its variation.
 
-The incorporation of MEB into the bagging framework not only bolsters the performance of predictive models but also facilitates uncertainty quantification in the predictions. Each model produces a set of predictions that can be used to construct confidence intervals, thereby offering insights into the variability and reliability of the forecasted outcomes. The ability to assess the spread of predictions from multiple bootstrapped datasets presents a better understanding of potential prediction intervals, which is particularly valuable in the context of the present paper, characterized by short, non-stationary, and possibly non linear time series surrounded by a significant amount of uncertainty.
+%The incorporation of MEB into the bagging framework not only bolsters the performance of predictive models but also facilitates uncertainty quantification in the predictions. Each model produces a set of predictions that can be used to construct confidence intervals, thereby offering insights into the variability and reliability of the forecasted outcomes. The ability to assess the spread of predictions from multiple bootstrapped datasets presents a better understanding of potential prediction intervals, which is particularly valuable in the context of the present paper, characterized by short, non-stationary, and possibly non linear time series surrounded by a significant amount of uncertainty.
 
 Furthermore, this approach allows for dealing with noisy datasets and mitigating overfitting, as bagging inherently provides a mechanism to increase the robustness of the predictive model by leveraging the diversity across the bootstrapped samples. Since MEB generates bootstrapped datasets based on the maximum entropy principle, the resulting models avoid being overly sensitive to any one particular realization of the data.
 
 Mathematically, if we denote the bootstrapped replicas of the dataset as $D^*_1, D^*_2, \ldots, D^*_B$, where $B$  represents the number of bootstrapped samples, the resulting predictive framework can be expressed as:  $\hat{y}_{\textit{BAG}} = \rho( \hat{y}_{b}(x) )$, where $\hat{y}_{b}(x)$ is the prediction made by the $b-th$ model trained on the bootstrapped sample $ D^*_b $  and $\rho$ a generic centrality parameter. 
 This averaging process effectively reduces variance by smoothing out the predictions of the individual models, leading to enhanced stability and generalization capabilities in the final aggregated model.  The parameter $\rho$ can be defined as either a simple average or the median, which leads to the following bagging predictors:
 
-\begin{equation}
-	\hat{y}_{\textit{BAG}}  = \frac{1}{B} \sum_{b=1}^{B} \hat{y}_{b}(x)
-\end{equation}
-
-\begin{equation}
-	\hat{y}_{\textit{BAG}}  = 
-	\begin{cases} 
-		\hat{y}_{b}(x) \left[\frac{h+1}{2}\right] & \text{if } h \text{ is odd} \\ 
-		\frac{\hat{y}_{b}(x)\left[\frac{h}{2}\right] + \hat{y}_{b}(x)\left[\frac{h}{2} + 1\right]}{2} & \text{if } h \text{ is even} 
+\begin{align}
+	\hat{y}_{\textit{BAG}} &= \frac{1}{B} \sum_{b=1}^{B} \hat{y}_{b}(x) &
+	\hat{y}_{\textit{BAG}} &=
+	\begin{cases}
+		\hat{y}_{b}(x)\left[\frac{h+1}{2}\right] & \text{if } h \text{ is odd} \\
+		\frac{\hat{y}_{b}(x)\left[\frac{h}{2}\right] + \hat{y}_{b}(x)\left[\frac{h}{2} + 1\right]}{2} & \text{if } h \text{ is even}
 	\end{cases}
-\end{equation}
+\end{align}
 
 \noindent where, $\hat{y}_{b}(x)$  is  sorted in ascending order whereas $h$ is the number of future values to be predicted.
 
@@ -338,47 +337,79 @@ This formulation transforms the problem into one that allows for flexible adapta
 
 This resampling process can be iterated to generate a comprehensive set of bootstrapped samples, enabling a multitude of statistical analyses, including confidence interval estimation, hypothesis testing, and model validation \citep{efron1993introduction}. 
 
-\subsection{subsub}
+\subsection{Bootstrap Cardinality and Decision--Ambiguity Feedback}
 
+Bootstrap-based ambiguity sets introduce an additional degree of freedom in data-driven DRO: the bootstrap cardinality $m$. Although often treated as a tuning parameter, $m$ directly determines the geometry of the ambiguity set and therefore influences the optimizer. Conversely, the optimal decision induces a preference over $m$ through validation or penalization criteria. This creates an intrinsic feedback loop between ambiguity construction and optimization, which the MEB-extension formalizes.
+We observe data $D_n=\{\xi_i\}_{i=1}^n$ with empirical measure
+$\widehat{P}_n=\frac{1}{n}\sum_{i=1}^n \delta_{\xi_i}$,
+decision space $X\subset\mathbb{R}^d$, and cost function $c:X\times\Xi\to\mathbb{R}$.  
+For a bootstrap scheme, let $\widehat{P}_n^{(1)},\dots,\widehat{P}_n^{(m)}$ denote $m$ bootstrap empirical measures.  
+A natural ambiguity set is the convex hull
 \begin{equation}
-	\textbf{Setting:}\quad D_n={\xi_i}{i=1}^n,\quad \widehat{P}n=\frac{1}{n}\sum{i=1}^n\delta{\xi_i},\quad X\subset\mathbb{R}^d,\quad c:X\times\Xi\to\mathbb{R}.
+	\mathcal{U}_m := \operatorname{conv}\{\widehat{P}_n^{(1)},\dots,\widehat{P}_n^{(m)}\},
 \end{equation}
+whose diameter, extreme points, and support all depend on $m$.
 
-Claim (informal). The bootstrap cardinality $m$ parametrizes ambiguity sets $\mathcal{U}m$ and therefore the DRO solution $x^\star(m)=\arg\min{x\in X}\sup_{P\in\mathcal{U}_m}\mathbb{E}_P[c(x,\xi)]$, while optimality with respect to $c$ induces a selection criterion on $m$. Consequently there is an intrinsic bidirectional coupling (feedback) between $m$ and $x^\star(m)$; the MEB-extension we propose yields a formulation that accounts for this dependence.
-
-Core proof (sketch).
-
-Construction of bootstrap-induced ambiguity sets. Fix a resampling scheme and let $\widehat{P}_n^{(1)},\dots,\widehat{P}_n^{(m)}$ be $m$ bootstrap empirical measures. Define, for instance,
+The associated DRO objective is
 \begin{equation}
-	\mathcal{U}_m:=\operatorname{conv}{\widehat{P}_n^{(1)},\dots,\widehat{P}_n^{(m)}}.
+	\Psi_m(x) := \sup_{P\in\mathcal{U}_m} \mathbb{E}_P[c(x,\xi)],
 \end{equation}
-Then $\mathcal{U}_m$ is a closed convex set of probability measures whose geometry (extreme points, diameter) depends on $m$ and on the particular resamples.
-
-Dependence of the DRO solution on $m$. Define
+and the optimizer is defined by
 \begin{equation}
-	x^\star(m)\in\arg\min_{x\in X}; \Psi_m(x),\qquad \Psi_m(x):=\sup_{P\in\mathcal{U}_m}\mathbb{E}P[c(x,\xi)].
+	x^\star(m)\in\arg\min_{x\in X}\Psi_m(x).
 \end{equation}
-Since $\Psi_m$ is the pointwise supremum of linear functionals $x\mapsto \mathbb{E}{\widehat{P}n^{(j)}}[c(x,\xi)]$ over the finite ensemble, $\Psi_m$ depends on the set of extreme points ${\widehat{P}n^{(j)}}{j=1}^m$. If $m\neq m'$ then generically $\mathcal{U}m\neq\mathcal{U}{m'}$ and hence $\Psi_m\neq\Psi{m'}$, implying $x^\star(m)\neq x^\star(m')$ in general. Thus $m\mapsto x^\star(m)$ is nontrivial.
+Since $\Psi_m$ is the supremum of finitely many linear functionals $\mathbb{E}_{\widehat{P}_n^{(j)}}[c(x,\xi)]$, changing $m$ changes the set of extreme points and therefore the optimizer. In general, $m\neq m'$ implies $\mathcal{U}_m\neq\mathcal{U}_{m'}$ and $x^\star(m)\neq x^\star(m')$.
 
-Decision-dependence and bilevel formulation. Suppose the resampling mechanism or the construction of $\mathcal{U}m$ depends on residuals or model choices influenced by $x$ (as in MEB extensions). Then write $\mathcal{U}m=\mathcal{U}m(x)$ and consider the joint problem
+If the ambiguity set depends on $x$—for example through residual-based resampling in the MEB-extension—write $\mathcal{U}_m(x)$ and consider the joint problem
 \begin{equation}
-	\min{x\in X,; m\in\mathcal{M}}; \Phi(x,m):=\sup{P\in\mathcal{U}m(x)}\mathbb{E}P[c(x,\xi)]+\lambda\operatorname{Pen}(m).
+	\min_{x\in X,\; m\in\mathcal{M}}
+	\left\{
+	\sup_{P\in\mathcal{U}_m(x)} \mathbb{E}_P[c(x,\xi)]
+	+ \lambda\,\mathrm{Pen}(m)
+	\right\}.
 \end{equation}
-Eliminating $m$ yields the bilevel selection problem
+Eliminating $m$ yields the bilevel formulation
 \begin{equation}
-	\min{m\in\mathcal{M}}; \Phi\big(x^\star(m),m\big)\quad\text{s.t.}\quad x^\star(m)\in\arg\min{x\in X}\sup{P\in\mathcal{U}_m(x)}\mathbb{E}_P[c(x,\xi)].
+	\min_{m\in\mathcal{M}} 
+	\Phi(x^\star(m),m)
+	\quad\text{s.t.}\quad
+	x^\star(m)\in\arg\min_{x\in X}
+	\sup_{P\in\mathcal{U}_m(x)}\mathbb{E}_P[c(x,\xi)].
 \end{equation}
-This formalizes the feedback: $m$ shapes the feasible ambiguity for $x$, and $x$ (through $\mathcal{U}_m(x)$ or the validation criterion) selects $m$.
+This expresses the feedback loop: $m$ shapes the ambiguity faced by $x$, while $x$ determines which $m$ minimizes the joint objective.
 
-Consistency and finite-sample sensitivity (sketch). Let $d$ be a metric metrizing weak convergence. Assume bootstrap consistency: for suitable $m=m(n)\to\infty$ with $m(n)/n\to 0$ (or other standard regimes), $\mathrm{dist}(\mathcal{U}{m(n)},{P^\star})\to0$. If $c$ is bounded Lipschitz then $\Psi{m(n)}(x)\to\mathbb{E}{P^\star}[c(x,\xi)]$ uniformly on compact $X$, hence $x^\star(m(n))\to x^\star\infty$. Conversely, for finite $n$ the deviation
+Under standard bootstrap consistency assumptions, if $m=m(n)\to\infty$ with $m(n)/n\to 0$, then $\mathcal{U}_{m(n)}\Rightarrow P^\star$ and $\Psi_{m(n)}(x)\to\mathbb{E}_{P^\star}[c(x,\xi)]$ uniformly on compact $X$, implying $x^\star(m(n))\to x^\star$. For finite $n$,
 \begin{equation}
-	\sup_{x\in X}\big|\Psi_m(x)-\Psi_{m'}(x)\big|\le L\cdot\mathrm{Haus}(\mathcal{U}m,\mathcal{U}{m'}),
+	\sup_{x\in X}\big|\Psi_m(x)-\Psi_{m'}(x)\big|
+	\le 
+	L\,\mathrm{Haus}\!\left(\mathcal{U}_m,\mathcal{U}_{m'}\right),
 \end{equation}
-for some $L$ determined by the Lipschitz constant of $c$ in the dual norm; thus finite-sample changes in $m$ produce quantitatively controlled changes in the DRO objective and in $x^\star$.
+so changes in $m$ induce controlled perturbations in the DRO objective and optimizer.
 
-Role of the MEB-extension. The MEB-extension explicitly allows $\mathcal{U}_m$ to incorporate decision-dependent quantities (e.g., residual variance used in resampling weights) and regularizes $m$ within the joint objective. Therefore it converts the criticized serial "forecast-then-optimize" pipeline into a model in which the forecasting-induced ambiguity and the optimization objective are coupled and jointly selected. This yields well-posed bilevel/joint problems that capture the feedback described above.
+The MEB-extension incorporates decision-dependent ambiguity and regularizes $m$ within the joint objective, replacing the classical ``forecast--then--optimize'' pipeline with a unified formulation that captures the $m\leftrightarrow x^\star(m)$ feedback.
 
-Conclusion. The above equations formalize the claim: the bootstrap cardinality $m$ materially affects $\mathcal{U}_m$ and thus $x^\star(m)$, while optimality considerations impose a selection on $m$. The MEB-extension provides a principled mathematical device to model and resolve this feedback within a unified DRO framework.
+%\begin{figure}[h!]
+%	\centering
+%	\begin{tikzpicture}[>=stealth,thick]
+%		
+%		% Nodes (no line breaks inside nodes)
+%		\node[draw,rounded corners,align=center] (m) at (0,0)
+%		{$m$ \text{ (bootstrap cardinality)}};
+%		
+%		\node[draw,rounded corners,align=center] (U) at (4,0)
+%		{$\mathcal{U}_m$ \text{ (ambiguity set)}};
+%		
+%		\node[draw,rounded corners,align=center] (x) at (8,0)
+%		{$x^\star(m)$ \text{ (DRO optimizer)}};
+%		
+%		% Arrows
+%		\draw[->] (m) -- node[above]{shapes} (U);
+%		\draw[->] (U) -- node[above]{defines} (x);
+%		\draw[->,bend left=35] (x.north) to node[above]{selects $m$ minimizing $\Phi$} (m.north);
+%		
+%	\end{tikzpicture}
+%	\caption{Feedback loop between bootstrap cardinality $m$, ambiguity geometry $\mathcal{U}_m$, and the DRO optimizer $x^\star(m)$.}
+%\end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{The prescriptive module} \label{Sec:optimization}
@@ -405,7 +436,7 @@ The mathematical model we use is a direct extension of the standard model for al
 
 In the final test case, the amount requested by each client was always set to equal the corresponding predicted value. However, in some scenarios, some clients' requests could be split between two servers, meaning the requested $q_(ij)$ amounts could vary.
 
-The mathematical model used for this problem was as in the following formulation FD.
+The mathematical model used for this problem is as in the following formulation (FD).
 
 \begin{align}
 	&(FD) & z_{FD} = \textbf{min } & \sum_{i \in I} \sum_{j \in J} ( c_{ij}x_{ij} + d_i q_{ij} ) \label{ALLobj}\\
@@ -413,9 +444,7 @@ The mathematical model used for this problem was as in the following formulation
 	& \sum_{i \in I} q_{ij} = req_j & j \in J  \label{ALLrequest}\\
 	& &  & \sum_{j \in J}q_{ij} \leq Q_i & i \in I \label{ALLcapacity}\\
 	& &  & \sum_{i \in I} x_{ij} = b_j & j \in J  \label{ALLnumserv}\\
-	& &  & q_{ij} \leq req_j x_{ij} & i \in I, j \in J \label{ALLcontin}\\
-	& &  & x_{ij} \in \{0,1\} & i\in I, j \in J \label{ALLx}\\
-	& &  & q_{ij} \in \mathbb{Z}^+_0 & i\in I, j \in J \label{ALLq}
+	& &  & q_{ij} \leq req_j x_{ij}; \quad x_{ij} \in \{0,1\};\quad q_{ij} \in \mathbb{Z}^+_0 & i \in I, j \in J \label{ALLcontin}\\
 \end{align}
 
 The constraints in equation \ref{ALLnumserv} are formulated as equalities due to the need to impose specific splits in 'what if' scenarios. However, if this is not of particular interest, these constraints could be replaced by less-than-or-equal-to inequalities combined with inequalities that ensure allocations are made to at least one server.
@@ -423,7 +452,7 @@ The constraints in equation \ref{ALLnumserv} are formulated as equalities due to
 Note that when $b_j = 1$ for all clients, i.e., when each client $j \in J$ can be served by only one server, constraints \ref{ALLcontin} and \ref{ALLrequest} force the entire quantity requested by client $j$, $req_j$, to be supplied by a single server. The constraints \ref{ALLcontin} thus become equations, the constraints \ref{ALLrequest} become redundant, and the constraints \ref{ALLcapacity} can be expressed by replacing $\sum_{j \in J}q_{ij}$ with $\sum_{j \in J}req_j x_{ij}$. Problem P reduces to the standard GAP and can be solved by any of the methods described in \citet{matheuristics}.
 
 However, we are interested in the general case that allows for multiple assignments. Since the cost is derived from these assignments, the problem can be considered a fixed-cost split-assignment allocation problem.
-Furthermore, as future client requests can only be forecast, it is more convenient to formulate the problem as a stochastic optimization problem, where the future requests are random variables $\rho_j$, $j \in J$, whose distributions are derived from the forecast results. The resulting stochastic problem is formulated as follows.
+Furthermore, as future client requests can only be forecast, it is more convenient to formulate the problem as a stochastic optimization problem, where the future requests are random variables $\rho_j$, $j \in J$, whose distributions are derived from the forecast results. The resulting stochastic problem is formulated as in formulation (FS), where the values $R(\rho_j)$ in the constraints \ref{SALLrequest} and \ref{SALLcontin} refer to any same realization of the random variable $\rho_j$.
 
 \begin{align}
 	&(FS) & z_{FS} = \textbf{min } & \sum_{i \in I} \sum_{j \in J} ( c_{ij}x_{ij} + d_i q_{ij} ) \label{SALLobj}\\
@@ -431,12 +460,8 @@ Furthermore, as future client requests can only be forecast, it is more convenie
 	& \sum_{i \in I} q_{ij} = R(\rho_j) & j \in J  \label{SALLrequest}\\
 	& &  & \sum_{j \in J}q_{ij} \leq Q_i & i \in I \label{SALLcapacity}\\
 	& &  & \sum_{i \in I} x_{ij} = b_j & j \in J  \label{SALLnumserv}\\
-	& &  & q_{ij} \leq R(\rho_j) x_{ij} & i \in I, j \in J \label{SALLcontin}\\
-	& &  & x_{ij} \in \{0,1\} & i\in I, j \in J \label{SALLx}\\
-	& &  & q_{ij} \in \mathbb{Z}^+_0 & i\in I, j \in J \label{SALLq}
+	& &  & q_{ij} \leq R(\rho_j) x_{ij}; \quad  x_{ij} \in \{0,1\}; \quad q_{ij} \in \mathbb{Z}^+_0 & i \in I, j \in J \label{SALLcontin}\\
 \end{align}
-
-\noindent where the values $R(\rho_j)$ in the constraints \ref{SALLrequest} and \ref{SALLcontin} refer to any same realization of the random variable $\rho_j$.
 
 Different methods can be used to deal with this case \citep{SDR09}. We transformed the formulation (FS) into its {\it deterministic equivalent} \citep{D55} using the forecasts computed on the bootstrap sets. We generated multiple scenarios each containing a realization of the stochastic variable $\rho$, which is defined as a forecast of one series from the bootstrap set in use. For each scenario $s$, we thus created a version of the constraint with $b_i^{s}$ as the right-hand side. The final solution must satisfy these constraints across all scenarios.
 
@@ -449,9 +474,8 @@ The resulting formulation is in formulation (DE). The random variables $\rho_j$ 
 	& \sum_{i \in I} q_{ij}^s + \epsilon_{js} = \rho_j^s & j \in J, s \in S \label{DErequest}\\
 	& &  & \sum_{j \in J}q_{ij}^s \leq Q_i & i \in I, s \in S \label{DEcapacity}\\
 	& &  & \sum_{i \in I} x_{ij} = b_j & j \in J  \label{DEnumserv}\\
-	& &  & q_{ij}^s \leq \rho_j^s x_{ij} & i \in I, j \in J, s \in S \label{DEcontin}\\
+	& &  & q_{ij}^s \leq \rho_j^s x_{ij}; \quad q_{ij}^s \in \mathbb{Z}^+_0 & i \in I, j \in J, s \in S \label{DEcontin}\\
 	& &  & x_{ij} \in \{0,1\} & i\in I, j \in J \label{DEx}\\
-	& &  & q_{ij}^s \in \mathbb{Z}^+_0 & i\in I, j \in J, s \in S \label{DEq}\\
 	& &  & \epsilon_{js} \in \mathbb{Z}^+_0 & j \in J, s \in S \label{DEeps}
 \end{align}
 
