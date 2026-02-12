@@ -61,11 +61,15 @@
 \def\floatpagepagefraction{1}
 \def\textpagefraction{.001}
 
+% Reduce space before and after align
+\setlength{\abovedisplayskip}{2pt plus 2pt minus 4pt}
+\setlength{\belowdisplayskip}{2pt plus 2pt minus 4pt}
+
 %\begin{frontmatter}
 
 \title{Bootstrap Enhanced Scenario Optimization, a Case Study in Two-Echelon Logistics}                      
 
-\author[1]{Livio Fenga\corref{cor1}}
+\author[1]{Livio Fenga}
 \ead{L.Fenga@exeter.ac.uk}
 
 \affiliation[1]{organization={Center for Simulation, Analytics and Modelling},
@@ -75,7 +79,7 @@
 %                state={Kerala},
                 country={UK}}
 
-\author[2]{Vittorio Maniezzo}
+\author[2]{Vittorio Maniezzo\corref{cor}}
 \ead{vittorio.maniezzo@unibo.it}
 
 \affiliation[2]{organization={Department of Computer Science},
@@ -84,33 +88,32 @@
                 city={Bologna},
                 country={Italy}}
 
-\cortext[cor1]{Corresponding author}
+\cortext[cor]{Corresponding author}
 
 \begin{abstract}
 We introduce the Bootstrap Enhanced Scenario Optimization (BESO) framework, a novel methodology for prescriptive analytics under uncertainty. BESO addresses the challenge of generating reliable demand scenarios from volatile, short, and non-stationary time series data. The core innovation lies in delegating the modeling of uncertainties to the Maximum Entropy Bootstrap (MEB) integrated with bagging, a technique that preserves the complex autocorrelation structure of empirical time series forecasts, enabling the generation of statistically coherent scenarios. We further extend MEB through an objective-augmented formulation that incorporates downstream recourse elements into the resampling mechanism. These statistically rich scenarios are then integrated into a deterministic equivalent model to derive accountable and optimized prescriptions. We demonstrate the framework's power using a real-world case study in tactical inventory allocation. Our findings, also validated against an extensive set of artificial benchmark instances, demonstrate the effectiveness of MEB-enhanced forecasting in optimization. BESO establishes a new, generalizable paradigm for robust decision-making derived from noisy univariate data series.
 \end{abstract}
 
 %%Graphical abstract (commented out for review)
-\begin{graphicalabstract}
-\includegraphics[width=\linewidth]{Visual-abstract}
-\end{graphicalabstract}
+%\begin{graphicalabstract}
+%\includegraphics[width=\linewidth]{Visual-abstract}
+%\end{graphicalabstract}
 
 %%Research highlights (commented out for review)
-\begin{highlights}
-	\item A new framework for integrating time series forecasting into stochastic programming.
-	\item Maximum Entropy Bootstrap with bagging for forecasting short logistic time series.
-	\item Bootstrap distributions for distributionally robust optimization.
-	\item Predictive analytics for client allocation and warehouse sizing.
-	\item Real-world 2-echelon logistics case study.
-\end{highlights}
+%\begin{highlights}
+%	\item A new framework for integrating time series forecasting into stochastic programming.
+%	\item Maximum Entropy Bootstrap with bagging for forecasting short logistic time series.
+%	\item Bootstrap distributions for distributionally robust optimization.
+%	\item Predictive analytics for client allocation and warehouse sizing.
+%	\item Real-world 2-echelon logistics case study.
+%\end{highlights}
 
 \begin{keyword}
-	Distributionally Robust Optimization \sep
 	Stochastic programming \sep
+	Distributionally Robust Optimization \sep
 	Forecasting \sep
-	Two-echelon logistics \sep
 	Maximum Entropy Bootstrap \sep 
-	Short time series
+	Two-echelon logistics
 \end{keyword}
 
 \maketitle
@@ -144,7 +147,7 @@ The ambiguity set ($\mathcal{U}$) in DRO is a carefully constructed set of proba
 
 A primary technique for applying both stochastic programming and DRO is {\it Scenario-Based Optimization}. This approach discretizes the continuous probability distribution of uncertain parameters into a finite set of specific scenarios. The {\it Sample Average Approximation} (SAA) method is a pivotal technique here \citep{SH98}, approximating the true underlying distribution with an empirical distribution derived from a sample of independent and identically distributed realizations.
 
-The integration of forecasting and scenario-based optimization - often framed as {\it predict-then-optimize} - is a growing body of literature \citep{R18,FTW18,BK19}. The typical workflow follows a two-stage paradigm: a forecasting model (e.g., SARIMA, GARCH, LSTM) first estimates future parameters, and a separate scenario generation phase simulates or samples future paths based on the forecast's predictive distribution. This sequential paradigm has been questioned because prediction errors, even small ones, can lead to suboptimal decisions when their impact on the downstream optimization problem is large. This motivated the development of methods that explicitly incorporate the optimization objective into the forecasting model's loss function \citep{DAK17,WDT19}, leading to the "Smart Predict, then Optimize" (SPO) framework \citep{EG22}, besides the aforementioned DRO contributions.
+The integration of forecasting and scenario-based optimization - often framed as {\it predict-then-optimize} - is a growing body of literature \citep{BK19,R18}. The typical workflow follows a two-stage paradigm: a forecasting model (e.g., SARIMA, GARCH, LSTM) first estimates future parameters, and a separate scenario generation phase simulates or samples future paths based on the forecast's predictive distribution. This sequential paradigm has been questioned because prediction errors, even small ones, can lead to suboptimal decisions when their impact on the downstream optimization problem is large. This motivated the development of methods that explicitly incorporate the optimization objective into the forecasting model's loss function \citep{DAK17}, leading to the "Smart Predict, then Optimize" (SPO) framework \citep{EG22}, besides the aforementioned DRO contributions.
 
 Unlike these traditional DRO and predict-then-optimize approaches, our work introduces a novel framework that fundamentally links the statistical modeling of input data to the generation of the uncertainty set. Our {\it Bootstrap Enhanced Scenario Optimization} (BESO) framework leverages bootstrapped time series to generate future scenarios. This approach is conceptually aligned with DRO, as it seeks robustness across a set of statistically plausible distributions. However, by using the Maximum Entropy Bootstrap (MEB), BESO generates scenarios that directly preserve the complex autocorrelation and non-stationarity observed in the historical data, eliminating the need for post-hoc parametric ambiguity set design. Scenarios are not a post-processing step but emerge directly from a statistically robust model of the input data's empirical structure. Furthermore, we show how the MEB objective function can be extended to incorporate the downstream optimization's recourse objective, thereby aligning the statistical model directly with the desired prescriptive outcome, similar to SPO methods. In addition, the bootstrap-set cardinality acts as an explicit structural control on the induced ambiguity, allowing the dispersion and effective geometry of the scenario set to be tuned in accordance with downstream optimization sensitivity.
 
@@ -152,7 +155,7 @@ Unlike these traditional DRO and predict-then-optimize approaches, our work intr
 
 Multi-echelon inventory management is a supply chain control strategy that coordinates inventory across multiple levels, called "echelons," of the chain \citep{Clark60}. The objective is to optimize inventory and routing costs across all levels of the supply chain rather than addressing each level in isolation. The literature on this strategy has expanded significantly, covering various aspects such as inventory control policies, replenishment strategies, and inventory risk management.
 
-The successful implementation of effective management policies hinges on sound forecasting and optimization processes. Specifically, in the context of 2-echelon logistics, prescriptions grounded in predictive analytics are essential for refining demand forecasting, inventory allocation, and transportation planning \citep{KK10,A01}. Considerable attention has been paid to demand forecasting \citep{Shenstone01,Syntetos05,Ma15}, however, precise demand forecasting, especially within the context of dynamic retail environments characterized by fluctuating trends and seasonal variations, remains a significant obstacle. Multi-echelon demand forecasting commonly incorporates a variety of models that frequently rely on assumptions of stationarity and specific parametric distributional characteristics. These assumptions are often violated in dynamic retail environments characterized by short-horizon, non-stationary demand series, leading to model mismatch and suboptimal prescriptions.
+The successful implementation of effective management policies hinges on sound forecasting and optimization processes. Specifically, in the context of 2-echelon logistics, prescriptions grounded in predictive analytics are essential for refining demand forecasting, inventory allocation, and transportation planning \citep{A01,KK10}. Considerable attention has been paid to demand forecasting \citep{Ma15,Shenstone01}, however, precise demand forecasting, especially within the context of dynamic retail environments characterized by fluctuating trends and seasonal variations, remains a significant obstacle. Multi-echelon demand forecasting commonly incorporates a variety of models that frequently rely on assumptions of stationarity and specific parametric distributional characteristics. These assumptions are often violated in dynamic retail environments characterized by short-horizon, non-stationary demand series, leading to model mismatch and suboptimal prescriptions.
 
 The application of prescriptive analytics in 2-echelon logistics systems thus faces a critical challenge: how to robustly model the underlying uncertainty to support efficient management decision processes. Most documented multi-echelon inventory policies in the literature rely on instances with generic demand, often generated according to parametric distributions \citep{Escorcia20,EG81}. Our work addresses this methodological gap.
 
@@ -177,7 +180,7 @@ By introducing the BESO framework, we provide a statistically-grounded approach 
 
 \section{The 2-echelon test case} \label{Sec:testcase}
 
-The test case, that makes use of data that comes from an LSRT company that manages multiple retail stores in a large city in northern Italy, originally proposed in \citet{MZ23} for a different application. In this case, 52 stores provided aggregate sales time series data spanning at least 45 months prior to the forecast period, which is set at a three-month horizon, as detailed in the following. Each store maintains a small inventory, replenished by deliveries from one of four different distribution centers (DCs) in the area. The products are categorized into three lines: fresh, dry, and household. In this context, the focus has been exclusively on the logistics of dry and household goods, including product categories ranging from personal care items to basic electronics, from household goods to holiday decorations. For this product line, DCs are required to maintain an aggregate inventory sufficient to cover a demand for a period of two weeks.
+The test case, that makes use of data that comes from an LSRT company that manages multiple retail stores in a large city in northern Italy, originally proposed in \citep{MZ23} for a different application. In this case, 52 stores provided aggregate sales time series data spanning at least 45 months prior to the forecast period, which is set at a three-month horizon, as detailed in the following. Each store maintains a small inventory, replenished by deliveries from one of four different distribution centers (DCs) in the area. The products are categorized into three lines: fresh, dry, and household. In this context, the focus has been exclusively on the logistics of dry and household goods, including product categories ranging from personal care items to basic electronics, from household goods to holiday decorations. For this product line, DCs are required to maintain an aggregate inventory sufficient to cover a demand for a period of two weeks.
 
 The supply chain consists of a large distribution center (DC) in the northern suburbs of the city, a smaller DC in the south, and two small satellite facilities closer to the city center. The satellites have limited storage capacity, but they offer lower-cost and more timely service to the majority of the city's stores. 
 %Figure \ref{fig:locations}:a shows the (anonymized) geolocation of the DCs and stores and \ref{fig:locations}:b the GIS model of the locations (see also \citealt{MZ23}), where the DCs are the orange triangles and the stores are the azure blobs whose size is proportional to the corresponding request.
@@ -334,23 +337,20 @@ This resampling process can be iterated to generate a comprehensive set of boots
 
 Bootstrap-based ambiguity sets introduce an additional degree of freedom in data-driven DRO: the bootstrap cardinality $m$. Although often treated as a tuning parameter, $m$ directly determines the geometry of the ambiguity set and therefore influences the optimizer. Conversely, the optimal decision induces a preference over $m$ through validation or penalization criteria. This creates an intrinsic feedback loop between ambiguity construction and optimization, which the MEB-extension formalizes.
 We observe data $D_n=\{\xi_i\}_{i=1}^n$ with empirical measure
-$\widehat{P}_n=\frac{1}{n}\sum_{i=1}^n \delta_{\xi_i}$,
+\begin{equation}
+	\widehat{P}n=\frac{1}{n}\sum{i=1}^n \delta_{\xi_i},
+\end{equation}
 decision space $X\subset\mathbb{R}^d$, and cost function $c:X\times\Xi\to\mathbb{R}$.  
 For a bootstrap scheme, let $\widehat{P}_n^{(1)},\dots,\widehat{P}_n^{(m)}$ denote $m$ bootstrap empirical measures.  
 A natural ambiguity set is the convex hull
-\begin{equation}
-	\mathcal{U}_m := \operatorname{conv}\{\widehat{P}_n^{(1)},\dots,\widehat{P}_n^{(m)}\},
-\end{equation}
-whose diameter, extreme points, and support all depend on $m$.
-
+$\mathcal{U}_m := \operatorname{conv}\{\widehat{P}_n^{(1)},\dots,\widehat{P}_n^{(m)}\}$	
+where $\widehat{P}_n^{(j)}$ is the empirical distribution of the (j)-th bootstrap sample, and $\mathcal U_m$ is their convex hull in the space of measures whose diameter, extreme points, and support all depend on $m$.
 The associated DRO objective is
 \begin{equation}
 	\Psi_m(x) := \sup_{P\in\mathcal{U}_m} \mathbb{E}_P[c(x,\xi)],
 \end{equation}
-and the optimizer is defined by
-\begin{equation}
-	x^\star(m)\in\arg\min_{x\in X}\Psi_m(x).
-\end{equation}
+and the optimizer is defined by $x^\star(m)\in\arg\min_{x\in X}\Psi_m(x)$.
+
 Since $\Psi_m$ is the supremum of finitely many linear functionals $\mathbb{E}_{\widehat{P}_n^{(j)}}[c(x,\xi)]$, changing $m$ changes the set of extreme points and therefore the optimizer. In general, $m\neq m'$ implies $\mathcal{U}_m\neq\mathcal{U}_{m'}$ and $x^\star(m)\neq x^\star(m')$.
 
 If the ambiguity set depends on $x$—for example through residual-based resampling in the MEB-extension—write $\mathcal{U}_m(x)$ and consider the joint problem
@@ -371,11 +371,11 @@ Eliminating $m$ yields the bilevel formulation
 \end{equation}
 This expresses the feedback loop: $m$ shapes the ambiguity faced by $x$, while $x$ determines which $m$ minimizes the joint objective.
 
-Under standard bootstrap consistency assumptions, if $m=m(n)\to\infty$ with $m(n)/n\to 0$, then $\mathcal{U}_{m(n)}\Rightarrow P^\star$ and $\Psi_{m(n)}(x)\to\mathbb{E}_{P^\star}[c(x,\xi)]$ uniformly on compact $X$, implying $x^\star(m(n))\to x^\star$. For finite $n$,
+Under standard bootstrap consistency assumptions, if $m=m(n)\to\infty$ with $m(n)/n\to 0$, then $\mathcal{U}{m(n)}\Rightarrow P^\star$ and $\Psi{m(n)}(x)\to\mathbb{E}_{P^\star}[c(x,\xi)]$ uniformly on compact $X$, implying $x^\star(m(n))\to x^\star$. For finite $n$,
 \begin{equation}
 	\sup_{x\in X}\big|\Psi_m(x)-\Psi_{m'}(x)\big|
 	\le 
-	L\,\mathrm{Haus}\!\left(\mathcal{U}_m,\mathcal{U}_{m'}\right),
+	L\,\mathrm{Haus}\!\left(\mathcal{U}m,\mathcal{U}{m'}\right),
 \end{equation}
 so changes in $m$ induce controlled perturbations in the DRO objective and optimizer.
 
@@ -436,7 +436,7 @@ The mathematical model used for this problem is as in the following formulation 
 	& \sum_{i \in I} q_{ij} = req_j & j \in J  \label{ALLrequest}\\
 	& &  & \sum_{j \in J}q_{ij} \leq Q_i & i \in I \label{ALLcapacity}\\
 	& &  & \sum_{i \in I} x_{ij} = b_j & j \in J  \label{ALLnumserv}\\
-	& &  & q_{ij} \leq req_j x_{ij}; \quad x_{ij} \in \{0,1\};\quad q_{ij} \in \mathbb{Z}^+_0 & i \in I, j \in J \label{ALLcontin}\\
+	& &  & q_{ij} \leq req_j x_{ij}; \quad x_{ij} \in \{0,1\};\quad q_{ij} \in \mathbb{Z}^+_0 & i \in I, j \in J \label{ALLcontin}
 \end{align}
 
 The constraints in equation \ref{ALLnumserv} are formulated as equalities due to the need to impose specific splits in 'what if' scenarios. However, if this is not of particular interest, these constraints could be replaced by less-than-or-equal-to inequalities combined with inequalities that ensure allocations are made to at least one server.
@@ -452,7 +452,7 @@ Furthermore, as future client requests can only be forecast, it is more convenie
 	& \sum_{i \in I} q_{ij} = R(\rho_j) & j \in J  \label{SALLrequest}\\
 	& &  & \sum_{j \in J}q_{ij} \leq Q_i & i \in I \label{SALLcapacity}\\
 	& &  & \sum_{i \in I} x_{ij} = b_j & j \in J  \label{SALLnumserv}\\
-	& &  & q_{ij} \leq R(\rho_j) x_{ij}; \quad  x_{ij} \in \{0,1\}; \quad q_{ij} \in \mathbb{Z}^+_0 & i \in I, j \in J \label{SALLcontin}\\
+	& &  & q_{ij} \leq R(\rho_j) x_{ij}; \quad  x_{ij} \in \{0,1\}; \quad q_{ij} \in \mathbb{Z}^+_0 & i \in I, j \in J \label{SALLcontin}
 \end{align}
 
 Different methods can be used to deal with this case \citep{SDR09}. We transformed the formulation (FS) into its {\it deterministic equivalent} \citep{D55} using the forecasts computed on the bootstrap sets. We generated multiple scenarios each containing a realization of the stochastic variable $\rho$, which is defined as a forecast of one series from the bootstrap set in use. For each scenario $s$, we thus created a version of the constraint with $b_i^{s}$ as the right-hand side. The final solution must satisfy these constraints across all scenarios.

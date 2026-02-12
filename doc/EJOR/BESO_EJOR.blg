@@ -8,46 +8,45 @@ Database file #1: GDObiblio.bib
 Reallocating 'singl_function' (item size: 4) to 100 items.
 Warning--empty pages in DAK17
 Warning--empty chapter and pages in R18
-Warning--empty pages in WDT19
-You've used 52 entries,
+You've used 49 entries,
             2990 wiz_defined-function locations,
-            1093 strings with 14682 characters,
-and the built_in function-call counts, 32478 in all, are:
-= -- 2491
-> -- 1052
-< -- 44
-+ -- 429
-- -- 353
-* -- 3353
-:= -- 4671
-add.period$ -- 151
-call.type$ -- 52
-change.case$ -- 376
-chr.to.int$ -- 52
-cite$ -- 55
-duplicate$ -- 2555
-empty$ -- 2572
-format.name$ -- 530
-if$ -- 6170
+            1075 strings with 13982 characters,
+and the built_in function-call counts, 30646 in all, are:
+= -- 2354
+> -- 982
+< -- 43
++ -- 402
+- -- 329
+* -- 3156
+:= -- 4402
+add.period$ -- 143
+call.type$ -- 49
+change.case$ -- 353
+chr.to.int$ -- 49
+cite$ -- 51
+duplicate$ -- 2408
+empty$ -- 2433
+format.name$ -- 495
+if$ -- 5828
 int.to.chr$ -- 1
 int.to.str$ -- 1
-missing$ -- 473
-newline$ -- 270
-num.names$ -- 216
-pop$ -- 964
+missing$ -- 446
+newline$ -- 256
+num.names$ -- 204
+pop$ -- 902
 preamble$ -- 1
-purify$ -- 323
+purify$ -- 303
 quote$ -- 0
-skip$ -- 779
+skip$ -- 737
 stack$ -- 0
-substring$ -- 1422
-swap$ -- 1721
+substring$ -- 1368
+swap$ -- 1627
 text.length$ -- 7
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 444
-warning$ -- 3
-while$ -- 215
+type$ -- 417
+warning$ -- 2
+while$ -- 205
 width$ -- 0
-write$ -- 732
-(There were 3 warnings)
+write$ -- 692
+(There were 2 warnings)

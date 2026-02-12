@@ -1,4 +1,4 @@
-\begin{thebibliography}{52}
+\begin{thebibliography}{49}
 \expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
 \providecommand{\url}[1]{\texttt{#1}}
 \providecommand{\href}[2]{#2}
@@ -192,15 +192,6 @@
   using the wasserstein metric: Performance guarantees and tractable
   reformulations}.
 \newblock \URLprefix \url{https://arxiv.org/abs/1505.05116}.
-%Type = Article
-\bibitem[{Fairbrother et~al.(2018)Fairbrother, Turner and Wallace}]{FTW18}
-\bibinfo{author}{Fairbrother, J.}, \bibinfo{author}{Turner, A.},
-  \bibinfo{author}{Wallace, S.W.}, \bibinfo{year}{2018}.
-\newblock \bibinfo{title}{Scenario generation for single-period portfolio
-  selection problems with tail risk measures: Coping with high dimensions and
-  integer variables}.
-\newblock \bibinfo{journal}{INFORMS Journal on Computing} \bibinfo{volume}{30},
-  \bibinfo{pages}{472--491}.
 %Type = Masterthesis
 \bibitem[{Feliu(2024)}]{feliu2024enhancing}
 \bibinfo{author}{Feliu, J.M.}, \bibinfo{year}{2024}.
@@ -365,27 +356,12 @@
   of intermittent demand}.
 \newblock \bibinfo{journal}{Journal of the Oper. Research Society} .
 %Type = Article
-\bibitem[{Syntetos and Boylan(2005)}]{Syntetos05}
-\bibinfo{author}{Syntetos, A.A.}, \bibinfo{author}{Boylan, J.E.},
-  \bibinfo{year}{2005}.
-\newblock \bibinfo{title}{Demand forecasting and inventory control for
-  intermittent demand using a weighted moving average approach}.
-\newblock \bibinfo{journal}{Int. Journal of Production Economics} .
-%Type = Article
 \bibitem[{Vinod and Kourentzes(2006)}]{Vinod2006}
 \bibinfo{author}{Vinod, H.D.}, \bibinfo{author}{Kourentzes, N.},
   \bibinfo{year}{2006}.
 \newblock \bibinfo{title}{Maximum entropy bootstrap for predictive inference}.
 \newblock \bibinfo{journal}{Journal of Forecasting} \bibinfo{volume}{25},
   \bibinfo{pages}{49--63}.
-%Type = Inproceedings
-\bibitem[{Wilder et~al.(2019)Wilder, Dilkina and Tambe}]{WDT19}
-\bibinfo{author}{Wilder, B.}, \bibinfo{author}{Dilkina, B.},
-  \bibinfo{author}{Tambe, M.}, \bibinfo{year}{2019}.
-\newblock \bibinfo{title}{Melding the data-decisions pipeline: decision-focused
-  learning for combinatorial optimization}, in: \bibinfo{booktitle}{Proceedings
-  of the Thirty-Third AAAI Conference on Artificial Intelligence},
-  \bibinfo{publisher}{AAAI Press}.
 %Type = Article
 \bibitem[{Youngjin et~al.(2011)Youngjin, Youngho and Junghee}]{KLH11}
 \bibinfo{author}{Youngjin, K.}, \bibinfo{author}{Youngho, L.},
