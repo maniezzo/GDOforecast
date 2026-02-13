@@ -9,7 +9,7 @@
 
 %% Use the option review to obtain double line spacing
 %% \documentclass[preprint,review,12pt]{elsarticle}
-\documentclass[review,a4paper,fleqn,3p,11pt]{elsarticle}
+\documentclass[review,a4paper,fleqn,3p,11pt,authoryear]{elsarticle}
 
 \usepackage{natbib}
 %\usepackage[authoryear]{natbib}
@@ -75,8 +75,7 @@
 \affiliation[1]{organization={Center for Simulation, Analytics and Modelling},
                 addressline={University of Exeter Business School}, 
                 city={Exeter},
-%                postcode={695013}, 
-%                state={Kerala},
+                postcode={EX4 4PU}, 
                 country={UK}}
 
 \author[2]{Vittorio Maniezzo\corref{cor}}
@@ -84,8 +83,8 @@
 
 \affiliation[2]{organization={Department of Computer Science},
                 addressline={University of Bologna}, 
-%                postcode={1011 NX}, 
-                city={Bologna},
+                postcode={47123}, 
+                city={Cesena},
                 country={Italy}}
 
 \cortext[cor]{Corresponding author}
@@ -141,7 +140,7 @@ The paper intersects different research threads, both in terms of the theoretica
 
 \subsection{Predictive Prescriptions and Distributionally Robust Optimization}
 
-Stochastic programming has long served as a fundamental framework for modeling decision-making under uncertainty, primarily through expected-value models and recourse formulations \citep{B55,D55}. As the field matured, methods evolved to address model robustness. Robust optimization \citep{BN98,BS04} proposes a deterministic reformulation considering worst-case outcomes within a defined uncertainty set. A major development is {\it Distributionally Robust Optimization} (DRO), which seeks a solution most resilient against the worst-case probability distribution for uncertain parameters, typically within an {\it ambiguity set} \citep{DY10}.
+Stochastic programming has long served as a fundamental framework for modeling decision-making under uncertainty, primarily through expected-value models and recourse formulations \citep{D55,B55}. As the field matured, methods evolved to address model robustness. Robust optimization \citep{BN98,BS04} proposes a deterministic reformulation considering worst-case outcomes within a defined uncertainty set. A major development is {\it Distributionally Robust Optimization} (DRO), which seeks a solution most resilient against the worst-case probability distribution for uncertain parameters, typically within an {\it ambiguity set} \citep{DY10}.
 
 The ambiguity set ($\mathcal{U}$) in DRO is a carefully constructed set of probability distributions that the true, but unknown, distribution of the uncertain parameters is assumed to belong to. The core of DRO is to optimize the worst-case performance over all distributions within this set, thus making the resulting solution robust to distributional uncertainty. Mainstream DRO approaches define this ambiguity set in different ways. Some utilize specific distance metrics to construct an ambiguity set centered around the empirical distribution, such as those based on the $\phi$-divergence (or $f$-divergence) \citep{BK19}. Others, such as in the work of \citet{EK17}, define the set based on measurable moment constraints (e.g., bounds on the mean and covariance) of the uncertain parameters. This methodology provides strong theoretical guarantees but requires the designer to make choices on the ambiguity set's structure and size, which may not fully reflect the true statistical dynamics of the input data.
 
@@ -180,7 +179,7 @@ By introducing the BESO framework, we provide a statistically-grounded approach 
 
 \section{The 2-echelon test case} \label{Sec:testcase}
 
-The test case, that makes use of data that comes from an LSRT company that manages multiple retail stores in a large city in northern Italy, originally proposed in \citep{MZ23} for a different application. In this case, 52 stores provided aggregate sales time series data spanning at least 45 months prior to the forecast period, which is set at a three-month horizon, as detailed in the following. Each store maintains a small inventory, replenished by deliveries from one of four different distribution centers (DCs) in the area. The products are categorized into three lines: fresh, dry, and household. In this context, the focus has been exclusively on the logistics of dry and household goods, including product categories ranging from personal care items to basic electronics, from household goods to holiday decorations. For this product line, DCs are required to maintain an aggregate inventory sufficient to cover a demand for a period of two weeks.
+The test case, that makes use of data that comes from an LSRT company that manages multiple retail stores in a large city in northern Italy, originally proposed in \citet{MZ23} for a different application. In this case, 52 stores provided aggregate sales time series data spanning at least 45 months prior to the forecast period, which is set at a three-month horizon, as detailed in the following. Each store maintains a small inventory, replenished by deliveries from one of four different distribution centers (DCs) in the area. The products are categorized into three lines: fresh, dry, and household. In this context, the focus has been exclusively on the logistics of dry and household goods, including product categories ranging from personal care items to basic electronics, from household goods to holiday decorations. For this product line, DCs are required to maintain an aggregate inventory sufficient to cover a demand for a period of two weeks.
 
 The supply chain consists of a large distribution center (DC) in the northern suburbs of the city, a smaller DC in the south, and two small satellite facilities closer to the city center. The satellites have limited storage capacity, but they offer lower-cost and more timely service to the majority of the city's stores. 
 %Figure \ref{fig:locations}:a shows the (anonymized) geolocation of the DCs and stores and \ref{fig:locations}:b the GIS model of the locations (see also \citealt{MZ23}), where the DCs are the orange triangles and the stores are the azure blobs whose size is proportional to the corresponding request.
@@ -216,7 +215,7 @@ All codes and data are available in an anonymized format from the project reposi
 %\citep{GDOforecastRepo}
 {\it (public upon acceptance)}. Specifically, the file containing the request time series can be downloaded from the repository, where all series are complete up to the most recent actual values. However, it should be noted that the last three values were unknown at the time the final forecast was generated. 
 
-According to the classification proposed in \citep{DEKOK2018} our contribution is described by the following typology string: 2,D,D,G|F,C|D,G|b,F,N|SC|E,O
+According to the classification proposed in \citet{DEKOK2018} our contribution is described by the following typology string: 2,D,D,G|F,C|D,G|b,F,N|SC|E,O
 standing for: {\it System specification}: 2 echelons, Divergent material structure, Discrete events, Global information; {\it Resources specifications}: bounded storage, Constant delivery time; {\it Market specifications}: Discrete stochastic demand, Guaranteed service; {\it Control type specifications}: installation base stock policy, Flexible release quantities, No other means to satisfy unexpected requirements; {\it Performance specifications}: meeting service requirements and minimization of costs; {\it Generic scientific aspects}: Exact techniques, Optimization.
 
 % \subsection{Data preprocessing}  \label{Sec:preproc}
@@ -276,7 +275,7 @@ This averaging process effectively reduces variance by smoothing out the predict
 
 In recent years, resampling techniques, especially the bootstrap method, have become valuable for overcoming the limitations of conventional forecasting methods \citep{hasni2019spare}. The bootstrap method creates simulated time series through resampling from observed data. This approach is useful for non-stationary, non-linear, intermittent, and asymmetric cyclical patterns, as well as low signal-to-noise scenarios \citep{feliu2024enhancing, kreiss2012bootstrap}. Moreover, resampling methods help address the effects of limited sample sizes \citep{davison1997bootstrap}  and model uncertainty \citep{sarris2020exploiting}. 
 
-The utility of bootstrap methods in model selection has been extensively validated. Fenga and Politis \citep{fenga2011bootstrap} introduced a bootstrap-based approach for autoregressive moving average (ARMA) order selection, demonstrating its effectiveness in enhancing model accuracy with finite sample sizes. Furthermore, they explored the LASSO technique for sparse autoregression, illustrating a bootstrap framework for model selection in high-dimensional contexts \citep{fenga2017lasso}. These studies collectively show how bootstrap methods can enhance order selection across statistical modeling frameworks, underscoring their relevance in modern statistical analysis.
+The utility of bootstrap methods in model selection has been extensively validated. \citet{fenga2011bootstrap} introduced a bootstrap-based approach for autoregressive moving average (ARMA) order selection, demonstrating its effectiveness in enhancing model accuracy with finite sample sizes. Furthermore, they explored the LASSO technique for sparse autoregression, illustrating a bootstrap framework for model selection in high-dimensional contexts \citep{fenga2017lasso}. These studies collectively show how bootstrap methods can enhance order selection across statistical modeling frameworks, underscoring their relevance in modern statistical analysis.
 
 %The resampling scheme adopted here is called Maximum Entropy Bootstrap (MEB) \citep{meb1}. As it will be explained, MEB offers a principled and flexible approach to bootstrapping time series data, addressing many of the limitations of traditional block bootstrap methods. Its ability to handle complex dependencies and non-stationarity, coupled with its robust performance, makes it a valuable tool for a wide range of time series analysis tasks This powerful nonparametric resampling technique has revolutionized time series analysis by offering a principled and elegant approach to constructing bootstrap distributions \citep{meb2,meb3}. Unlike traditional block bootstrap methods (see, e.g., \citep{bb1,bb2}), which resample blocks of data to preserve the serial correlation structure, MEB seeks to maximize the entropy of the bootstrap distribution subject to constraints derived from the observed data. This approach leads to more flexible and less restrictive bootstrap distributions, offering several advantages over traditional methods, especially when dealing with complex time series data. A critical aspect of MEB’s application is its robustness in nonstationary environments, where traditional forecasting methods often falter. MEB can capture the evolving dynamics of the time series, thereby enhancing the predictive accuracy of the forecasts \citep{chen2020}. By generating multiple bootstrap samples, MEB facilitates the construction of confidence intervals and prediction intervals, which are paramount for effective decision-making in fields like finance and risk management \citep{shafer2019}. Furthermore, MEB allows for the incorporation of complex models, such as those involving seasonal patterns or autoregressive structures, into the resampling framework. This flexibility enables researchers to model intricate temporal dynamics, making MEB particularly suitable for various applications ranging from economic forecasting to climate modeling. Its capacity to integrate both linear and nonlinear dependencies provides a significant advantage over traditional methods that may oversimplify these relationships \citep{lopez2023}.
 
@@ -298,7 +297,7 @@ In these cases Maximum Entropy Bootstrap (MEB) guarantees the following advantag
 	\item {\it Support of Stationary and Non-Stationary Series} MEB is flexible with both stationary and non-stationary time series, whereas other bootstrap techniques often require stationarity or explicit transformation to achieve it.
 \end{itemize}
 
-The MEB resampling scheme adopted here offers a principled and flexible approach to bootstrapping time series data, leveraging the {\it Maximum Entropy Principle} (MEP) \citep{shannon1948mathematical} to address the inherent limitations of conventional bootstrap methods, thus addressing many limitations of traditional block bootstrap methods. The essence of MEP is grounded in the idea that in the absence of specific information, the most rational probability distribution to adopt is one that maximizes entropy, reflecting the greatest uncertainty about the system \citep{jaynes1957information}. This is mathematically articulated through Shannon entropy,  defined as $S(p) = -\sum_{i=1}^{n} p_i \log(p_i)$, where $ p_i$ denotes the probability associated with the i-th outcome within a discrete sample space of size $n$. 
+The MEB resampling scheme offers a principled and flexible approach to bootstrapping time series data, leveraging the {\it Maximum Entropy Principle} (MEP) \citep{shannon1948mathematical} to address the inherent limitations of conventional bootstrap methods, thus addressing many limitations of traditional block bootstrap methods. The essence of MEP is grounded in the idea that in the absence of specific information, the most rational probability distribution to adopt is one that maximizes entropy, reflecting the greatest uncertainty about the system \citep{jaynes1957information}. This is mathematically articulated through Shannon entropy,  defined as $S(p) = -\sum_{i=1}^{n} p_i \log(p_i)$, where $ p_i$ denotes the probability associated with the i-th outcome within a discrete sample space of size $n$. 
 % Its ability to handle complex dependencies and non-stationarity, along with robust performance, makes it valuable for a wide range of time series analysis tasks. This powerful nonparametric resampling technique has transformed time series analysis by providing an elegant method for constructing bootstrap distributions \citep{meb2, meb3}. 
 
 % Unlike traditional block bootstrap methods \citep{bb1, bb2}, which resample data blocks to preserve serial correlation, MEB maximizes the entropy of the bootstrap distribution subject to constraints from the observed data. This results in more flexible bootstrap distributions, offering advantages over traditional methods, especially for complex time series data. A critical aspect of MEB is its robustness in nonstationary environments, where traditional forecasting methods may struggle. MEB captures evolving time series dynamics, enhancing forecast accuracy \citep{chen2020}. By generating multiple bootstrap samples, MEB facilitates the construction of confidence and prediction intervals, crucial for effective decision-making in finance and risk management \citep{shafer2019}. Furthermore, MEB accommodates complex models involving seasonal patterns or autoregressive structures, enabling researchers to model intricate temporal dynamics. Its ability to integrate linear and nonlinear dependencies provides a significant advantage over traditional methods that may oversimplify relationships \citep{lopez2023}.
@@ -408,7 +407,7 @@ The MEB-extension incorporates decision-dependent ambiguity and regularizes $m$ 
 
 The predictive module provides a structural component of the prescriptive module, which aims to optimize the allocation of stores to distribution centers (DCs), thereby enabling the quantification of space to rent in third-party DCs. The results of the optimization are in turn used to evaluate the modeled {\it scenario}, where scenarios are defined for specific what-if analyses. For example, the objective of the what-if analyses could be to examine the effect of freezing some allocations while leaving free the others, or possibly accepting some multiple -- double in the test case -- allocations for some selected stores. 
 
-The core optimization problem is a {\em split allocation problem}. This variant of the basic allocation problem has already received attention in the optimization literature, mainly in the context of survivable communication network design \citep{EK98,MKE75}, and more generally as the splittable capacitated multiple allocation hub location problems \citep{M05}. It finds applications in fiber optic access networks \citep{KLH11}, split delivery routing \citep{DT89}, and even in school timetabling \citep{BBL07}. The problem we are interested in is related to one that is presented in \citep{ZHHY21}, but it is modelled in a very different way.
+The core optimization problem is a {\em split allocation problem}. This variant of the basic allocation problem has already received attention in the optimization literature, mainly in the context of survivable communication network design \citep{EK98,MKE75}, and more generally as the splittable capacitated multiple allocation hub location problems \citep{M05}. It finds applications in fiber optic access networks \citep{KLH11}, split delivery routing \citep{DT89}, and even in school timetabling \citep{BBL07}. The problem we are interested in is related to one that is presented in \citet{ZHHY21}, but it is modelled in a very different way.
 
 The mathematical model we use is a direct extension of the standard model for allocation problems. As our proposed framework is valid beyond the specific case study described in the paper, we will refer to the application elements (stores and data centers) using standard allocation terminology in what follows. To emphasize the generality of the analysis, we will use the more generic term 'clients' to denote the stores and 'servers' to denote the centers. In our context, assignment constraints can accept a parametric number of assignments, enabling requests to be serviced across multiple servers. The notation used in the model is as follows:
 
@@ -473,7 +472,7 @@ The resulting formulation is in formulation (DE). The random variables $\rho_j$ 
 
 In this formulation, since each variable $\rho_j^s$ derives from a specific realization of the corresponding random variable $\rho_j$, the amounts to be delivered to each store $j \in J$ are scenario-specific. However, it is required to determine a unique allocation that allows to serve all stores in any proposed scenario. This last requirement may be infeasible, so the slack variables $\epsilon_{js}$ are needed in the formulation. They are lexicographically penalized in the objective function by appropriately high costs, in order to implement the primary concern of achieving feasibility.
 
-Optimizing formulation (DE) makes it possible to determine the quantities that each server must be able to supply to each client, i.e. the total quantity that each server must handle. 
+Optimizing formulation (DE) makes determines the quantities that each server must be able to supply to each client, i.e. the total quantity that each server must handle. 
 In terms of our logistical application, since each DC must maintain sufficient inventory to meet the anticipated demand during the designated period, the optimization of the client (retailer) allocation translates directly into a quantification of the DC inventory and therefore of its required minimum size. Thus, solving the allocation problem also solves the dimensioning question that motivated this research.
 
 \section{Computational results} \label{Sec:results}
@@ -499,7 +498,6 @@ The focus of this part of the research is on the bootstrap method. To this end, 
 We also attempted to generate bootstrap sets with and without backcasting, as well as with simple extraction and repetitions among the residuals of the seed series, and compared these with their scrambling. We did not report the results of these tests because backcasting worsened the results, while scrambling the residuals showed no difference compared to extraction with repetitions. Therefore, in line with the literature, we decided to use the latter approach.
 
 The forecasts were compared using three cost functions: mean absolute error (MAE), mean squared error (MSE) and bias. The results are reported by ranking the corresponding forecasts for each series according to the quality of the considered function to emphasize how the algorithms perform relative to each other. Then, the rank of each function is averaged over all series. Appendix \ref{app:errcost} reports the absolute values of the error measures, rather than the rank-based values, for all boostset sizes. 
-
 Table \ref{table:YWARranks} presents the results of comparing the forecasts obtained using standard algorithms with those obtained using boosting. The boosted series were computed using an AR(5) model based on Yule-Walker equations. The forecasts of these series were obtained using a simple autoregressive model. The boosted sets consisted of 75, 125, and 175 series, which are labelled $YW\_AR\_75$ (standing for Yule-Walker, AutoRegressive, 75 series bootstrap set), $YW\_AR\_125$, and $YW\_AR\_175$, respectively.
 
 The columns show the average ranking of each cost function (MAE, MSE or bias) for each boostset size, while on the rows we report:
@@ -584,7 +582,7 @@ Figures \ref{fig:ywar75} and \ref{fig:ywar175} show a comparison of the ranks on
 	\label{fig:ywar175}
 \end{figure*}
 
-Our relatively short time series require a forecasting approach that can handle both limited data and non-stationarity.  Although sophisticated machine learning models such as recurrent neural networks (RNNs) and gradient boosting machines (GBMs) have become more popular in recent years, they can perform less well when there is limited data available, particularly when the data has non-stationary properties. This can lead to overfitting.  The autoregressive (AR) model combined with maximum entropy bootstrap offers a powerful and promising alternative.  This technique performed excellently in the context of this study, consistently outperforming more complex machine learning models. It offers an approach based on robust statistical principles that mitigates the risk of overfitting inherent in many AI approaches. Moreover, the AR model combined with the bootstrap methodology provides reliable forecasts ideally suited to integration into the subsequent optimization module.  
+Our relatively short time series require a forecasting approach that can handle both limited data and non-stationarity.  Although sophisticated machine learning models such as recurrent neural networks (RNNs) and gradient boosting machines (GBMs) have become more popular in recent years, they can perform less well when there is limited data available, particularly when the data has non-stationary properties. This can lead to overfitting. The autoregressive (AR) model combined with MEB offers a powerful and promising alternative.  This technique performed excellently in the context of this study, consistently outperforming more complex machine learning models. It offers an approach based on robust statistical principles that mitigates the risk of overfitting inherent in many AI approaches. Moreover, the AR model combined with the bootstrap methodology provides reliable forecasts ideally suited to integration into the subsequent optimization module.  
 
 In our case, the choice of an autoregressive (AR) model not only offers superior accuracy, but also several crucial advantages over more complex machine learning approaches. Firstly, the AR model's inherent simplicity makes it easy to implement and interpret.  Unlike many machine learning algorithms, which operate as 'black boxes', the parameters of the AR model have clear statistical interpretations that provide insight into the underlying dynamics of the time series data. Secondly, the well-established theoretical framework of the AR model and the readily available diagnostic tools allow for robust validation and assessment of model performance.  
 
@@ -626,7 +624,7 @@ The clients to be split are chosen from the most requesting clients. We ran a se
 
 \begin{figure*}[ht] 
 	\centering
-	\includegraphics[width=0.7\linewidth]{figs/figbmult.eps}%
+	\includegraphics[width=0.65\linewidth]{figs/figbmult.eps}%
 	\caption{Allocation cost for increasing number of splittable clients}
 	\label{fig:bmult}
 \end{figure*}
@@ -826,13 +824,7 @@ All tables show significantly consistent results across all boost set sizes.
 
 All analyses reported in sections \ref{Subsec:predictive} and \ref{Subsec:prescriptive} refer to the case study at the heart of this paper, but the interest of the method is not limited to this particular case study as it can be effective on any instance of this 2-echelon supply chain problem. To test the generality of the results, we generated a benchmark set with varying dimensions and coefficients. The study was conducted only with respect to the deterministic setting, and is therefore significant for assessing the computational complexity of the split-allocation problem as a deterministic combinatorial optimization problem.
 
-We generated 5 instances for each configuration of number of clients ($n$), number of servers ($m$), and number of splittable clients. The travel costs were obtained by randomly selecting $m$ rows and $n$ columns from a large distance matrix, whose values were computed as the actual road distances between points located in the same area as the test case. Server inventory costs were inversely proportional to the average travel cost from the server to the clients and client requests were inversely proportional to the average travel cost from the client to the servers. Note that the distance matrix is asymmetric, as it was computed within a city area. The number $n_b$ of splittable clients was progressively increased as the number $n_q$ of servers with nonzero inventory costs. Specifically, the range of the defining parameters were:
-\begin{itemize}
-	\item $n$: \{50, 52, 100, 200, 300\};
-	\item $m$: \{4, 5, 10, 25, 50\};
-	\item $n_b$: \{0, 4, 5, 10, 25, 50\}
-	\item $n_q$: \{0, 1, 2, 3, 4, 5\}
-\end{itemize}
+We generated 5 instances for each configuration of number of clients ($n$), number of servers ($m$), and number of splittable clients. The travel costs were obtained by randomly selecting $m$ rows and $n$ columns from a large distance matrix, whose values were computed as the actual road distances between points located in the same area as the test case. Server inventory costs were inversely proportional to the average travel cost from the server to the clients and client requests were inversely proportional to the average travel cost from the client to the servers. Note that the distance matrix is asymmetric, as it was computed within a city area. The number $n_b$ of splittable clients was progressively increased as the number $n_q$ of servers with nonzero inventory costs. Specifically, the range of the defining parameters were: $n$: \{50, 52, 100, 200, 300\}, $m$: \{4, 5, 10, 25, 50\}, $n_b$: \{0, 4, 5, 10, 25, 50\}, $n_q$: \{0, 1, 2, 3, 4, 5\}.
 
 Not all combinations of values were generated, the larger values were used only for instances with higher number of clients. In particular, the values 4 and 52 were only used to generate instances with the same dimensionality as the case study, in order to check the generality of the results obtained. The first instance of this set was kept to be the case study one.
 
@@ -907,7 +899,7 @@ Table \ref{table:extsetq} reports results about tests varying the number of cost
 	\item lb5, t5: linear relaxation bound and CPU time in the case of 5 costly servers;
 \end{itemize}
 
-The table reports results on two sets of instances. The top 4 rows contain aggregate results on a set of instances, 5 for each configuration, where inventory costs are directly proportional to average travel distances, while the bottom 4 rows have inventory costs inversely proportional to average travel distances.
+The table reports results on two sets of instances. The top 4 rows contain aggregate results on a set of instances, 5 for each configuration, where inventory costs are directly proportional to average distances, while the bottom 4 rows have costs inversely proportional to average distances.
 
 \begin{table}
 	\addtolength{\tabcolsep}{-3pt}
@@ -933,7 +925,7 @@ The table reports results on two sets of instances. The top 4 rows contain aggre
 \end{table}
 
 The complexity of solving instances increases non-monotonically with the number of costly servers, for both increasing and decreasing inventory costs. While the 0-cost instances are comparatively easy to solve, the CPU time required to prove optimality increases with the addition of the first costly servers and then decreases as more servers are paid to store inventory. However, this is not true of the gap between the linear relaxation bound and the cost of the optimal solution, where the instances with no costly servers always have the largest gap.
-As expected, the CPU time required to prove optimality increases with the dimension of the case, and the case with an inverse correlation between storage cost and travel cost is more difficult to solve than the case with a positive correlation.
+As expected, the CPU time required to prove optimality increases with the dimension, and an inverse correlation between storage cost and travel cost is more difficult to solve than the case with a positive correlation.
 	
 %% Loading bibliography style file
 %\bibliographystyle{model1-num-names}
