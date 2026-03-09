@@ -1,12 +1,3 @@
-%% Template article for Elsevier's document class `elsarticle'
-%% with numbered style bibliographic references
-%% SP 2008/03/01
-%%
-%% 
-%%
-%% $Id: elsarticle-template-num.tex 190 2020-11-23 11:12:32Z rishi $
-%%
-
 %% Use the option review to obtain double line spacing
 %% \documentclass[preprint,review,12pt]{elsarticle}
 \documentclass[review,a4paper,fleqn,3p,11pt,authoryear]{elsarticle}
@@ -69,25 +60,24 @@
 
 \title{Bootstrap Enhanced Scenario Optimization, a Case Study in Two-Echelon Logistics}                      
 
-\author[1]{Livio Fenga}
-\ead{L.Fenga@exeter.ac.uk}
-
-\affiliation[1]{organization={Center for Simulation, Analytics and Modelling},
-                addressline={University of Exeter Business School}, 
-                city={Exeter},
-                postcode={EX4 4PU}, 
-                country={UK}}
-
-\author[2]{Vittorio Maniezzo\corref{cor}}
-\ead{vittorio.maniezzo@unibo.it}
-
-\affiliation[2]{organization={Department of Computer Science},
-                addressline={University of Bologna}, 
-                postcode={47123}, 
-                city={Cesena},
-                country={Italy}}
-
-\cortext[cor]{Corresponding author}
+%\author[1]{Livio Fenga}
+%\ead{L.Fenga@exeter.ac.uk}
+%
+%\affiliation[1]{organization={Center for Simulation, Analytics and Modelling},
+%                addressline={University of Exeter Business School}, 
+%                city={Exeter},
+%                postcode={EX4 4PU}, 
+%                country={UK}}
+%
+%\ead{vittorio.maniezzo@unibo.it}
+%
+%\affiliation[2]{organization={Department of Computer Science},
+%                addressline={University of Bologna}, 
+%                postcode={47123}, 
+%                city={Cesena},
+%                country={Italy}}
+%
+%\cortext[cor]{Corresponding author}
 
 \begin{abstract}
 We introduce the Bootstrap Enhanced Scenario Optimization (BESO) framework, a novel methodology for prescriptive analytics under uncertainty. BESO addresses the challenge of generating reliable demand scenarios from volatile, short, and non-stationary time series data. The core innovation lies in delegating the modeling of uncertainties to the Maximum Entropy Bootstrap (MEB) integrated with bagging, a technique that preserves the complex autocorrelation structure of empirical time series forecasts, enabling the generation of statistically coherent scenarios. We further extend MEB through an objective-augmented formulation that incorporates downstream recourse elements into the resampling mechanism. These statistically rich scenarios are then integrated into a deterministic equivalent model to derive accountable and optimized prescriptions. We demonstrate the framework's power using a real-world case study in tactical inventory allocation. Our findings, also validated against an extensive set of artificial benchmark instances, demonstrate the effectiveness of MEB-enhanced forecasting in optimization. BESO establishes a new, generalizable paradigm for robust decision-making derived from noisy univariate data series.
