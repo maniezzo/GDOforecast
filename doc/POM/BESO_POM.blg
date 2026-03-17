@@ -1,0 +1,52 @@
+This is BibTeX, Version 0.99d
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: BESO_POM.aux
+Reallocating 'name_of_file' (item size: 1) to 8 items.
+The style file: pomsref.bst
+Reallocating 'name_of_file' (item size: 1) to 10 items.
+Database file #1: GDObiblio.bib
+Reallocating 'wiz_functions' (item size: 4) to 6000 items.
+Warning--empty pages in DAK17
+Warning--empty chapter and pages in R18
+You've used 50 entries,
+            3240 wiz_defined-function locations,
+            1011 strings with 12792 characters,
+and the built_in function-call counts, 29815 in all, are:
+= -- 2386
+> -- 1145
+< -- 40
++ -- 409
+- -- 335
+* -- 2095
+:= -- 4582
+add.period$ -- 208
+call.type$ -- 50
+change.case$ -- 353
+chr.to.int$ -- 50
+cite$ -- 52
+duplicate$ -- 2388
+empty$ -- 2370
+format.name$ -- 506
+if$ -- 5995
+int.to.chr$ -- 1
+int.to.str$ -- 1
+missing$ -- 492
+newline$ -- 264
+num.names$ -- 208
+pop$ -- 971
+preamble$ -- 1
+purify$ -- 309
+quote$ -- 0
+skip$ -- 756
+stack$ -- 0
+substring$ -- 1400
+swap$ -- 1150
+text.length$ -- 3
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 426
+warning$ -- 2
+while$ -- 209
+width$ -- 0
+write$ -- 658
+(There were 2 warnings)

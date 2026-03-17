@@ -1,0 +1,306 @@
+\begin{thebibliography}{50}
+\expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
+\expandafter\ifx\csname url\endcsname\relax
+  \def\url#1{{\tt #1}}\fi
+\expandafter\ifx\csname urlprefix\endcsname\relax\def\urlprefix{URL }\fi
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \expandafter\ifx\csname doi\endcsname\relax
+  \def\doi#1{doi:\discretionary{}{}{}#1}\fi \else
+  \expandafter\ifx\csname doi\endcsname\relax
+  \def\doi{doi:\discretionary{}{}{}\begingroup \urlstyle{rm}\Url}\fi \fi
+
+\bibitem[{Andersson and Marklund(2000)}]{Andersson00}
+Andersson, J., J.~Marklund. 2000.
+\newblock {Decentralized inventory control in a two-level distribution system}.
+\newblock {\it European J. of Operational Research\/}, { 127} (3), 483-506.
+
+\bibitem[{Aviv(2001)}]{A01}
+Aviv, Y. 2001.
+\newblock The effect of collaborative forecasting on supply chain performance.
+\newblock {\it Management Science\/}, { 47} (10), 1326-1343.
+
+\bibitem[{Bayraksan and Morton(2011)}]{BM11}
+Bayraksan, Güzin, David~P. Morton. 2011.
+\newblock A sequential sampling procedure for stochastic programming.
+\newblock {\it Operations research\/}, { 59} (4), iii-1058.
+
+\bibitem[{Beale(2018)}]{B55}
+Beale, E. M.~L. 2018.
+\newblock On minimizing a convex function subject to linear inequalities.
+\newblock {\it Journal of the Royal Statistical Society: Series B
+  (Methodological)\/}, { 17} (2), 173-184.
+
+\bibitem[{Ben-Tal and Nemirovski(1998)}]{BN98}
+Ben-Tal, A., A.~Nemirovski. 1998.
+\newblock Robust convex optimization.
+\newblock {\it Mathematics of Operations Research\/}, { 23} (4), 769-805.
+
+\bibitem[{Berger(1985)}]{berger1985statistical}
+Berger, J.O. 1985.
+\newblock {\it Statistical Decision Theory and Bayesian Analysis\/}.
+\newblock Springer.
+
+\bibitem[{Bertsimas and Sim(2004)}]{BS04}
+Bertsimas, D., M.~Sim. 2004.
+\newblock The price of robustness.
+\newblock {\it Operations Research\/}, { 52} (1), 35–53.
+
+\bibitem[{Bertsimas and Kallus(2019)}]{BK19}
+Bertsimas, Dimitris, Nathan Kallus. 2019.
+\newblock From predictive to prescriptive analytics.
+\newblock {\it Management Science\/}, { 66} (3), 1025-1044.
+\newblock \doi{10.1287/mnsc.2018.3253}.
+
+\bibitem[{Beyrouthy et~al.(2007)Beyrouthy, Burke, Landa-Silva, McCollum,
+  McMullan, and Parkes}]{BBL07}
+Beyrouthy, C., Edmund~K. Burke, Dario Landa-Silva, Barry McCollum, Paul
+  McMullan, Andrew~J. Parkes. 2007.
+\newblock The teaching space allocation problem with splitting.
+\newblock Edmund~K. Burke, Hana Rudov{\'a}, eds., {\it Practice and Theory of
+  Automated Timetabling VI\/}. Springer, Heidelberg, 228-247.
+
+\bibitem[{Brockwell and Davis(1991)}]{BD91}
+Brockwell, P.~J., R.A. Davis. 1991.
+\newblock {\it Time Series: Theory and Methods\/}.
+\newblock Springer.
+
+\bibitem[{Clark and Scarf(1960)}]{Clark60}
+Clark, A.J., H.~Scarf. 1960.
+\newblock Optimal policies for a multi-echelon inventory problem.
+\newblock {\it Management Science\/}, { 6} (4), 475-490.
+
+\bibitem[{Dantzig(1955)}]{D55}
+Dantzig, G. 1955.
+\newblock Linear programming under uncertainty.
+\newblock {\it Management Science\/}, { 1} (3-4), 197-206.
+
+\bibitem[{Davison and Hinkley(1997)}]{davison1997bootstrap}
+Davison, A.~C., D.~V. Hinkley. 1997.
+\newblock {\it Bootstrap Methods and Their Application\/}.
+\newblock Cambridge University Press.
+
+\bibitem[{{de Kok} et~al.(2018){de Kok}, Grob, Laumanns, Minner, Rambau, and
+  Schade}]{DEKOK2018}
+{de Kok}, Ton, Christopher Grob, Marco Laumanns, Stefan Minner, Jörg Rambau,
+  Konrad Schade. 2018.
+\newblock A typology and literature review on stochastic multi-echelon
+  inventory models.
+\newblock {\it European Journal of Operational Research\/}, { 269} (3),
+  955-983.
+
+\bibitem[{Delage and Ye(2010)}]{DY10}
+Delage, E., Y.~Ye. 2010.
+\newblock Distributionally robust optimization under moment uncertainty with
+  application to data-driven problems.
+\newblock {\it Operations Research\/}, { 58} (3), 595–612.
+
+\bibitem[{Dem{\v{s}}ar(2006)}]{D06}
+Dem{\v{s}}ar, J. 2006.
+\newblock Statistical comparisons of classifiers over multiple data sets.
+\newblock {\it The Journal of Machine learning research\/}, { 7} (1), 1-30.
+
+\bibitem[{Donti et~al.(2017)Donti, Amos, and Kolter}]{DAK17}
+Donti, Priya, Brandon Amos, J.~Zico Kolter. 2017.
+\newblock Task-based end-to-end model learning in stochastic optimization.
+\newblock I.~Guyon, U.~Von Luxburg, S.~Bengio et~al., eds., {\it Advances in
+  Neural Information Processing Systems\/}, vol.~30. Curran Associates, Inc.
+
+\bibitem[{Dror and Trudeau(1989)}]{DT89}
+Dror, M., P.~Trudeau. 1989.
+\newblock Savings by split delivery routing.
+\newblock {\it Transportation Science\/}, { 23} (2), 141-145.
+
+\bibitem[{Efron(1979)}]{b1}
+Efron, B. 1979.
+\newblock Bootstrap methods: Another look at the jackknife.
+\newblock {\it The Annals of Statistics\/}, { 7} (1), 1-26.
+
+\bibitem[{Efron and Tibshirani(1993)}]{efron1993introduction}
+Efron, B., Robert~J. Tibshirani. 1993.
+\newblock {\it An Introduction to the Bootstrap\/}.
+\newblock Chapman and Hall/CRC.
+
+\bibitem[{Elmachtoub and Grigas(2022)}]{EG22}
+Elmachtoub, Adam~N., Paul Grigas. 2022.
+\newblock Smart “predict, then optimize”.
+\newblock {\it Management Science\/}, { 68} (1), 9–26.
+\newblock \urlprefix\url{https://doi.org/10.1287/mnsc.2020.3922}.
+
+\bibitem[{Eppen and Schrage(1981)}]{EG81}
+Eppen, G., L.~Schrage. 1981.
+\newblock Centralized ordering policies in a multi-warehouse system with lead
+  times and random demand.
+\newblock L.~Schwarz, ed., {\it Multi-Level Production/Inventory Control
+  Systems\/}. North Holland, 51-69.
+
+\bibitem[{Ernst and Krishnamoorthy(1998)}]{EK98}
+Ernst, A.T., M.~Krishnamoorthy. 1998.
+\newblock Exact and heuristic algorithms for the uncapacitated multiple
+  allocation p-hub median problem.
+\newblock {\it European Journal of Operational Research\/}, { 104} (1),
+  100-112.
+
+\bibitem[{Escorcia-Caballero et~al.(2020)Escorcia-Caballero, Amaya-Mier,
+  Soto-Ferrari, and Chams-Anturi}]{Escorcia20}
+Escorcia-Caballero, J.P., R.~Amaya-Mier, M.~Soto-Ferrari, O.~Chams-Anturi.
+  2020.
+\newblock Multi-echelon inventory management policies: A case study for a
+  two-echelon supply chain.
+\newblock {\it proc. International Conference on Industrial Engineering and
+  Operations Management\/}. 165-175.
+
+\bibitem[{Esfahani and Kuhn(2017)}]{EK17}
+Esfahani, Peyman~Mohajerin, Daniel Kuhn. 2017.
+\newblock Data-driven distributionally robust optimization using the
+  wasserstein metric: Performance guarantees and tractable reformulations.
+\newblock \urlprefix\url{https://arxiv.org/abs/1505.05116}.
+
+\bibitem[{Feliu(2024)}]{feliu2024enhancing}
+Feliu, J.~M. 2024.
+\newblock Enhancing demand forecasting: an analysis of factors impacting sales
+  and implementation of improved methodologies for accurate prediction.
+\newblock {B.S.} thesis, Universitat Polit{\`e}cnica de Catalunya.
+
+\bibitem[{Fenga and Politis(2017)}]{fenga2017lasso}
+Fenga, L., D.~N. Politis. 2017.
+\newblock Lasso order selection for sparse autoregression: a bootstrap
+  approach.
+\newblock {\it Journal of Statistical Computation and Simulation\/}, { 87} (2),
+  319-334.
+
+\bibitem[{Fenga and Politis(2011)}]{fenga2011bootstrap}
+Fenga, L., D.N. Politis. 2011.
+\newblock Bootstrap-based arma order selection.
+\newblock {\it Journal of Statistical Computation and Simulation\/}, .
+
+\bibitem[{Hammersley(1960)}]{H60}
+Hammersley, J.M. 1960.
+\newblock Monte carlo methods for solving multivariable problems.
+\newblock {\it Annals of the New York Academy of Sciences\/}, { 86} (3),
+  844-874.
+
+\bibitem[{Hasni et~al.(2019)Hasni, Aguir, Babai, and Jemai}]{hasni2019spare}
+Hasni, M., MS~Aguir, M~Zied Babai, Zied Jemai. 2019.
+\newblock Spare parts demand forecasting: a review on bootstrapping methods.
+\newblock {\it International Journal of Production Research\/}, { 57} (15-16),
+  4791-4804.
+
+\bibitem[{Hyndman et~al.(2008)Hyndman, Koehler, Ord, and Snyder}]{HKOS08}
+Hyndman, {Robin John}, {Anne B} Koehler, {J Keith} Ord, {Ralph David} Snyder.
+  2008.
+\newblock {\it Forecasting with Exponential Smoothing: The State Space
+  Approach\/}.
+\newblock Springer, Switzerland.
+
+\bibitem[{Jaynes(1957)}]{jaynes1957information}
+Jaynes, E.T. 1957.
+\newblock Information theory and statistical mechanics.
+\newblock {\it Physical Review\/}, { 106} (4), 620-630.
+
+\bibitem[{Kim and Kim(2010)}]{KK10}
+Kim, D., S.~Kim. 2010.
+\newblock A multi-echelon inventory model for supply chain management using the
+  supply hub in industrial park (ship) concept.
+\newblock {\it International Journal of Production Economics\/}, { 123} (1),
+  1-12.
+
+\bibitem[{Kreiss and Lahiri(2012)}]{kreiss2012bootstrap}
+Kreiss, J.-P., Soumendra~Nath Lahiri. 2012.
+\newblock Bootstrap methods for time series.
+\newblock {\it Handbook of statistics\/}, vol.~30. Elsevier, 3-26.
+
+\bibitem[{Ma et~al.(2015)Ma, Li, and Wang}]{Ma15}
+Ma, Z., H.~Li, Y.~Wang. 2015.
+\newblock Combining forecasts in supply chain forecasting.
+\newblock {\it Omega\/}, .
+
+\bibitem[{Maniezzo et~al.(2021)Maniezzo, Boschetti, and
+  St{\"u}tzle}]{matheuristics}
+Maniezzo, V., M.A. Boschetti, T.~St{\"u}tzle. 2021.
+\newblock {\it Matheuristics, algorithms and implementations\/}.
+\newblock EURO Advanced Tutorials on Operational Research, Springer, New
+  {Y}ork.
+
+\bibitem[{Maniezzo and Zhou(2023)}]{MZ23}
+Maniezzo, V., T.~Zhou. 2023.
+\newblock Integrated forecast and optimization for retailer allocation in a
+  two-echelon inventory system.
+\newblock P.G. Bringas, et~al., eds., {\it proc. of 18th Int. Conf. on Soft
+  Computing Models in Industrial and Environmental Applications\/}, {\it
+  Lecture Notes in Networks and Systems\/}, vol. 749. Springer, 279 - 289.
+
+\bibitem[{Marín(2005)}]{M05}
+Marín, A. 2005.
+\newblock Formulating and solving splittable capacitated multiple allocation
+  hub location problems.
+\newblock {\it Computers \& Oper. Research\/}, { 32} (12), 3093-3109.
+
+\bibitem[{Mokhtar et~al.(2019)Mokhtar, Krishnamoorthy, and Ernst}]{MKE75}
+Mokhtar, H., Mohan Krishnamoorthy, Andreas~T. Ernst. 2019.
+\newblock The 2-allocation p-hub median problem and a modified benders
+  decomposition method for solving hub location problems.
+\newblock {\it Computers \& Operations Research\/}, { 104} 375-393.
+
+\bibitem[{Papier(2016)}]{P16}
+Papier, F. 2016.
+\newblock Supply allocation under sequential advance demand information.
+\newblock {\it Operations Research\/}, { 64} (2), 341-361.
+
+\bibitem[{Römisch(2018)}]{R18}
+Römisch, Werner. 2018.
+\newblock {\it Stochastic Programming, Scenario Generation In\/}.
+\newblock John Wiley and Sons, Ltd, 1-5.
+
+\bibitem[{Sarris et~al.(2020)Sarris, Spiliotis, and
+  Assimakopoulos}]{sarris2020exploiting}
+Sarris, D., Evangelos Spiliotis, Vassilios Assimakopoulos. 2020.
+\newblock Exploiting resampling techniques for model selection in forecasting:
+  an empirical evaluation using out-of-sample tests.
+\newblock {\it Operational Research\/}, { 20} (2), 701-721.
+
+\bibitem[{Scikit(2024)}]{SciKitCD}
+Scikit. 2024.
+\newblock posthocs critical difference diagram.
+\newblock Https://scikit-posthocs.readthedocs.io/en/latest/generated/
+  scikit\_posthocs.critical\_difference\_diagram.html.
+
+\bibitem[{Shannon(1948)}]{shannon1948mathematical}
+Shannon, C.E. 1948.
+\newblock A mathematical theory of communication.
+\newblock {\it Bell System Technical Journal\/}, { 27} (3), 379-423.
+
+\bibitem[{Shapiro et~al.(2009)Shapiro, Dentcheva, and Ruszczyński}]{SDR09}
+Shapiro, A., D.~Dentcheva, A.~Ruszczyński. 2009.
+\newblock {\it Lectures on Stochastic Programming: Modeling and Theory\/}.
+\newblock SIAM.
+
+\bibitem[{Shapiro and Homem-de Mello(1998)}]{SH98}
+Shapiro, A., T.~Homem-de Mello. 1998.
+\newblock A simulation-based approach to two-stage stochastic programming with
+  recourse.
+\newblock {\it Mathematical Programming\/}, { 81} 301–325.
+
+\bibitem[{Shenstone and Dekker(2001)}]{Shenstone01}
+Shenstone, A.~G., R.~Dekker. 2001.
+\newblock A literature review on approaches to the forecasting of intermittent
+  demand.
+\newblock {\it Journal of the Oper. Research Society\/}, .
+
+\bibitem[{Vinod and Kourentzes(2006)}]{Vinod2006}
+Vinod, H.~D., N.~Kourentzes. 2006.
+\newblock Maximum entropy bootstrap for predictive inference.
+\newblock {\it Journal of Forecasting\/}, { 25} (1), 49-63.
+
+\bibitem[{Youngjin et~al.(2011)Youngjin, Youngho, and Junghee}]{KLH11}
+Youngjin, K., L.~Youngho, H.~Junghee. 2011.
+\newblock A splitter location–allocation problem in designing fiber optic
+  access networks.
+\newblock {\it Eur. Journal of Operational Research\/}, { 210} (2), 425-435.
+
+\bibitem[{Zhu et~al.(2021)Zhu, Hu, Huang, and Yuan}]{ZHHY21}
+Zhu, S., Xiangpei Hu, Kai Huang, Yufei Yuan. 2021.
+\newblock Optimization of product category allocation in multiple warehouses to
+  minimize splitting of online supermarket customer orders.
+\newblock {\it Eur. Jou. of Oper. Research\/}, { 290} (2), 556-571.
+
+\end{thebibliography}
