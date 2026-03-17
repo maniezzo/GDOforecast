@@ -1,0 +1,27 @@
+\documentclass[ijoc,nonblindrev]{informs4} 
+
+% Setup for Electronic Companion
+\usepackage{xr}
+\externaldocument{main} % Link to your main paper's aux file
+
+% Prefix numbering
+\renewcommand{\thesection}{EC.\arabic{section}}
+\renewcommand{\theequation}{EC.\arabic{equation}}
+\renewcommand{\thefigure}{EC.\arabic{figure}}
+\renewcommand{\thetable}{EC.\arabic{table}}
+
+\begin{document}
+	
+	\TITLE{e-companion to: [Your Main Paper Title]}
+	\AUTHOR{[Your Names]}
+	
+	\maketitle
+	
+	\section*{Electronic Companion}
+	\ECHead{Electronic Companion to "[Your Main Paper Title]"}
+	
+	% Your supplemental content starts here
+	\section{Additional Numerical Results}
+	As discussed in Section \ref{sec:main_results} of the main paper...
+	
+\end{document}
