@@ -1,4 +1,4 @@
-\begin{thebibliography}{49}
+\begin{thebibliography}{43}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \providecommand{\urlprefix}{URL }
@@ -16,10 +16,6 @@ Beale EML (2018) On minimizing a convex function subject to linear
   inequalities. \emph{Journal of the Royal Statistical Society: Series B
   (Methodological)} 17(2):173--184.
 
-\bibitem[{Ben-Tal \protect\BIBand{} Nemirovski(1998)}]{BN98}
-Ben-Tal A, Nemirovski A (1998) Robust convex optimization. \emph{Mathematics of
-  Operations Research} 23(4):769--805.
-
 \bibitem[{Berger(1985)}]{berger1985statistical}
 Berger J (1985) \emph{Statistical Decision Theory and Bayesian Analysis}
   (Springer).
@@ -33,12 +29,11 @@ Bertsimas D, Kallus N (2019) From predictive to prescriptive analytics.
 Bertsimas D, Sim M (2004) The price of robustness. \emph{Operations Research}
   52(1):35–53.
 
-\bibitem[{Beyrouthy et~al.(2007)Beyrouthy, Burke, Landa-Silva, McCollum,
-  McMullan, \protect\BIBand{} Parkes}]{BBL07}
-Beyrouthy C, Burke EK, Landa-Silva D, McCollum B, McMullan P, Parkes AJ (2007)
-  The teaching space allocation problem with splitting. Burke EK, Rudov{\'a} H,
-  eds., \emph{Practice and Theory of Automated Timetabling VI}, 228--247
-  (Springer, Heidelberg).
+\bibitem[{Beyrouthy et~al.(2007)Beyrouthy, Burke, \protect\BIBand{}
+  {et~al.}}]{BBL07}
+Beyrouthy C, Burke EK, {et~al} (2007) The teaching space allocation problem
+  with splitting. Burke EK, Rudov{\'a} H, eds., \emph{Practice and Theory of
+  Automated Timetabling VI}, 228--247 (Springer, Heidelberg).
 
 \bibitem[{Brockwell \protect\BIBand{} Davis(1991)}]{BD91}
 Brockwell PJ, Davis R (1991) \emph{Time Series: Theory and Methods} (Springer).
@@ -54,12 +49,6 @@ Dantzig G (1955) Linear programming under uncertainty. \emph{Management
 \bibitem[{Davison \protect\BIBand{} Hinkley(1997)}]{davison1997bootstrap}
 Davison AC, Hinkley DV (1997) \emph{Bootstrap Methods and Their Application}
   (Cambridge University Press), ISBN 9780521573133.
-
-\bibitem[{{de Kok} et~al.(2018){de Kok}, Grob, Laumanns, Minner, Rambau,
-  \protect\BIBand{} Schade}]{DEKOK2018}
-{de Kok} T, Grob C, Laumanns M, Minner S, Rambau J, Schade K (2018) A typology
-  and literature review on stochastic multi-echelon inventory models.
-  \emph{European Journal of Operational Research} 269(3):955--983.
 
 \bibitem[{Delage \protect\BIBand{} Ye(2010)}]{DY10}
 Delage E, Ye Y (2010) Distributionally robust optimization under moment
@@ -98,11 +87,6 @@ Eppen G, Schrage L (1981) Centralized ordering policies in a multi-warehouse
   system with lead times and random demand. Schwarz L, ed., \emph{Multi-Level
   Production/Inventory Control Systems}, 51--69 (North Holland).
 
-\bibitem[{Ernst \protect\BIBand{} Krishnamoorthy(1998)}]{EK98}
-Ernst A, Krishnamoorthy M (1998) Exact and heuristic algorithms for the
-  uncapacitated multiple allocation p-hub median problem. \emph{European
-  Journal of Operational Research} 104(1):100--112.
-
 \bibitem[{Escorcia-Caballero et~al.(2020)Escorcia-Caballero, Amaya-Mier,
   Soto-Ferrari, \protect\BIBand{} Chams-Anturi}]{Escorcia20}
 Escorcia-Caballero J, Amaya-Mier R, Soto-Ferrari M, Chams-Anturi O (2020)
@@ -114,11 +98,6 @@ Escorcia-Caballero J, Amaya-Mier R, Soto-Ferrari M, Chams-Anturi O (2020)
 Esfahani PM, Kuhn D (2017) Data-driven distributionally robust optimization
   using the wasserstein metric: Performance guarantees and tractable
   reformulations. \urlprefix\url{https://arxiv.org/abs/1505.05116}.
-
-\bibitem[{Feliu(2024)}]{feliu2024enhancing}
-Feliu JM (2024) \emph{Enhancing demand forecasting: an analysis of factors
-  impacting sales and implementation of improved methodologies for accurate
-  prediction}. {B.S.} thesis, Universitat Polit{\`e}cnica de Catalunya.
 
 \bibitem[{Fenga \protect\BIBand{} Politis(2011)}]{fenga2011bootstrap}
 Fenga L, Politis D (2011) Bootstrap-based arma order selection. \emph{Journal
@@ -149,11 +128,6 @@ Hyndman R, Koehler A, Ord J, Snyder R (2008) \emph{Forecasting with Exponential
 Jaynes E (1957) Information theory and statistical mechanics. \emph{Physical
   Review} 106(4):620--630.
 
-\bibitem[{Kim \protect\BIBand{} Kim(2010)}]{KK10}
-Kim D, Kim S (2010) A multi-echelon inventory model for supply chain management
-  using the supply hub in industrial park (ship) concept. \emph{International
-  Journal of Production Economics} 123(1):1--12.
-
 \bibitem[{Kreiss \protect\BIBand{} Lahiri(2012)}]{kreiss2012bootstrap}
 Kreiss JP, Lahiri SN (2012) Bootstrap methods for time series. \emph{Handbook
   of statistics}, volume~30, 3--26 (Elsevier).
@@ -171,9 +145,9 @@ Maniezzo V, Boschetti M, St{\"u}tzle T (2021) \emph{Matheuristics, algorithms
 \bibitem[{Maniezzo \protect\BIBand{} Zhou(2023)}]{MZ23}
 Maniezzo V, Zhou T (2023) Integrated forecast and optimization for retailer
   allocation in a two-echelon inventory system. Bringas P, et~al, eds.,
-  \emph{proc. of 18th Int. Conf. on Soft Computing Models in Industrial and
-  Environmental Applications}, volume 749 of \emph{Lecture Notes in Networks
-  and Systems}, 279 -- 289 (Springer).
+  \emph{proc. of 18th Int. Conf. on Soft Computing Models in Ind. and Envir.
+  Appl.}, volume 749 of \emph{Lecture Notes in Networks and Systems}, 279 --
+  289 (Springer).
 
 \bibitem[{Marín(2005)}]{M05}
 Marín A (2005) Formulating and solving splittable capacitated multiple
@@ -189,10 +163,6 @@ Mokhtar H, Krishnamoorthy M, Ernst AT (2019) The 2-allocation p-hub median
 \bibitem[{Papier(2016)}]{P16}
 Papier F (2016) Supply allocation under sequential advance demand information.
   \emph{Operations Research} 64(2):341--361.
-
-\bibitem[{Römisch(2018)}]{R18}
-Römisch W (2018) \emph{Stochastic Programming, Scenario Generation In}, 1--5
-  (John Wiley and Sons, Ltd).
 
 \bibitem[{Sarris et~al.(2020)Sarris, Spiliotis, \protect\BIBand{}
   Assimakopoulos}]{sarris2020exploiting}
