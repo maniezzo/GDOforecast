@@ -186,7 +186,7 @@ Multi-echelon inventory management is a supply chain control strategy that coord
 
 The successful implementation of effective management policies hinges on sound forecasting and optimization processes. Specifically, in the context of 2-echelon logistics, prescriptions grounded in predictive analytics are essential for refining demand forecasting, inventory allocation, and transportation planning \citep{A01}. Considerable attention has been paid to demand forecasting \citep{Ma15,Shenstone01}, however, precise demand forecasting, especially within the context of dynamic retail environments characterized by fluctuating trends and seasonal variations, remains a significant obstacle. Multi-echelon demand forecasting commonly incorporates a variety of models that frequently rely on assumptions of stationarity and specific parametric distributional characteristics that are often violated in dynamic retail environments characterized by short-horizon, non-stationary demand series, leading to model mismatch and suboptimal prescriptions.
 
-The application of prescriptive analytics in 2-echelon logistics systems thus faces a critical challenge: how to robustly model the underlying uncertainty to support efficient management decision processes. Most documented multi-echelon inventory policies in the literature rely on instances with generic demand, often generated according to parametric distributions \citep{Escorcia20,EG81}. Our work addresses this methodological gap.
+The application of prescriptive analytics in 2-echelon logistics systems thus faces a critical challenge: how to robustly model the underlying uncertainty to support efficient management decision processes. Most documented multi-echelon inventory policies in the literature rely on instances with generic demand, often generated according to parametric distributions \citep{Escorcia20}. Our work addresses this methodological gap.
 
 By introducing the BESO framework, we provide a statistically-grounded approach to tactical logistics planning. BESO leverages the MEB to generate demand scenarios that accurately preserve the complex autocorrelation and non-stationary structure of empirical demand data. This novel method directly counters the limitations of traditional approaches that fail to capture the nuances of real-world volatility, enabling the distribution centers (DCs) to update their market forecast and anticipate the structural attributes of the model, ultimately providing valuable management insights \citep{P16}. We demonstrate this capability using a comprehensive real-world case study where all instance elements, from demand series to network configurations, are derived from actual records. This application provides a validation of how BESO improves both solution robustness and operational efficiency in multi-echelon inventory management.
 
@@ -237,16 +237,13 @@ In recent years, bootstrap resampling has become a valuable tool for overcoming 
 
 Bootstrap methods have also proven effective in model selection. \citet{fenga2011bootstrap} proposed a bootstrap-based approach for ARMA order selection, improving accuracy in finite samples, and later extended this framework to high-dimensional sparse autoregression using LASSO \citep{fenga2017lasso}. These results highlight the relevance of bootstrap techniques in modern statistical modeling.
 
-However, standard bootstrap assumes independent and identically distributed (i.i.d.) data, which is inappropriate for time series characterized by dependence, autocorrelation, and structural patterns. This limitation is particularly critical for short series, where resampling can distort temporal structure and underestimate variability. In this context, Maximum Entropy Bootstrap (MEB) provides several advantages:
-
-\begin{itemize}
-	\item {\it Preservation of dependence structure}: maintains autocorrelation, trend, and seasonality through rank-based reordering and interpolation.
-	\item {\it Suitability for short series}: preserves local features and generates plausible data paths under limited observations.
-	\item {\it Model-free approach}: avoids parametric assumptions and tuning choices such as block length or ARMA specification.
-	\item {\it Smooth pseudo-series generation}: produces continuous series suitable for inference and forecasting.
-	\item {\it Maximum entropy principle}: generates least-biased samples consistent with observed data.
-	\item {\it Flexibility}: applicable to both stationary and non-stationary series.
-\end{itemize}
+However, standard bootstrap assumes independent and identically distributed (i.i.d.) data, which is inappropriate for time series characterized by dependence, autocorrelation, and structural patterns. This limitation is particularly critical for short series, where resampling can distort temporal structure and underestimate variability. In this context, Maximum Entropy Bootstrap (MEB) provides several advantages, including 
+$i$) {\it Preservation of dependence structure}: maintains autocorrelation, trend, and seasonality through rank-based reordering and interpolation;
+$ii$)  {\it Suitability for short series}: preserves local features and generates plausible data paths under limited observations; 
+$iii$)  {\it Model-free approach}: avoids parametric assumptions and tuning choices such as block length or ARMA specification; 
+$iv$)  {\it Smooth pseudo-series generation}: produces continuous series suitable for inference and forecasting; 
+$v$)  {\it Maximum entropy principle}: generates least-biased samples consistent with observed data; 
+$vi$)  {\it Flexibility}: applicable to both stationary and non-stationary series.
 
 The MEB framework builds on the {\it Maximum Entropy Principle} (MEP) \citep{shannon1948mathematical}, which selects the probability distribution that maximizes uncertainty subject to known constraints \citep{jaynes1957information}. This is formalized via Shannon entropy, $S(p) = -\sum_{i=1}^{n} p_i \log(p_i)$, where $p_i$ denotes the probability of the $i$-th outcome in a sample space of size $n$.
 
@@ -255,10 +252,7 @@ The pivotal advancement provided by MEB lies in its ability to formulate bootstr
 	L(p, \lambda, \mu) = S(p) + \lambda \left(1 - \sum_{i=1}^{n} p_i\right) + \mu \left(\bar{f} - \sum_{i=1}^{n} p_i f_i\right),
 \end{equation}
 where $\lambda$ and $\mu$ are Lagrange multipliers that adjust the balance under the constraints of normalizing the distribution and matching the empirical mean, respectively. The solution to this maximization problem yields a probability distribution, which appears as
-\begin{equation}
-	p_i = \frac{e^{\mu f_i}}{\sum_{j=1}^{n} e^{\mu f_j}},
-\end{equation}
-where the parameter $\mu$ is determined through the constraint equations, specifically via a numerical root-finding approach that satisfies the moment condition $\sum_{i=1}^{n} p_i f_i = \bar{f}$.
+$p_i = \frac{e^{\mu f_i}}{\sum_{j=1}^{n} e^{\mu f_j}}$,  where the parameter $\mu$ is determined through the constraint equations, specifically via a numerical root-finding approach that satisfies the moment condition $\sum_{i=1}^{n} p_i f_i = \bar{f}$.
 
 Building on this classical formulation, we define an Objective-Augmented Maximum Entropy Bootstrap (OA-MEB) scheme that incorporates additional optimization-oriented structure directly into the resampling distribution. To do so, we introduce an auxiliary objective-related component $g_i$, representing scenario-wise quantities that are relevant to downstream decision or cost functions in stochastic programming (e.g., expected cost contributions, constraint violations, or risk-sensitive statistics). The OA-MEB extends the entropy maximization problem by embedding a tunable scalar parameter $\gamma \ge 0$ that controls the influence of this additional term while preserving the probabilistic and moment-matching constraints. The resulting augmented Lagrangian is given by:
 \begin{equation}
@@ -267,12 +261,11 @@ Building on this classical formulation, we define an Objective-Augmented Maximum
 	+ \mu \left( \bar{f} - \sum_{i=1}^{n} p_i f_i \right)
 	+ \gamma \left( \sum_{i=1}^{n} p_i g_i \right),
 \end{equation}
-where the additional inner product term $\sum_{i=1}^{n} p_i g_i$ promotes bootstrap resamples that remain statistically coherent while incorporating optimization-driven scenario emphasis. Solving the first-order optimality conditions yields a modified exponential-tilting solution:
-\begin{equation}
+where the additional inner product term $\sum_{i=1}^{n} p_i g_i$ promotes bootstrap resamples that remain statistically coherent while incorporating optimization-driven scenario emphasis. Solving the first-order optimality conditions yields a modified exponential-tilting solution: 
+$
 	p_i^{\mathrm{OA}} = \frac{\exp\left(\mu f_i + \gamma g_i\right)}
 	{\sum_{j=1}^{n} \exp\left(\mu f_j + \gamma g_j\right)},
-\end{equation}
-showing that classical MEB is recovered as the special case $\gamma = 0$. Calibration of $\gamma$ governs the trade-off between purely information-theoretic sampling and decision-aligned resampling, and may be performed via cross-validation, bilevel optimization, or risk-preference calibration strategies consistent with the downstream stochastic programming model.
+$, showing that classical MEB is recovered as the special case $\gamma = 0$. Calibration of $\gamma$ governs the trade-off between purely information-theoretic sampling and decision-aligned resampling, and may be performed via cross-validation, bilevel optimization, or risk-preference calibration strategies consistent with the downstream stochastic programming model.
 
 This formulation transforms the problem into one that allows for flexible adaptation to various types of data and constraints imposed by the empirical observations. Once this extended maximum entropy distribution is established, resampling via bootstrapping can be accomplished by selecting  $m$ samples according to the derived $p_i$.  This produces synthetic datasets that not only reflect the variability and uncertainty characteristic of the original data but also adhere to the specific constraints imposed, which may include higher moments or even domain-specific statistics. 
 
@@ -282,19 +275,13 @@ This resampling process can be iterated to generate a comprehensive set of boots
 
 Bootstrap-based ambiguity sets introduce an additional degree of freedom in data-driven DRO: the bootstrap cardinality $m$. Although often treated as a tuning parameter, $m$ directly determines the geometry of the ambiguity set and therefore influences the optimizer. Conversely, the optimal decision induces a preference over $m$ through validation or penalization criteria. This creates an intrinsic feedback loop between ambiguity construction and optimization, which the MEB-extension formalizes.
 We observe data $D_n=\{\xi_i\}_{i=1}^n$ with empirical measure
-\begin{equation}
-	\widehat{P}n=\frac{1}{n}\sum{i=1}^n \delta_{\xi_i},
-\end{equation}
-decision space $X\subset\mathbb{R}^d$, and cost function $c:X\times\Xi\to\mathbb{R}$.  
+$\widehat{P}n=\frac{1}{n}\sum{i=1}^n \delta_{\xi_i}$, decision space $X\subset\mathbb{R}^d$, and cost function $c:X\times\Xi\to\mathbb{R}$.  
 For a bootstrap scheme, let $\widehat{P}_n^{(1)},\dots,\widehat{P}_n^{(m)}$ denote $m$ bootstrap empirical measures.  
 A natural ambiguity set is the convex hull
 $\mathcal{U}_m := \operatorname{conv}\{\widehat{P}_n^{(1)},\dots,\widehat{P}_n^{(m)}\}$	
 where $\widehat{P}_n^{(j)}$ is the empirical distribution of the (j)-th bootstrap sample, and $\mathcal U_m$ is their convex hull in the space of measures whose diameter, extreme points, and support all depend on $m$.
-The associated DRO objective is
-\begin{equation}
-	\Psi_m(x) := \sup_{P\in\mathcal{U}_m} \mathbb{E}_P[c(x,\xi)],
-\end{equation}
-and the optimizer is defined by $x^\star(m)\in\arg\min_{x\in X}\Psi_m(x)$.
+The associated DRO objective is $\Psi_m(x) := \sup_{P\in\mathcal{U}_m} \mathbb{E}_P[c(x,\xi)],
+$ and the optimizer is defined by $x^\star(m)\in\arg\min_{x\in X}\Psi_m(x)$.
 
 Since $\Psi_m$ is the supremum of finitely many linear functionals $\mathbb{E}_{\widehat{P}_n^{(j)}}[c(x,\xi)]$, changing $m$ changes the set of extreme points and therefore the optimizer. In general, $m\neq m'$ implies $\mathcal{U}_m\neq\mathcal{U}_{m'}$ and $x^\star(m)\neq x^\star(m')$.
 

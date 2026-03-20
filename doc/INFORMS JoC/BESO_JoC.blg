@@ -5,44 +5,44 @@ Reallocating 'name_of_file' (item size: 1) to 12 items.
 The style file: informs2014.bst
 Reallocating 'name_of_file' (item size: 1) to 10 items.
 Database file #1: GDObiblio.bib
-You've used 43 entries,
+You've used 42 entries,
             2869 wiz_defined-function locations,
-            903 strings with 11251 characters,
-and the built_in function-call counts, 38161 in all, are:
-= -- 3845
-> -- 865
-< -- 34
-+ -- 341
-- -- 279
-* -- 2736
-:= -- 4777
-add.period$ -- 80
-call.type$ -- 43
-change.case$ -- 299
-chr.to.int$ -- 44
-cite$ -- 43
-duplicate$ -- 3801
-empty$ -- 3087
-format.name$ -- 424
-if$ -- 7891
+            894 strings with 11046 characters,
+and the built_in function-call counts, 37063 in all, are:
+= -- 3736
+> -- 842
+< -- 33
++ -- 333
+- -- 272
+* -- 2661
+:= -- 4647
+add.period$ -- 78
+call.type$ -- 42
+change.case$ -- 292
+chr.to.int$ -- 43
+cite$ -- 42
+duplicate$ -- 3688
+empty$ -- 2995
+format.name$ -- 412
+if$ -- 7654
 int.to.chr$ -- 1
 int.to.str$ -- 1
-missing$ -- 433
-newline$ -- 135
-num.names$ -- 180
-pop$ -- 1824
+missing$ -- 420
+newline$ -- 132
+num.names$ -- 174
+pop$ -- 1767
 preamble$ -- 1
-purify$ -- 262
+purify$ -- 256
 quote$ -- 0
-skip$ -- 734
+skip$ -- 708
 stack$ -- 0
-substring$ -- 3863
-swap$ -- 1013
+substring$ -- 3757
+swap$ -- 981
 text.length$ -- 3
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 366
+type$ -- 357
 warning$ -- 0
-while$ -- 279
+while$ -- 270
 width$ -- 0
-write$ -- 477
+write$ -- 465

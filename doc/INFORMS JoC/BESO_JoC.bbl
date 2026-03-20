@@ -1,4 +1,4 @@
-\begin{thebibliography}{43}
+\begin{thebibliography}{42}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \providecommand{\urlprefix}{URL }
@@ -79,11 +79,6 @@ Efron B, Tibshirani RJ (1993) \emph{An Introduction to the Bootstrap} (Chapman
 \bibitem[{Elmachtoub \protect\BIBand{} Grigas(2022)}]{EG22}
 Elmachtoub AN, Grigas P (2022) Smart “predict, then optimize”.
   \emph{Management Science} 68(1):9–26, ISSN 0025-1909.
-
-\bibitem[{Eppen \protect\BIBand{} Schrage(1981)}]{EG81}
-Eppen G, Schrage L (1981) Centralized ordering policies in a multi-warehouse
-  system with lead times and random demand. Schwarz L, ed., \emph{Multi-Level
-  Production/Inventory Control Systems}, 51--69 (North Holland).
 
 \bibitem[{Escorcia-Caballero et~al.(2020)Escorcia-Caballero, Amaya-Mier,
   Soto-Ferrari, \protect\BIBand{} Chams-Anturi}]{Escorcia20}
