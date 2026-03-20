@@ -1,7 +1,7 @@
 % Use dblanonrev for Double Anonymous Review submission
 % Use sglanonrev for Single Anonymous Review submission
-%\documentclass[ijoc,sglanonrev]{informs4}
-\documentclass[ijoc,dblanonrev]{informs4}
+\documentclass[ijoc,sglanonrev]{informs4}
+%\documentclass[ijoc,dblanonrev]{informs4}
 \usepackage{eqndefns-left} % For checking the display equation width and equation environment definitions %
 \RequirePackage{tgtermes}
 \RequirePackage{newtxtext}
@@ -162,7 +162,7 @@ The resulting data-driven methodology for empirically estimating the distributio
 
 To demonstrate the practical value and performance of BESO, we apply it to a real-world two-echelon logistics network problem. In this setting, uncertain outbound freight demands must be satisfied across multiple depots. By using BESO to define demand scenarios and solve for optimal allocation decisions and related inventory requests, we show how the method improves the solution robustness compared to conventional techniques, while remaining conceptually transparent, computationally efficient and straightforward to implement.
 
-The remainder of the paper is structured as follows: Section \ref{Sec:literature} reviews previous works related to the different research areas intersected by this study. Section \ref{Sec:testcase} describes the case study that motivated our research. Section \ref{Sec:forecasting} and \ref{Sec:optimization} present the BESO methodology in detail.  Section \ref{Sec:results} discusses the computational results, and Section \ref{Sec:conclusions} concludes with key insights and future research directions.
+%The remainder of the paper is structured as follows: Section \ref{Sec:literature} reviews previous works related to the different research areas intersected by this study. Section \ref{Sec:testcase} describes the case study that motivated our research. Section \ref{Sec:forecasting} and \ref{Sec:optimization} present the BESO methodology in detail.  Section \ref{Sec:results} discusses the computational results, and Section \ref{Sec:conclusions} concludes with key insights and future research directions.
 
 \section{Literature review} \label{Sec:literature}
 
@@ -195,7 +195,6 @@ By introducing the BESO framework, we provide a statistically-grounded approach 
 The test case, that makes use of data that comes from an LSRT company that manages multiple retail stores in a large city in northern Italy, originally proposed in \citet{MZ23} for a different application. In this case, 52 stores provided aggregate sales time series data spanning at least 45 months prior to the forecast period, which is set at a three-month horizon, as detailed in the following. Each store maintains a small inventory, replenished by deliveries from one of four different distribution centers (DCs) in the area. The products are categorized into three lines: fresh, dry, and household. In this context, the focus has been exclusively on the logistics of dry and household goods, including product categories ranging from personal care items to basic electronics, from household goods to holiday decorations. For this product line, DCs are required to maintain an aggregate inventory sufficient to cover a demand for a period of two weeks.
 
 The supply chain consists of a large distribution center (DC) in the northern suburbs of the city, a smaller DC in the south, and two small satellite facilities closer to the city center. The satellites have limited storage capacity, but they offer lower-cost and more timely service to the majority of the city's stores. 
-
 Each store must be allocated to a distribution center (DC), ensuring that the total requests made to a DC do not exceed its storage capacity. It is assumed that the handling and transportation capacities will always be sufficient. Both storage capacities and requests are quantified in terms of pallets, with no further granularity at this level. The cost of servicing a store from a DC is assessed based on the travel time required to transport goods between the two entities. Notably, the three smaller DCs are owned by the company, whereas the fourth DC is situated in a leased facility.
 
 The ultimate goal of the analysis is to determine how much space to rent during the next peak demand period, the Christmas season. To achieve this, we first optimize the allocation of stores to DCs, taking into account transportation and storage costs, and from the solution it is immediate to derive the space required in each DC, therefore the space to rent in the largest one.
@@ -233,9 +232,10 @@ Furthermore, this approach allows for dealing with noisy datasets and mitigating
 
 \subsection{Resampling techniques} \label{Subsec:resampling}
 
-In recent years, bootstrap resampling has become a valuable tool for overcoming limitations of conventional forecasting methods \citep{hasni2019spare}. By generating simulated time series from observed data, it is particularly effective for non-stationary, non-linear, and low signal-to-noise settings \citep{kreiss2012bootstrap}. It also helps mitigate issues related to small sample sizes \citep{davison1997bootstrap} and model uncertainty \citep{sarris2020exploiting}.
-
-Bootstrap methods have also proven effective in model selection. \citet{fenga2011bootstrap} proposed a bootstrap-based approach for ARMA order selection, improving accuracy in finite samples, and later extended this framework to high-dimensional sparse autoregression using LASSO \citep{fenga2017lasso}. These results highlight the relevance of bootstrap techniques in modern statistical modeling.
+In recent years, bootstrap resampling has become a valuable tool for overcoming limitations of conventional forecasting methods \citep{hasni2019spare}. By generating simulated time series from observed data, it 
+%is particularly effective for non-stationary, non-linear, and low signal-to-noise settings \citep{kreiss2012bootstrap}. It also
+helps mitigating issues related to small sample sizes \citep{davison1997bootstrap} and model uncertainty \citep{sarris2020exploiting}.
+Bootstrap methods have also proven effective in model selection. \citet{fenga2011bootstrap} proposed a bootstrap-based approach for ARMA order selection, improving accuracy in finite samples, and for high-dimensional sparse autoregression \citep{fenga2017lasso}, highlighting the relevance of bootstrap techniques in modern statistical modeling.
 
 However, standard bootstrap assumes independent and identically distributed (i.i.d.) data, which is inappropriate for time series characterized by dependence, autocorrelation, and structural patterns. This limitation is particularly critical for short series, where resampling can distort temporal structure and underestimate variability. In this context, Maximum Entropy Bootstrap (MEB) provides several advantages, including 
 $i$) {\it Preservation of dependence structure}: maintains autocorrelation, trend, and seasonality through rank-based reordering and interpolation;
@@ -247,7 +247,7 @@ $vi$)  {\it Flexibility}: applicable to both stationary and non-stationary serie
 
 The MEB framework builds on the {\it Maximum Entropy Principle} (MEP) \citep{shannon1948mathematical}, which selects the probability distribution that maximizes uncertainty subject to known constraints \citep{jaynes1957information}. This is formalized via Shannon entropy, $S(p) = -\sum_{i=1}^{n} p_i \log(p_i)$, where $p_i$ denotes the probability of the $i$-th outcome in a sample space of size $n$.
 
-The pivotal advancement provided by MEB lies in its ability to formulate bootstrapped samples that adhere to a spectrum of constraints dictated by the original dataset, such as predetermined moments, probabilities, or other statistical characteristics \citep{berger1985statistical}. Specifically, under typical circumstances, these constraints can be specified in the form of normalized probabilities and empirical expectations, expressed as $\sum_{i=1}^{n} p_i = 1$ to ensure that the probabilities form a valid distribution, and $\sum_{i=1}^{n} p_i f_i = \bar{f}$, where $f_i$ represents measurements or statistics relevant to the analysis, with $\bar{f}$ being the empirical mean of these measurements. The formulation of the Maximum Entropy problem consequently leads to a constrained optimization framework. The optimization problem can be succinctly encapsulated in the Lagrangian:
+The pivotal advancement provided by MEB lies in its ability to formulate bootstrapped samples that adhere to a spectrum of constraints dictated by the original dataset, such as predetermined moments, probabilities, or other statistical characteristics \citep{berger1985statistical}. These constraints can be specified in the form of normalized probabilities and empirical expectations, expressed as $\sum_{i=1}^{n} p_i = 1$ to ensure that the probabilities form a valid distribution, and $\sum_{i=1}^{n} p_i f_i = \bar{f}$, where $f_i$ represents measurements or statistics relevant to the analysis, with $\bar{f}$ being the empirical mean of these measurements. The formulation of the Maximum Entropy problem consequently leads to a constrained optimization framework. The optimization problem can be succinctly encapsulated in the Lagrangian:
 \begin{equation}
 	L(p, \lambda, \mu) = S(p) + \lambda \left(1 - \sum_{i=1}^{n} p_i\right) + \mu \left(\bar{f} - \sum_{i=1}^{n} p_i f_i\right),
 \end{equation}
@@ -284,7 +284,6 @@ The associated DRO objective is $\Psi_m(x) := \sup_{P\in\mathcal{U}_m} \mathbb{E
 $ and the optimizer is defined by $x^\star(m)\in\arg\min_{x\in X}\Psi_m(x)$.
 
 Since $\Psi_m$ is the supremum of finitely many linear functionals $\mathbb{E}_{\widehat{P}_n^{(j)}}[c(x,\xi)]$, changing $m$ changes the set of extreme points and therefore the optimizer. In general, $m\neq m'$ implies $\mathcal{U}_m\neq\mathcal{U}_{m'}$ and $x^\star(m)\neq x^\star(m')$.
-
 If the ambiguity set depends on $x$—for example through residual-based resampling in the MEB-extension—write $\mathcal{U}_m(x)$ and consider the joint problem
 \begin{equation}
 	\min_{x\in X,\; m\in\mathcal{M}}
@@ -302,7 +301,6 @@ Eliminating $m$ yields the bilevel formulation
 	\sup_{P\in\mathcal{U}_m(x)}\mathbb{E}_P[c(x,\xi)].
 \end{equation}
 This expresses the feedback loop: $m$ shapes the ambiguity faced by $x$, while $x$ determines which $m$ minimizes the joint objective.
-
 Under standard bootstrap consistency assumptions, if $m=m(n)\to\infty$ with $m(n)/n\to 0$, then $\mathcal{U}{m(n)}\Rightarrow P^\star$ and $\Psi{m(n)}(x)\to\mathbb{E}_{P^\star}[c(x,\xi)]$ uniformly on compact $X$, implying $x^\star(m(n))\to x^\star$. For finite $n$,
 \begin{equation}
 	\sup_{x\in X}\big|\Psi_m(x)-\Psi_{m'}(x)\big|
