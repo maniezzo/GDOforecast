@@ -1,15 +1,13 @@
 %% Use the option review to obtain double line spacing
 %% \documentclass[preprint,review,12pt]{elsarticle}
-\documentclass[review,a4paper,fleqn,3p,11pt,authoryear]{elsarticle}
+\documentclass[review,a4paper,fleqn,3p,11pt,authoryear]{cas-sc}
 
 \usepackage{natbib}
 %\usepackage[authoryear]{natbib}
 
-\usepackage[onehalfspacing]{setspace}
+%\usepackage[onehalfspacing]{setspace}
 %\usepackage[a4paper, total={14cm, 19cm}]{geometry}
-\usepackage{url}
 %\usepackage{graphicx}
-\usepackage[T1]{fontenc}
 \usepackage[algo2e,linesnumbered,ruled]{algorithm2e} 
 %\usepackage{appendix}
 \usepackage{tabularx}       % automatic column width
@@ -56,28 +54,35 @@
 \setlength{\abovedisplayskip}{2pt plus 2pt minus 4pt}
 \setlength{\belowdisplayskip}{2pt plus 2pt minus 4pt}
 
-%\begin{frontmatter}
+% Short title
+\shorttitle{BESO for two-echelon logistics}    
 
-\title{Bootstrap Enhanced Scenario Optimization, a Case Study in Two-Echelon Logistics}                      
+% Short author
+\shortauthors{L.Fenga, V.Maniezzo}
+ 
+\title [mode = title]{Bootstrap Enhanced Scenario Optimization, a Case Study in Two-Echelon Logistics}                      
 
-%\author[1]{Livio Fenga}
-%\ead{L.Fenga@exeter.ac.uk}
-%
-%\affiliation[1]{organization={Center for Simulation, Analytics and Modelling},
-%                addressline={University of Exeter Business School}, 
-%                city={Exeter},
-%                postcode={EX4 4PU}, 
-%                country={UK}}
-%
-%\ead{vittorio.maniezzo@unibo.it}
-%
-%\affiliation[2]{organization={Department of Computer Science},
-%                addressline={University of Bologna}, 
-%                postcode={47123}, 
-%                city={Cesena},
-%                country={Italy}}
-%
-%\cortext[cor]{Corresponding author}
+\author[1]{Livio Fenga}[orcid=0000-0002-8185-2680]
+\ead{L.Fenga@exeter.ac.uk}
+
+\affiliation[1]{organization={Center for Simulation, Analytics and Modelling},
+                addressline={University of Exeter Business School}, 
+                city={Exeter},
+                postcode={EX4 4PU}, 
+                country={UK}}
+
+\author[2]{Vittorio Maniezzo}[orcid=0000-0002-1220-1235]
+\cormark[2]
+\ead{vittorio.maniezzo@unibo.it}
+
+\affiliation[2]{organization={Department of Computer Science},
+                addressline={University of Bologna}, 
+                postcode={47123}, 
+                city={Cesena},
+                country={Italy}}
+
+% Corresponding author indication
+\cortext[2]{Corresponding author}
 
 \begin{abstract}
 We introduce the Bootstrap Enhanced Scenario Optimization (BESO) framework, a novel methodology for prescriptive analytics under uncertainty. BESO addresses the challenge of generating reliable demand scenarios from volatile, short, and non-stationary time series data. The core innovation lies in delegating the modeling of uncertainties to the Maximum Entropy Bootstrap (MEB) integrated with bagging, a technique that preserves the complex autocorrelation structure of empirical time series forecasts, enabling the generation of statistically coherent scenarios. We further extend MEB through an objective-augmented formulation that incorporates downstream recourse elements into the resampling mechanism. These statistically rich scenarios are then integrated into a deterministic equivalent model to derive accountable and optimized prescriptions. We demonstrate the framework's power using a real-world case study in tactical inventory allocation. Our findings, also validated against an extensive set of artificial benchmark instances, demonstrate the effectiveness of MEB-enhanced forecasting in optimization. BESO establishes a new, generalizable paradigm for robust decision-making derived from noisy univariate data series.
@@ -97,13 +102,13 @@ We introduce the Bootstrap Enhanced Scenario Optimization (BESO) framework, a no
 %	\item Real-world 2-echelon logistics case study.
 %\end{highlights}
 
-\begin{keyword}
+\begin{keywords}
 	Stochastic programming \sep
 	Distributionally Robust Optimization \sep
 	Forecasting \sep
 	Maximum Entropy Bootstrap \sep 
 	Two-echelon logistics
-\end{keyword}
+\end{keywords}
 
 \maketitle
 

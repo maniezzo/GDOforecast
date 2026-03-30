@@ -405,7 +405,7 @@ The available data consists of a time series for each of the 52 stores. Each ser
 
 The core approach set out in this paper is the bootstrap method, which is described in Section \ref{Sec:forecasting}. The results obtained using this method were validated against those obtained using several alternative forecasting algorithms: SARIMAX, Holt-Winters, MLP, RNN (LSTM), Random Forest and Gradient Boosting (XGBoost). The relevant hyperparameters were determined by grid search for algorithms with integer-valued parameters, such as SARIMAX, and by Hammersley sampling \citep{H60} for real-valued parameters.
 
-All series were pre-processed using a 'log-diff' transform to approach stationarity, and a max–min scaler was applied to the artificial intelligence-derived methods. Python version 3.11 was used for all implementations and the codes were run on a Windows PC workstation equipped with four Intel Core i7-4790 CPUs running at 3.60 GHz and with 32 GB of RAM.
+Python version 3.11 was used for all implementations and the codes were run on a Windows PC workstation equipped with four Intel Core i7-4790 CPUs running at 3.60 GHz and with 32 GB of RAM.
 
 The focus of this part of the research is on the bootstrap method. To this end, we tested the approach with the following settings: 
 1) bootstrap sets containing 75, 125 and 175 series; 
