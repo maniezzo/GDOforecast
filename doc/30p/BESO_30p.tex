@@ -1,6 +1,7 @@
 %% Use the option review to obtain double line spacing
 %% \documentclass[preprint,review,12pt]{elsarticle}
-\documentclass[a4paper,fleqn,3p,11pt,authoryear]{cas-sc}
+%\documentclass[a4paper,fleqn,3p,11pt,authoryear]{cas-sc}
+\documentclass{itor}
 
 \usepackage{natbib}
 %\usepackage[authoryear]{natbib}
@@ -46,6 +47,12 @@
 \MakeOuterQuote{"}
 \def\UrlFont{\rmfamily}
 
+% Metadata Information
+\jname{International Transactions in Operational Research}% no need to specify for ITOR
+\jvol{XX}
+\jyear{20XX}
+\doi{xx.xxxx/itor.xxxxx}
+
 \begin{document}
 \let\WriteBookmarks\relax
 \def\floatpagepagefraction{1}
@@ -56,34 +63,47 @@
 \setlength{\belowdisplayskip}{2pt plus 2pt minus 4pt}
 
 % Short title
-\shorttitle{BESO for two-echelon logistics}    
-
+%\shorttitle{BESO for two-echelon logistics}    
 % Short author
-\shortauthors{L.Fenga, V.Maniezzo}
- 
-\title [mode = title]{Bootstrap Enhanced Scenario Optimization, a Case Study in Two-Echelon Logistics}                      
+%\shortauthors{L.Fenga, V.Maniezzo}
+\title {Bootstrap Enhanced Scenario Optimization, a Case Study in Two-Echelon Logistics}                      
 
-\author[1]{Livio Fenga}[orcid=0000-0002-8185-2680]
-\ead{L.Fenga@exeter.ac.uk}
+%Authors, affiliations address.
+\author[Running Author]{Author Name\affmark{a,$\ast$},  Author Name\affmark{b,c} and Author Name\affmark{a,c}}
 
-\affiliation[1]{organization={Center for Simulation, Analytics and Modelling},
-                addressline={University of Exeter Business School}, 
-                city={Exeter},
-                postcode={EX4 4PU}, 
-                country={UK}}
+\affil{\affmark{a}Department/Oganisation/Institute, Address, City and Postcode, Country}
+\affil{\affmark{b}Department/Oganisation/Institute, Address, City and Postcode, Country}
+\affil{\affmark{c}Department/Oganisation/Institute, Address, City and Postcode, Country}
+\email{1st\_author@domain.com [F. Author]; 2nd\_author@domain.com [S. Author];\\ 3rd\_author@domain.com [T. Author]}
 
-\author[2]{Vittorio Maniezzo}[orcid=0000-0002-1220-1235]
-\cormark[2]
-\ead{vittorio.maniezzo@unibo.it}
+%Author's notes/correspondence etc.
+\thanks{\affmark{$\ast$}Author to whom all correspondence should be addressed (e-mail: your@emailaddress.xxx).}
 
-\affiliation[2]{organization={Department of Computer Science},
-                addressline={University of Bologna}, 
-                postcode={47123}, 
-                city={Cesena},
-                country={Italy}}
+%%Date
+\historydate{Received DD MMMM YYYY; received in revised form DD MMMM YYYY; accepted DD MMMM YYYY}
 
-% Corresponding author indication
-\cortext[2]{Corresponding author}
+
+%\author[1]{Livio Fenga}[orcid=0000-0002-8185-2680]
+%\ead{L.Fenga@exeter.ac.uk}
+%
+%\affiliation[1]{organization={Center for Simulation, Analytics and Modelling},
+%                addressline={University of Exeter Business School}, 
+%                city={Exeter},
+%                postcode={EX4 4PU}, 
+%                country={UK}}
+%
+%\author[2]{Vittorio Maniezzo}[orcid=0000-0002-1220-1235]
+%\cormark[2]
+%\ead{vittorio.maniezzo@unibo.it}
+%
+%\affiliation[2]{organization={Department of Computer Science},
+%                addressline={University of Bologna}, 
+%                postcode={47123}, 
+%                city={Cesena},
+%                country={Italy}}
+%
+%% Corresponding author indication
+%\cortext[2]{Corresponding author}
 
 \begin{abstract}
 We introduce the Bootstrap Enhanced Scenario Optimization (BESO) framework, a novel methodology for prescriptive analytics under uncertainty. BESO addresses the challenge of generating reliable demand scenarios from volatile, short, and non-stationary time series data. The core innovation lies in delegating the modeling of uncertainties to the Maximum Entropy Bootstrap (MEB) integrated with bagging, a technique that preserves the complex autocorrelation structure of empirical time series forecasts, enabling the generation of statistically coherent scenarios. We further extend MEB through an objective-augmented formulation that incorporates downstream recourse elements into the resampling mechanism. These statistically rich scenarios are then integrated into a deterministic equivalent model to derive accountable and optimized prescriptions. We demonstrate the framework's power using a real-world case study in tactical inventory allocation. Our findings, also validated against an extensive set of artificial benchmark instances, demonstrate the effectiveness of MEB-enhanced forecasting in optimization. BESO establishes a new, generalizable paradigm for robust decision-making derived from noisy univariate data series.
@@ -104,16 +124,16 @@ We introduce the Bootstrap Enhanced Scenario Optimization (BESO) framework, a no
 %\end{highlights}
 
 \begin{keywords}
-	Stochastic programming \sep
-	Distributionally Robust Optimization \sep
-	Forecasting \sep
-	Maximum Entropy Bootstrap \sep 
+	Stochastic programming;
+	Distributionally Robust Optimization;
+	Forecasting;
+	Maximum Entropy Bootstrap;
 	Two-echelon logistics
 \end{keywords}
 
 \maketitle
 %\onehalfspacing
-\linespread{1.3}\selectfont
+%\linespread{1.3}\selectfont
 
 %% main text
 \section{Introduction} \label{Sec:intro}
@@ -535,22 +555,22 @@ The table shows that boosting is consistently the most reliable method for minim
 
 Figure \ref{fig:distr} shows two examples of forecast distributions obtained for two different series. The green bars correspond to the distribution of the results obtained by the AR[p] model over the differently recolored alternatives of a series. The distribution is superimposed with lines representing the results of other forecasting algorithms applied to the original series.
 
-\begin{figure}[H!]
+\begin{figure}[h]
 	\centering
 	\begin{minipage}{0.5\textwidth}
 		\centering
 		\includegraphics[width=\linewidth]{figs/distr_75_0.png}
-		\label{fig:dista}%
 		\vspace{0.5em}
-		\textit{(a) 75 bootset}
+		\textit{(a) 75 boostset}
+		\label{fig:dista}
 	\end{minipage}
 	\hfill
 	\begin{minipage}{0.49\textwidth}
 		\centering
 		\includegraphics[width=\linewidth]{figs/distr_75_9.png}
-		\label{fig:distb}%
 		\vspace{0.5em}
 		\textit{(b) 125 boostset}
+		\label{fig:distb}
 	\end{minipage}
 	\caption{Distribution of bootstrap forecasts.}
 	\label{fig:distr}
