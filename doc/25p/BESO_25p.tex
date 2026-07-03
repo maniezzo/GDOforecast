@@ -1,7 +1,5 @@
-% Use dblanonrev for Double Anonymous Review submission
-% Use sglanonrev for Single Anonymous Review submission
-\documentclass{itor}
-%\documentclass[ijoc,dblanonrev]{informs4}
+\documentclass[11pt]{article}
+\usepackage[a4paper,top=2cm,bottom=2cm,left=3cm,right=2cm]{geometry}
 
 % Optional LaTeX Packages
 \usepackage{url}
@@ -21,7 +19,7 @@
 \usepackage{array}          % Needed for custom column types
 \usepackage{xcolor}
 \colorlet{added}{blue!80!black} 
-%\usepackage{setspace}      % for controlled interline
+\usepackage{setspace}       % for controlled interline
 %\usepackage{lineno}
 \usepackage{enumitem}
 \usepackage{tikz}           % drawing figures
@@ -35,7 +33,11 @@
 \interdisplaylinepenalty=100
 \raggedbottom  % In preamble; allows uneven page bottoms
 
+\setstretch{1.25}   % INTERLINE
+
 % Private macros here (check that there is no clash with the style)
+% for authors data
+\usepackage{authblk}
 
 % Natbib setup for author-number style
 \usepackage{natbib}
@@ -59,12 +61,6 @@
 \MakeOuterQuote{"}
 \def\UrlFont{\rmfamily}
 
-% Metadata Information
-\jname{International Transactions in Operational Research}% no need to specify for ITOR
-\jvol{XX}
-\jyear{20XX}
-\doi{xx.xxxx/itor.xxxxx}
-
 %%%%%%%%%%%%%%%%
 \begin{document}
 %%%%%%%%%%%%%%%%
@@ -78,55 +74,26 @@
 \setlength{\abovedisplayshortskip}{0pt}
 \setlength{\belowdisplayshortskip}{0pt}
 
-% Outcomment only when entries are known. Otherwise leave as is and
-%   default values will be used.
-%\setcounter{page}{1}
-%\VOLUME{00}%
-%\NO{0}%
-%\MONTH{Xxxxx}% (month or a similar seasonal id)
-%\YEAR{0000}% e.g., 2005
-%\FIRSTPAGE{000}%
-%\LASTPAGE{000}%
-%\SHORTYEAR{00}% shortened year (two-digit)
-%\ISSUE{0000} %
-%\LONGFIRSTPAGE{0001} %
-%\DOI{10.1287/xxxx.0000.0000}%
-
 \title{Bootstrap Enhanced Scenario Optimization, a Case Study in Two-Echelon Logistics}
 
-%Authors, affiliations address.
-\author[Running Author]{Livio Fenga\affmark{a} and Vittorio Maniezzo\affmark{b,$\ast$}}
+\author[1]{Livio Fenga}
+\author[2]{Vittorio Maniezzo\thanks{Corresponding author: vittorio.maniezzo@unibo.it}}
 
-\affil{\affmark{a}Center for Simulation, Analytics and Modelling, University of Exeter, EX4 4PU Exeter, UK}
-\affil{\affmark{b}Department of Computer Science, University of Bologna, 40100 Bologna, Italy}
-\email{L.Fenga@exeter.ac.uk [L.Fenga]; vittorio.maniezzo@unibo.it [V.Maniezzo]}
+\affil[1]{Center for Simulation, Analytics and Modelling, University of Exeter, EX4 4PU Exeter, UK, L.Fenga@exeter.ac.uk}
+\affil[2]{Department of Computer Science, University of Bologna, 40100 Bologna, Italy, vittorio.maniezzo@unibo.it}
 
-%Author's notes/correspondence etc.
-\thanks{\affmark{$\ast$}Author to whom all correspondence should be addressed (e-mail: vittorio.maniezzo@unibo.it).}
-
-%%Date
-\historydate{Received DD MMMM YYYY; received in revised form DD MMMM YYYY; accepted DD MMMM YYYY}
-
-% Block of authors and their affiliations starts here:
-%\ARTICLEAUTHORS{%
-%\AUTHOR{Livio Fenga}
-%\AFF{Center for Simulation, Analytics and Modelling,
-%University of Exeter, \EMAIL{L.Fenga@exeter.ac.uk}}
-%
-%\AUTHOR{Vittorio Maniezzo}
-%\AFF{Department of Computer Science,
-%University of Bologna, \EMAIL{vittorio.maniezzo@unibo.it}}
-%} % end of the block
-
-\begin{abstract}
-We introduce the Bootstrap Enhanced Scenario Optimization (BESO) framework, a novel methodology for prescriptive analytics under uncertainty. BESO addresses the challenge of generating reliable demand scenarios from volatile, short, and non-stationary time series data. The core innovation lies in delegating the modeling of uncertainties to the Maximum Entropy Bootstrap (MEB) integrated with bagging, a technique that preserves the complex autocorrelation structure of empirical time series forecasts, enabling the generation of statistically coherent scenarios. We further extend MEB through an objective-augmented formulation that incorporates downstream recourse elements into the resampling mechanism. These statistically rich scenarios are then integrated into a deterministic equivalent model to derive accountable and optimized prescriptions. We demonstrate the framework's power using a real-world case study in tactical inventory allocation. Our findings, also validated against an extensive set of artificial benchmark instances, demonstrate the effectiveness of MEB-enhanced forecasting in optimization. BESO establishes a new, generalizable paradigm for robust decision-making derived from noisy univariate data series.
-\end{abstract}
-
-% Fill in data. If unknown, outcomment the field
-\keywords{Stochastic programming; Distributionally Robust Optimization; Forecasting; Maximum Entropy Bootstrap; Two-echelon logistics} 
+\date{\today}
 
 \maketitle
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{abstract}
+\{We propose a data‑driven robust optimization framework for logistics, where bootstrapped forecasts define the ambiguity set to achieve improved worst‑case performance.\}
+We introduce the Bootstrap Enhanced Scenario Optimization (BESO) framework, a novel methodology for prescriptive analytics under uncertainty. BESO addresses the challenge of generating reliable demand scenarios from volatile, short, and non-stationary time series data. The core innovation lies in delegating the modeling of uncertainties to the Maximum Entropy Bootstrap (MEB) integrated with bagging, a technique that preserves the complex autocorrelation structure of empirical time series forecasts, enabling the generation of statistically coherent scenarios. We further extend MEB through an objective-augmented formulation that incorporates downstream recourse elements into the resampling mechanism. These statistically rich scenarios are then integrated into a deterministic equivalent model to derive accountable and optimized prescriptions. We demonstrate the framework's power using a real-world case study in tactical inventory allocation. Our findings, also validated against an extensive set of artificial benchmark instances, demonstrate the effectiveness of MEB-enhanced forecasting in optimization. BESO establishes a new, generalizable paradigm for robust decision-making derived from noisy univariate data series.
+\end{abstract}
+
+% Keywords
+\noindent \textbf{Keywords:}Stochastic programming; Distributionally Robust Optimization; Forecasting; Maximum Entropy Bootstrap; Two-echelon logistics
 
 \section{Introduction} \label{Sec:intro}
 
@@ -647,8 +614,10 @@ Future research may further explore bootstrap-based ambiguity representations, p
 \bibliography{GDObiblio} % if more than one, comma separated
 
 % Appendix
+% --- Start Appendices Here ---
+\appendix
 \vspace*{-10pt}
-\appsection{Appendix A: Cost function values} \label{app:errcost}
+\section{Appendix A: Cost function values} \label{app:errcost}
 
 This section reports the absolute values of the various cost functions, which were calculated using the forecast errors obtained by averaging the corresponding errors for each of the 52 test case series described in the paper.
 
@@ -722,7 +691,7 @@ The functions reported in the columns are: bias, Means Absolute Percentage Error
 
 All tables show significantly consistent results across all boost set sizes.
 
-\appsection{Appendix B: Extended deterministic benchmark set} \label{app:artificial}
+\section{Appendix B: Extended deterministic benchmark set} \label{app:artificial}
 
 All analyses reported in sections \ref{Subsec:predictive} and \ref{Subsec:prescriptive} refer to the case study at the heart of this paper, but the interest of the method is not limited to this particular case study as it can be effective on any instance of this 2-echelon supply chain problem. To test the generality of the results, we generated a benchmark set with varying dimensions and coefficients. The study was conducted only with respect to the deterministic setting, and is therefore significant for assessing the computational complexity of the split-allocation problem as a deterministic combinatorial optimization problem.
 
