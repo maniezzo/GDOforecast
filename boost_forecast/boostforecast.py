@@ -171,6 +171,7 @@ def main_fcast(name, df, idcustomer=0, step = 52, model='AR', distrib='AR', fbac
          plt.axvline(x=yarima, color='purple', linestyle=':', label='ARIMA')
          plt.title(f"Distribution of forecast Values, series {iboostset}")
          plt.legend()
+         plt.savefig(f"distr_{len(bset)}_{iboostset}.png")
          plt.show()
 
       print("series","model","true","fcast_50","fcast_avg","fcast_05","fcast_95","yar","yhw","ysvm","ylstm","ymlp","yrf","yxgb","yarima")
@@ -195,5 +196,6 @@ if __name__ == "__main__":
    nboost= conf['nboost']
    idcustomer = conf['firstcust'] # forecast starting from this customer
    step  = conf['stepcust']       # these many customers after idcustomer
+   verbose = True if conf['verbose']=="True" else False
    p     = 5
-   main_fcast(name, df2.iloc[:-3,:], idcustomer=idcustomer, step=step, model=model, distrib=distrib, fback=fback, frep=frep, nboost=nboost, p=p, verbose=False) # actual data only for 45 months hence -3
+   main_fcast(name, df2.iloc[:-3,:], idcustomer=idcustomer, step=step, model=model, distrib=distrib, fback=fback, frep=frep, nboost=nboost, p=p, verbose=verbose) # actual data only for 45 months hence -3
