@@ -3,7 +3,6 @@ import pandas as pd, numpy as np
 import scenarios
 import wasserstein as wass
 
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
    costs = pd.read_csv("costs.csv").values
    cap   = pd.read_csv("capacities.csv",header=None).values.flatten()
