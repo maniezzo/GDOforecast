@@ -155,11 +155,11 @@ def go_saa(req, g_s, d, bind, numscen):
    # legge le richieste di ogni scenario
    # req = pd.read_csv(f"../boostset/req{numscen}.csv", header=None).values.flatten()
 
-   # g_s contains your scenario cost scores.
+   # g_s contains scenario cost scores.
    p_OA = oa_probabilities(g_s, gamma=1.0)  # objective-aware probabilities
    model, x, q, eps = build_beso_saa(req, p_OA, cost, d, cap, b)
 
-   model.Params.MIPGap = 0.01  # Example: 1% relative optimality gap
+   model.Params.MIPGap = 0.001  # Example: 1% relative optimality gap
    model.optimize()
 
    if model.SolCount > 0:
@@ -168,8 +168,8 @@ def go_saa(req, g_s, d, bind, numscen):
            p_OA[s] * eps[j, s].X for j, s in eps
        )
 
-       print("Objective:", model.ObjVal)
-       print("Assignments:", assignments)
+       print(f"Objective: {model.ObjVal:.3f}")
+       print(f"Assignments: {assignments}")
        print("Expected shortage:", expected_shortage)
    else:
        print("No feasible solution found. Gurobi status:", model.Status)

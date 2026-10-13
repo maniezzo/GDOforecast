@@ -1,49 +1,60 @@
-import numpy as np
+import numpy as np, pandas as pd
 import gurobipy as gp
 from gurobipy import GRB
 
+def oa_probabilities(g, gamma, a=None):
+    """calcola objective-aware probabilities p^OA_s"""
+    g = np.asarray(g, dtype=float)
+    if g.ndim != 1 or g.size == 0 or not np.all(np.isfinite(g)):
+        raise ValueError("g must be a nonempty vector of finite scores.")
+    if not np.isfinite(gamma):
+        raise ValueError("gamma must be finite.")
+
+    if a is None:
+        a = np.ones(g.size)  # Uniform baseline; normalization cancels
+    else:
+        a = np.asarray(a, dtype=float)
+        if (a.shape != g.shape or not np.all(np.isfinite(a))
+                or np.any(a < 0) or not np.any(a > 0)):
+            raise ValueError("a must match g, be nonnegative, and have positive mass.")
+
+    sd = g.std(ddof=0)
+    g_scaled = (g - g.mean()) / sd if sd > 0 else np.zeros_like(g)
+
+    # Compute in log space to avoid exponential overflow.
+    positive = a > 0
+    log_weights = np.log(a[positive]) + gamma * g_scaled[positive]
+    weights = np.exp(log_weights - log_weights.max())
+
+    p = np.zeros_like(g)
+    p[positive] = weights / weights.sum()
+    return p
+
 def build_beso_dro(
-    rho, p_OA, c, d, Q, b, M,
-    K, L, seed=None, fixed_x=None
+    rho, p_OA, c, d, Q, b,
+    K, L, M=9999999, seed=None, fixed_x=None
 ):
     """
     Build the BESO-DRO model without solving it.
-
     Parameters
-    ----------
-    rho : array (N, n)
-        Nonnegative integer demands rho[s, j].
-        Each row is one joint demand scenario across all stores.
-    p_OA : array (N,)
-        Objective-aware probabilities, in the same order as rho.
-    c : array (m, n)
-        Fixed assignment costs c[i, j].
-    d : array (m,)
-        Unit storage costs d[i].
-    Q : array (m,)
-        Fixed DC capacities, including the external DC.
-    b : array (n,)
-        Exact number of DC assignments per store.
-    M : float
-        Positive penalty per pallet of unmet demand.
-    K : positive integer
-        Number of resampled distributions.
-    L : positive integer
-        Number of scenario draws per distribution.
-    seed : int, optional
-        Random seed for reproducibility.
-    fixed_x : dict, optional
-        Prescribed assignments {(i, j): 0 or 1}.
-        All indices are zero-based.
-
+        rho : array (N, n) Nonnegative integer demands rho[s, j]. Each row is one joint demand scenario across all stores.
+        p_OA : array (N,)  Objective-aware probabilities, in the same order as rho.
+        c : array (m, n)   Fixed assignment costs c[i, j].
+        d : array (m,)     Unit storage costs d[i].
+        Q : array (m,)     Fixed DC capacities, including the external DC.
+        b : array (n,)     Exact number of DC assignments per store.
+        M : float    penalty per pallet of unmet demand.
+        K : integer, Number of resampled distributions.
+        L : integer, Number of scenario draws per distribution.
+        seed : int, optional, Random seed for reproducibility.
+        fixed_x : dict, optional, Prescribed assignments {(i, j): 0 or 1}.
     Returns
-    -------
-    model, x, q, eps, z, w
-        x[i,j]   : common binary assignments.
-        q[i,j,s] : integer deliveries in scenario s.
-        eps[j,s] : integer shortages in scenario s.
-        z        : worst expected recourse cost.
-        w[k,s]   : scenario probabilities in distribution k.
+        model, x, q, eps, z, w
+            x[i,j]   : common binary assignments.
+            q[i,j,s] : integer deliveries in scenario s.
+            eps[j,s] : integer shortages in scenario s.
+            z        : worst expected recourse cost.
+            w[k,s]   : scenario probabilities in distribution k.
     """
     # ---------- Validate inputs ----------
     rho, p, c, d, Q, b = [
@@ -182,26 +193,46 @@ def build_beso_dro(
 
     return model, x, q, eps, z, w
 
-model, x, q, eps, z, w = build_beso_dro(
-    rho=rho,
-    p_OA=p_OA,
-    c=c,
-    d=d,
-    Q=Q,
-    b=b,
-    M=M,
-    K=100,       # Illustrative
-    L=125,       # Illustrative
-    seed=42
-)
-
-model.Params.MIPGap = 0.01
-model.optimize()
-
-if model.SolCount > 0:
-    assignments = [(i, j) for i, j in x if x[i, j].X > 0.5]
-    print("Objective:", model.ObjVal)
-    print("Worst expected recourse bound:", z.X)
-    print("Assignments:", assignments)
-else:
-    print("No feasible solution found. Gurobi status:", model.Status)
+def go_dro(req,g_s,d,bind,numscen):
+    '''
+    g_s:  vettore costi trasporto normalizzati
+    d:    costi di handling per ogni DC
+    bind: INDICI dei client assegnabili a 2 DC
+    '''
+    numCustomers = 52
+    # legge i costi
+    dfcost = pd.read_csv("costs.csv")
+    cost = np.array(dfcost.values)
+    # legge le capacita
+    cap = pd.read_csv("capacities.csv", header=None).values.flatten()
+    b = np.ones(numCustomers)
+    for i in range(len(bind)): b[bind[i]] += 1
+    # legge le richieste di ogni scenario
+    req = pd.read_csv(f"../boostset/req{numscen}.csv", header=None)
+    
+    # g_s contains scenario cost scores.
+    p_OA = oa_probabilities(g_s, gamma=1.0)  # objective-aware probabilities
+    
+    model, x, q, eps, z, w = build_beso_dro(
+        rho=np.array(req),
+        p_OA=p_OA,
+        c=cost,
+        d=d,
+        Q=cap,
+        b=b,
+        K=100,
+        L=125,
+        seed=42
+    )
+    
+    model.Params.MIPGap = 0.001
+    model.optimize()
+    
+    if model.SolCount > 0:
+        assignments = [(i, j) for i, j in x if x[i, j].X > 0.5]
+        print("Objective:", model.ObjVal)
+        print("Worst expected recourse bound:", z.X)
+        print("Assignments:", assignments)
+    else:
+        print("No feasible solution found. Gurobi status:", model.Status)
+    return

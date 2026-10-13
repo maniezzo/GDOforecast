@@ -1,0 +1,6 @@
+{
+   "seed"    : 995,
+   "numscen" : 75,
+   "b"       : [], "commentB" : "indici client assegnabili a 2 DC, [] per nessuno",
+   "d"       : [0,10,0,0],  "commentD" : "handling cost dei vari DC"
+}
