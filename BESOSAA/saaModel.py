@@ -1,0 +1,176 @@
+import numpy as np, pandas as pd
+import gurobipy as gp
+from gurobipy import GRB
+
+def oa_probabilities(g, gamma, a=None):
+    """calcola objective-aware probabilities p^OA_s"""
+    g = np.asarray(g, dtype=float)
+    if g.ndim != 1 or g.size == 0 or not np.all(np.isfinite(g)):
+        raise ValueError("g must be a nonempty vector of finite scores.")
+    if not np.isfinite(gamma):
+        raise ValueError("gamma must be finite.")
+
+    if a is None:
+        a = np.ones(g.size)  # Uniform baseline; normalization cancels
+    else:
+        a = np.asarray(a, dtype=float)
+        if (a.shape != g.shape or not np.all(np.isfinite(a))
+                or np.any(a < 0) or not np.any(a > 0)):
+            raise ValueError("a must match g, be nonnegative, and have positive mass.")
+
+    sd = g.std(ddof=0)
+    g_scaled = (g - g.mean()) / sd if sd > 0 else np.zeros_like(g)
+
+    # Compute in log space to avoid exponential overflow.
+    positive = a > 0
+    log_weights = np.log(a[positive]) + gamma * g_scaled[positive]
+    weights = np.exp(log_weights - log_weights.max())
+
+    p = np.zeros_like(g)
+    p[positive] = weights / weights.sum()
+    return p
+
+def build_beso_saa(rho, p_OA, c, d, Q, b, M=9999999, fixed_x=None):
+    """
+    Build the BESO-SAA model without solving it.
+    Parameters
+        rho : array (N, n), Nonnegative integer demands: rho[s, j].
+            Each row is one joint demand scenario across all stores.
+        p_OA : array (N,),  Scenario probabilities, in the same order as rho.
+        c : array (m, n),   Fixed assignment costs c[i, j].
+        d : array (m,),     Unit storage costs d[i].
+        Q : array (m,),     Fixed DC capacities, including the external DC.
+        b : array (n,),     Exact number of DC assignments per store.
+        M : float,          Positive penalty per pallet of unmet demand.
+        fixed_x : dict, optional, Prescribed assignments {(i, j): 0 or 1}, Indices are zero-based.
+    Returns
+        model, x, q, eps,   Variables indexed as x[i,j], q[i,j,s], eps[j,s].
+    """
+    rho, p, c, d, Q, b = [
+        np.asarray(v, dtype=float) for v in (rho, p_OA, c, d, Q, b)
+    ]
+
+    if rho.ndim != 2 or min(rho.shape) == 0:
+        raise ValueError("rho must have shape (N, n), with N,n > 0.")
+    N, n = rho.shape
+
+    if c.ndim != 2 or c.shape[1] != n or c.shape[0] == 0:
+        raise ValueError("c must have shape (m, n), with m > 0.")
+    m = c.shape[0]
+
+    if (p.shape != (N,) or d.shape != (m,)
+            or Q.shape != (m,) or b.shape != (n,)):
+        raise ValueError("Inconsistent dimensions of p_OA, d, Q, or b.")
+
+    if not all(np.all(np.isfinite(v)) for v in (rho, p, c, d, Q, b)):
+        raise ValueError("All input arrays must contain finite values.")
+    if np.any(rho < 0) or np.any(Q < 0):
+        raise ValueError("Demands and capacities must be nonnegative.")
+    if np.any(rho != np.floor(rho)):
+        raise ValueError("rho must contain integer pallet demands.")
+    if np.any(b != np.floor(b)) or np.any((b < 1) | (b > m)):
+        raise ValueError("b must contain integers between 1 and m.")
+    if np.any(p < 0) or not np.isclose(p.sum(), 1.0):
+        raise ValueError("p_OA must be nonnegative and sum to one.")
+    if not np.isfinite(M) or M <= 0:
+        raise ValueError("M must be finite and positive.")
+
+    p = p / p.sum()  # Remove small floating-point normalization errors
+    I, J, S = range(m), range(n), range(N)
+
+    model = gp.Model("BESO_SAA")
+
+    # First-stage assignments: shared by every scenario.
+    x = model.addVars(I, J, vtype=GRB.BINARY, name="x")
+
+    # Scenario-dependent recourse.
+    q = model.addVars(I, J, S, lb=0, vtype=GRB.INTEGER, name="q")
+    eps = model.addVars(J, S, lb=0, vtype=GRB.INTEGER, name="eps")
+
+    # Exact prescribed number of assignments.
+    model.addConstrs(
+        (gp.quicksum(x[i, j] for i in I) == b[j] for j in J),
+        name="assignments"
+    )
+
+    # Demand served plus shortage equals scenario demand.
+    model.addConstrs(
+        (gp.quicksum(q[i, j, s] for i in I) + eps[j, s]
+         == rho[s, j] for j in J for s in S),
+        name="demand"
+    )
+
+    # Capacity must hold separately in each scenario.
+    model.addConstrs(
+        (gp.quicksum(q[i, j, s] for j in J) <= Q[i]
+         for i in I for s in S),
+        name="capacity"
+    )
+
+    # Deliveries only along selected assignments.
+    model.addConstrs(
+        (q[i, j, s] <= rho[s, j] * x[i, j]
+         for i in I for j in J for s in S),
+        name="link"
+    )
+
+    if fixed_x is not None:
+        for (i, j), value in fixed_x.items():
+            if i not in I or j not in J or value not in (0, 1):
+                raise ValueError("Invalid fixed assignment index or value.")
+            x[i, j].LB = value
+            x[i, j].UB = value
+
+    assignment_cost = gp.quicksum(
+        c[i, j] * x[i, j] for i in I for j in J
+    )
+
+    expected_recourse = gp.quicksum(
+        p[s] * (
+            gp.quicksum(d[i] * q[i, j, s] for i in I for j in J)
+            + M * gp.quicksum(eps[j, s] for j in J)
+        )
+        for s in S
+    )
+
+    model.setObjective(assignment_cost + expected_recourse, GRB.MINIMIZE)
+    model.update()
+
+    return model, x, q, eps
+
+def go_saa(req, g_s, d, bind, numscen):
+   '''
+   g_s:  vettore costi trasporto normalizzati
+   d:    costi di handling per ogni DC
+   bind: INDICI dei client assegnabili a 2 DC
+   '''
+   numCustomers = 52
+   # legge i costi
+   dfcost = pd.read_csv("costs.csv")
+   cost = np.array(dfcost.values)
+   # legge le capacita
+   cap = pd.read_csv("capacities.csv", header=None).values.flatten()
+   b = np.ones(numCustomers)
+   for i in range(len(bind)): b[bind[i]] += 1
+   # legge le richieste di ogni scenario
+   # req = pd.read_csv(f"../boostset/req{numscen}.csv", header=None).values.flatten()
+
+   # g_s contains your scenario cost scores.
+   p_OA = oa_probabilities(g_s, gamma=1.0)  # objective-aware probabilities
+   model, x, q, eps = build_beso_saa(req, p_OA, cost, d, cap, b)
+
+   model.Params.MIPGap = 0.01  # Example: 1% relative optimality gap
+   model.optimize()
+
+   if model.SolCount > 0:
+       assignments = [(i, j) for i, j in x if x[i, j].X > 0.5]
+       expected_shortage = sum(
+           p_OA[s] * eps[j, s].X for j, s in eps
+       )
+
+       print("Objective:", model.ObjVal)
+       print("Assignments:", assignments)
+       print("Expected shortage:", expected_shortage)
+   else:
+       print("No feasible solution found. Gurobi status:", model.Status)
+   return
