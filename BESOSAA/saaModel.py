@@ -129,19 +129,27 @@ def build_beso_saa(rho, p_OA, c, d, Q, b, M=9999999, fixed_x=None):
    return model, x, q, eps
 
 # un po' di postprocessing sui risultati
-def resultsKPI(cap,req,numscen, asgn):
+def resultsKPI(cap, req, numscen, asgn, q, tol=1e-6):
    cap = np.asarray(cap, dtype=float)
-   req = np.asarray(req, dtype=float)
-   # Rows: scenarios; columns: DCs.
-   loads = np.zeros((req.shape[0], len(cap)))
+   m = len(cap)
+   loads = np.zeros((numscen, m))
 
-   for dc, j in asgn:
-      loads[:, dc] += req[:, j]
+   for i in range(m):
+      for j in range(req.shape[1]):
+         for s in range(numscen):
+            loads[s, i] += q[i, j, s].X
 
    peak_loads = loads.max(axis=0)
    overloads = np.maximum(peak_loads - cap, 0.0)
 
-   return peak_loads, overloads
+   for i in range(m):
+      print(
+         f"DC {i}: capacity={cap[i]:.2f}, "
+         f"peak delivery={peak_loads[i]:.2f}, "
+         f"overload={overloads[i]:.6f}"
+      )
+
+   return loads, peak_loads, overloads, bool(np.all(overloads <= tol))
 
 def go_saa(req, g_s, d, bind, gamma, numscen, numCustomers):
    '''
@@ -170,7 +178,7 @@ def go_saa(req, g_s, d, bind, gamma, numscen, numCustomers):
    if model.SolCount > 0:
       assignments = [(i, j) for i, j in x if x[i, j].X > 0.5]
       expected_shortage = sum( p_OA[s] * eps[j, s].X for j, s in eps )
-      peak_loads, overloads = resultsKPI(cap,req,numscen,assignments)
+      loads, peak_loads, overloads, indover = resultsKPI(cap,req,numscen,assignments,q)
 
       print(f"n.rows {model.NumConstrs} n.cols {model.NumVars} n.non0 {model.NumNZs}")
       print(f"Objective: {model.ObjVal:.3f} t.cpu {model.Runtime:.3f}")

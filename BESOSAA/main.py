@@ -31,7 +31,8 @@ if __name__ == '__main__':
    name = "dataframe_nocovid_full"
    df = pd.read_csv(f"../data/{name}.csv", usecols=[i for i in range(1, 53)])
    print(f"Boost forecasting {name}")
-   compute_boostset(df)
+   # inizio costruendomi il boostset (uguale a parità di seed)
+   compute_boostset(df,numscen=numscen)
 
    req, gs = compute_transport(numscen)
    print("transportation costs:", gs)
