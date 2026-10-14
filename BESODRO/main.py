@@ -12,8 +12,10 @@ if __name__ == '__main__':
    print(conf)
    numscen = conf["numscen"]
    seed    = conf["seed"]
-   b       = conf["b"]
-   d       = conf["d"]
+   b = conf["b"]
+   d = conf["d"]
+   K = conf["K"]
+   L = conf["L"]
    np.random.seed(seed)
    random.seed(seed)
 
@@ -23,6 +25,6 @@ if __name__ == '__main__':
    
    gs = np.loadtxt(f"transpCosts{numscen}.csv", delimiter=",")
    req = np.loadtxt(f"../boostset/req{numscen}.csv", delimiter=",")
-   go_dro(req,gs,d,b,numscen)
+   go_dro(req,gs,d,b,K,L,numscen,seed)
 
    print('Fine')

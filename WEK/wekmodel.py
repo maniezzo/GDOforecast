@@ -2,51 +2,35 @@ import numpy as np, pandas as pd
 import gurobipy as gp
 from gurobipy import GRB
 
-
 def build_wek(
     rho, c, d, Q, b,
     radius, M=9999999, fixed_x=None
 ):
     """
     Build the finite-support 1-Wasserstein DRO benchmark (WEK).
-    Does not solve the model.
-
     Parameters
-    ----------
-    rho : array (N, n)
-        Nonnegative demand scenarios rho[s, j].
-        Each row is one joint demand scenario across all stores.
-        The empirical baseline assigns probability 1/N to each row.
-    c : array (m, n)
-        Fixed assignment costs c[i, j].
-    d : array (m,)
-        Unit storage costs d[i].
-    Q : array (m,)
-        Fixed DC capacities, including the external DC.
-    b : array (n,)
-        Exact number of DC assignments per store.
-    M : float
-        Positive penalty per pallet of unmet demand.
-    radius : float
-        Nonnegative Wasserstein radius, using unscaled L1 distances.
-    fixed_x : dict, optional
-        Prescribed assignments {(i, j): 0 or 1}.
-        All indices are zero-based.
-
+       rho : array (N, n)
+           Nonnegative demand scenarios rho[s, j].
+           Each row is one joint demand scenario across all stores.
+           The empirical baseline assigns probability 1/N to each row.
+       c : array (m, n) Fixed assignment costs c[i, j].
+       d : array (m,) Unit storage costs d[i].
+       Q : array (m,) Fixed DC capacities, including the external DC.
+       b : array (n,) Exact number of DC assignments per store.
+       M : floatPositive penalty per pallet of unmet demand.
+       radius : float Nonnegative Wasserstein radius, using unscaled L1 distances.
+       fixed_x : dict, optional Prescribed assignments {(i, j): 0 or 1}.
     Returns
-    -------
-    model, x, q, eps, lam, eta, D
-        x[i,j]   : common binary assignments.
-        q[i,j,t] : continuous deliveries in scenario t.
-        eps[j,t] : continuous shortages in scenario t.
-        lam      : nonnegative Wasserstein dual variable.
-        eta[s]   : dual envelope for baseline scenario s.
-        D[s,t]   : L1 distance between demand scenarios s and t.
+       model, x, q, eps, lam, eta, D
+           x[i,j]   : common binary assignments.
+           q[i,j,t] : continuous deliveries in scenario t.
+           eps[j,t] : continuous shortages in scenario t.
+           lam      : nonnegative Wasserstein dual variable.
+           eta[s]   : dual envelope for baseline scenario s.
+           D[s,t]   : L1 distance between demand scenarios s and t.
     """
-    # ---------- Validate inputs ----------
-    rho, c, d, Q, b = [
-        np.asarray(v, dtype=float) for v in (rho, c, d, Q, b)
-    ]
+    # Validazione input
+    rho, c, d, Q, b = [ np.asarray(v, dtype=float) for v in (rho, c, d, Q, b) ]
 
     if rho.ndim != 2 or min(rho.shape) == 0:
         raise ValueError("rho must have shape (N, n), with N,n > 0.")
@@ -81,47 +65,41 @@ def build_wek(
             if i not in I or j not in J or value not in (0, 1):
                 raise ValueError("Invalid fixed assignment index or value.")
 
-    # ---------- Pairwise L1 distances ----------
-    # Row-by-row computation avoids an N x N x n temporary array.
+    # Pairwise L1 distances
     D = np.empty((N, N), dtype=float)
     for s in S:
         D[s, :] = np.abs(rho - rho[s]).sum(axis=1)
 
-    # ---------- Create model and variables ----------
+    # Create model and variables
     model = gp.Model("WEK")
 
     x = model.addVars(I, J, vtype=GRB.BINARY, name="x")
 
-    # Continuous recourse, as in your WEK formulation.
+    # Continuous recourse, see WEK formulation.
     q = model.addVars(I, J, S, lb=0, name="q")
     eps = model.addVars(J, S, lb=0, name="eps")
 
     lam = model.addVar(lb=0, name="lambda")
     eta = model.addVars(S, lb=-GRB.INFINITY, name="eta")
 
-    # ---------- Feasibility constraints ----------
+    # ---------------------------------------------------- constraints
     model.addConstrs(
-        (gp.quicksum(x[i, j] for i in I) == b[j]
-         for j in J),
+        (gp.quicksum(x[i, j] for i in I) == b[j] for j in J),
         name="assignments"
     )
 
     model.addConstrs(
-        (gp.quicksum(q[i, j, t] for i in I) + eps[j, t]
-         == rho[t, j]
-         for j in J for t in S),
+        (gp.quicksum(q[i, j, t] for i in I) + eps[j, t] == rho[t, j] for j in J for t in S),
         name="demand"
     )
 
     model.addConstrs(
-        (gp.quicksum(q[i, j, t] for j in J) <= Q[i]
-         for i in I for t in S),
+        (gp.quicksum(q[i, j, t] for j in J) <= Q[i] for i in I for t in S),
         name="capacity"
     )
 
     model.addConstrs(
-        (q[i, j, t] <= rho[t, j] * x[i, j]
-         for i in I for j in J for t in S),
+        (q[i, j, t] <= rho[t, j] * x[i, j] for i in I for j in J for t in S),
         name="link"
     )
 
@@ -130,37 +108,41 @@ def build_wek(
             x[i, j].LB = value
             x[i, j].UB = value
 
-    # ---------- Wasserstein dual constraints ----------
-    recourse = {
-        t: (
-            gp.quicksum(
-                d[i] * q[i, j, t] for i in I for j in J
-            )
-            + M * gp.quicksum(eps[j, t] for j in J)
-        )
-        for t in S
-    }
+    # ----------------------------------- Wasserstein dual constraints
 
+    recourse = {
+        t: ( gp.quicksum( d[i] * q[i, j, t] for i in I for j in J )
+                          + M * gp.quicksum(eps[j, t] for j in J)
+           ) for t in S
+    }
     model.addConstrs(
-        (eta[s] >= recourse[t] - lam * D[s, t]
-         for s in S for t in S),
+        (eta[s] >= recourse[t] - lam * D[s, t] for s in S for t in S),
         name="wasserstein"
     )
 
-    # ---------- Objective ----------
-    assignment_cost = gp.quicksum(
-        c[i, j] * x[i, j] for i in I for j in J
-    )
+    # ------------------------------------ Objective
+    assignment_cost = gp.quicksum( c[i, j] * x[i, j] for i in I for j in J )
 
-    model.setObjective(
-        assignment_cost
-        + radius * lam
-        + gp.quicksum(eta[s] for s in S) / N,
-        GRB.MINIMIZE
-    )
+    model.setObjective( assignment_cost + radius * lam+ gp.quicksum(eta[s] for s in S) / N,
+                        GRB.MINIMIZE
+                      )
     model.update()
-
     return model, x, q, eps, lam, eta, D
+
+# un po' di postprocessing sui risultati
+def resultsKPI(cap,req,numscen, asgn):
+   cap = np.asarray(cap, dtype=float)
+   req = np.asarray(req, dtype=float)
+   # Rows: scenarios; columns: DCs.
+   loads = np.zeros((req.shape[0], len(cap)))
+
+   for dc, j in asgn:
+      loads[:, dc] += req[:, j]
+
+   peak_loads = loads.max(axis=0)
+   overloads = np.maximum(peak_loads - cap, 0.0)
+
+   return peak_loads, overloads
 
 def go_wek(req, d, bind, numscen):
    '''
@@ -193,15 +175,15 @@ def go_wek(req, d, bind, numscen):
    
    if model.SolCount > 0:
       assignments = [(i, j) for i, j in x if x[i, j].X > 0.5]
-      
-      worst_recourse_bound = (
-            wasserstein_radius * lam.X
-            + sum(eta[s].X for s in eta) / len(eta)
-      )
-      
-      print("Objective:", model.ObjVal)
+      worst_recourse_bound = ( wasserstein_radius * lam.X+ sum(eta[s].X for s in eta) / len(eta) )
+      peak_loads, overloads = resultsKPI(cap,req,numscen,assignments)
+
+      print(f"n.rows {model.NumConstrs} n.cols {model.NumVars} n.non0 {model.NumNZs}")
+      print(f"Objective: {model.ObjVal:.3f} t.cpu {model.Runtime:.3f}")
       print("Worst expected recourse bound:", worst_recourse_bound)
-      print("Assignments:", assignments)
+      #print("Assignments:", assignments)
+      print("Peak loads:", peak_loads)
+      print("Overloads:", overloads)
    else:
       print("No feasible solution found. Gurobi status:", model.Status)
    return

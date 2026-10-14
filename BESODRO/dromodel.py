@@ -193,7 +193,22 @@ def build_beso_dro(
 
     return model, x, q, eps, z, w
 
-def go_dro(req,g_s,d,bind,numscen):
+# un po' di postprocessing sui risultati
+def resultsKPI(cap,req,numscen, asgn):
+   cap = np.asarray(cap, dtype=float)
+   req = np.asarray(req, dtype=float)
+   # Rows: scenarios; columns: DCs.
+   loads = np.zeros((req.shape[0], len(cap)))
+
+   for dc, j in asgn:
+      loads[:, dc] += req[:, j]
+
+   peak_loads = loads.max(axis=0)
+   overloads = np.maximum(peak_loads - cap, 0.0)
+
+   return peak_loads, overloads
+
+def go_dro(req,g_s,d,bind,K,L,numscen,seed):
     '''
     g_s:  vettore costi trasporto normalizzati
     d:    costi di handling per ogni DC
@@ -220,9 +235,9 @@ def go_dro(req,g_s,d,bind,numscen):
         d=d,
         Q=cap,
         b=b,
-        K=100,
-        L=125,
-        seed=42
+        K=K,
+        L=L,
+        seed=seed
     )
     
     model.Params.MIPGap = 0.001
@@ -230,9 +245,13 @@ def go_dro(req,g_s,d,bind,numscen):
     
     if model.SolCount > 0:
         assignments = [(i, j) for i, j in x if x[i, j].X > 0.5]
-        print("Objective:", model.ObjVal)
+        print(f"n.rows {model.NumConstrs} n.cols {model.NumVars} n.non0 {model.NumNZs}")
+        print(f"Objective: {model.ObjVal:.3f} t.cpu {model.Runtime:.3f}")
         print("Worst expected recourse bound:", z.X)
-        print("Assignments:", assignments)
+        peak_loads, overloads = resultsKPI(cap,req,numscen,assignments)
+        print("Peak loads:", peak_loads)
+        print("Overloads:", overloads)
+        #print(f"Assignments: {assignments}")
     else:
         print("No feasible solution found. Gurobi status:", model.Status)
     return

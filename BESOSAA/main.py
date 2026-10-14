@@ -20,9 +20,11 @@ if __name__ == '__main__':
       conf = json.load(jconf)
    print(conf)
    numscen = conf["numscen"]
+   numCustomers = conf["numCustomers"]
    seed    = conf["seed"]
    b       = conf["b"]
    d       = conf["d"]
+   gamma   = conf["gamma"]
    np.random.seed(seed)
    random.seed(seed)
 
@@ -33,6 +35,6 @@ if __name__ == '__main__':
 
    req, gs = compute_transport(numscen)
    print("transportation costs:", gs)
-   go_saa(req,gs,d,b,numscen)
+   go_saa(req,gs,d,b,gamma,numscen,numCustomers)
 
    print('Fine')

@@ -1,6 +1,7 @@
 import numpy as np, pandas as pd, os
 from util import prewhiten,recolor,ar_rolling_forecast
 
+# legge i dati per il problema di trasporto
 def read_TPdata(numscen):
    numCustomers = 52
    # legge i costi
@@ -29,7 +30,7 @@ def read_TPdata(numscen):
       req.append( np.array(_req))
    return cost, cap, np.array(req)
 
-# solve transportation problem
+# librerie per il problema di trasporto
 from scipy.optimize import linprog
 from scipy.sparse import kron, eye, csr_matrix
 
