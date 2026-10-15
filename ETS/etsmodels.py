@@ -26,6 +26,19 @@ def resultsKPI(cap, req, numscen, asgn, q, tol=1e-6):
 
    return loads, peak_loads, overloads, bool(np.all(overloads <= tol))
 
+# controlla overload sui dati veri
+def check_test(assgn,cap,test):
+   m = len(cap)
+   loads = np.zeros(m)
+
+   for (dc,j) in assgn:
+      loads[dc] += test[j]
+
+   overload = np.zeros(m)
+   for i in range(m):
+      if(loads[i] >= cap[i]): overload[i] = loads[i]-cap[i]
+   return loads, overload
+
 # ETS deterministico
 def deterministic_ets_sap(
     ets_mean, c, d, Q, b, *,
@@ -85,7 +98,7 @@ def deterministic_ets_sap(
 
     return model, x, q, req
 
-def go_ets_saa(req, d, bind, numscen, numCustomers, seed):
+def go_ets_saa(req, d, bind, numscen, numCustomers, seed, test):
    # history[t, j]: ORIGINAL monthly demand for store j.
    # For use case: shape (45, 52), excluding the test months.
    # conversion_factor: the same monthly-demand-to-two-week-pallet
@@ -141,12 +154,13 @@ def go_ets_saa(req, d, bind, numscen, numCustomers, seed):
 
    if model.SolCount > 0:
       assignments = [(i, j) for i, j in x if x[i, j].X > 0.5]
-      loads, peak_loads, overloads, indover = resultsKPI(cap,req,numscen,assignments,q)
+      _, peak_loads, overloads, indover = resultsKPI(cap,req,numscen,assignments,q)
+      loads,overloads = check_test(assignments,cap,test)
 
       print(f"n.rows {model.NumConstrs} n.cols {model.NumVars} n.non0 {model.NumNZs}")
       print(f"Objective: {model.ObjVal:.3f} t.cpu {model.Runtime:.3f}")
       print("Peak loads:", peak_loads)
-      print("Overloads:", overloads)
+      print(f"True loads {loads} Overloads:, {overloads}")
       #print(f"Assignments: {assignments}")
    else:
       print("No feasible solution found. Gurobi status:", model.Status)
@@ -167,12 +181,13 @@ def go_ets_saa(req, d, bind, numscen, numCustomers, seed):
          sum(q[i,j,0].X for j in range(len(req)))
          for i in range(len(cap))
       ]
+      loads,overloads = check_test(assignments,cap,test)
 
       print("Point demands:", req_ets)
       print(f"n.rows {model.NumConstrs} n.cols {model.NumVars} n.non0 {model.NumNZs}")
       print(f"Objective: {model.ObjVal:.3f} t.cpu {model.Runtime:.3f}")
       # print("Assignments:", assignments)
-      print("DC loads:", dc_loads)
+      print(f"DC loads: {dc_loads} true loads {loads} overloads {overloads}")
    else:
       print("No feasible solution found; status:", model.Status)
    return

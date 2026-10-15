@@ -151,7 +151,20 @@ def resultsKPI(cap, req, numscen, asgn, q, tol=1e-6):
 
    return loads, peak_loads, overloads, bool(np.all(overloads <= tol))
 
-def go_saa(req, g_s, d, bind, gamma, numscen, numCustomers):
+# controlla overload sui dati veri
+def check_test(assgn,cap,test):
+   m = len(cap)
+   loads = np.zeros(m)
+
+   for (dc,j) in assgn:
+      loads[dc] += test[j]
+
+   overload = np.zeros(m)
+   for i in range(m):
+      if(loads[i] >= cap[i]): overload[i] = loads[i]-cap[i]
+   return loads, overload
+
+def go_saa(req, g_s, d, bind, gamma, numscen, numCustomers, seed, test):
    '''
    req;  matrice previsioni richieste
    g_s:  vettore costi trasporto normalizzati
@@ -178,13 +191,14 @@ def go_saa(req, g_s, d, bind, gamma, numscen, numCustomers):
    if model.SolCount > 0:
       assignments = [(i, j) for i, j in x if x[i, j].X > 0.5]
       expected_shortage = sum( p_OA[s] * eps[j, s].X for j, s in eps )
-      loads, peak_loads, overloads, indover = resultsKPI(cap,req,numscen,assignments,q)
+      _, peak_loads, overloads, indover = resultsKPI(cap,req,numscen,assignments,q)
+      loads,overloads = check_test(assignments,cap,test)
 
       print(f"n.rows {model.NumConstrs} n.cols {model.NumVars} n.non0 {model.NumNZs}")
       print(f"Objective: {model.ObjVal:.3f} t.cpu {model.Runtime:.3f}")
       print("Expected shortage:", expected_shortage)
       print("Peak loads:", peak_loads)
-      print("Overloads:", overloads)
+      print(f"True loads {loads} Overloads:, {overloads}")
       #print(f"Assignments: {assignments}")
    else:
       print("No feasible solution found. Gurobi status:", model.Status)

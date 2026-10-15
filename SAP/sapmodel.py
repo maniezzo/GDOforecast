@@ -2,6 +2,20 @@ import numpy as np, pandas as pd
 import gurobipy as gp
 from gurobipy import GRB
 
+
+# controlla overload sui dati veri
+def check_test(assgn,cap,test):
+   m = len(cap)
+   loads = np.zeros(m)
+
+   for (dc,j) in assgn:
+      loads[dc] += test[j]
+
+   overload = np.zeros(m)
+   for i in range(m):
+      if(loads[i] >= cap[i]): overload[i] = loads[i]-cap[i]
+   return loads, overload
+
 def build_sap( forecasts, c, d, Q, b, fixed_x=None):
    """
    Parameters
@@ -97,12 +111,11 @@ def build_sap( forecasts, c, d, Q, b, fixed_x=None):
    model.update()
    return model, x, q, req
     
-def go_sap(req,d,bind,numscen):
+def go_sap(req,d,bind,numscen, numCustomers, seed, test):
     '''
     d: costi di handling per ogni DC
     bind: INDICI dei client assegnabili a 2 DC
     '''
-    numCustomers = 52
     # legge i costi
     dfcost = pd.read_csv("costs.csv")
     cost = np.array(dfcost.values)
@@ -130,12 +143,13 @@ def go_sap(req,d,bind,numscen):
              sum(q[i, j].X for j in range(len(req)))
              for i in range(len(cap))
        ]
+       loads, overloads = check_test(assignments, cap, test)
 
        print("Point demands:", req)
        print(f"n.rows {model.NumConstrs} n.cols {model.NumVars} n.non0 {model.NumNZs}")
        print(f"Objective: {model.ObjVal:.3f} t.cpu {model.Runtime:.3f}")
        #print("Assignments:", assignments)
-       print("DC loads:", dc_loads)
+       print(f"DC loads: {dc_loads} true loads {loads} overloads {overloads}")
     else:
        print("No feasible solution found. Gurobi status:", model.Status)
     return

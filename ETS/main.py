@@ -19,8 +19,9 @@ if __name__ == '__main__':
 
    name = "dataframe_nocovid_full"
    df = pd.read_csv(f"../data/{name}.csv", usecols=[i for i in range(1, 53)])
+   test = df.iloc[-1,:].values
    print(f"Non-boost forecasting {name}")
    req = np.array(df.iloc[:-3,:])
-   go_ets_saa(req, d, b, numscen, numCustomers, seed)
+   go_ets_saa(req, d, b, numscen, numCustomers, seed, test)
 
    print('Fine')

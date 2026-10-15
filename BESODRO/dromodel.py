@@ -208,7 +208,20 @@ def resultsKPI(cap,req,numscen, asgn):
 
    return peak_loads, overloads
 
-def go_dro(req,g_s,d,bind,K,L,numscen,seed):
+# controlla overload sui dati veri
+def check_test(assgn,cap,test):
+   m = len(cap)
+   loads = np.zeros(m)
+
+   for (dc,j) in assgn:
+      loads[dc] += test[j]
+
+   overload = np.zeros(m)
+   for i in range(m):
+      if(loads[i] >= cap[i]): overload[i] = loads[i]-cap[i]
+   return loads, overload
+
+def go_dro(req,g_s,d,bind,K,L,numscen,numCustomers, seed, test):
     '''
     g_s:  vettore costi trasporto normalizzati
     d:    costi di handling per ogni DC
@@ -248,9 +261,11 @@ def go_dro(req,g_s,d,bind,K,L,numscen,seed):
         print(f"n.rows {model.NumConstrs} n.cols {model.NumVars} n.non0 {model.NumNZs}")
         print(f"Objective: {model.ObjVal:.3f} t.cpu {model.Runtime:.3f}")
         print("Worst expected recourse bound:", z.X)
-        peak_loads, overloads = resultsKPI(cap,req,numscen,assignments)
+        peak_loads, _ = resultsKPI(cap,req,numscen,assignments)
+        loads, overloads = check_test(assignments, cap, test)
+
         print("Peak loads:", peak_loads)
-        print("Overloads:", overloads)
+        print(f"True loads {loads} Overloads:, {overloads}")
         #print(f"Assignments: {assignments}")
     else:
         print("No feasible solution found. Gurobi status:", model.Status)
