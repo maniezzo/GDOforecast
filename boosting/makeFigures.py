@@ -321,9 +321,9 @@ def boxplotmulti(df):
 
 if __name__ == "__main__":
    import matplotlib
+   matplotlib.use('TkAgg') # migliora la reattività dei plot
    df = pd.read_csv("../results/res_multidro.csv")
    boxplotmulti(df)
-   matplotlib.use('TkAgg') # migliora la reattività dei plot
    df = pd.read_csv("../results/res_nboost_b0.csv")
    boxplotb0(df)
    df = pd.read_csv("../results/res_nboost_bmult.csv")
