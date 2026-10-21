@@ -2,6 +2,16 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
+def calculate_quartiles(ds):
+   # Calculate quartiles and median
+   quartiles = ds.quantile([0.25, 0.5, 0.75])
+   q1 = int(quartiles[0.25])
+   median = int(quartiles[0.5])
+   q3 = int(quartiles[0.75])
+   min_val = int(ds.min())
+   max_val = int(ds.max())
+   return min_val,q1,median,q3,max_val
+
 # boxplot for increasing nboost
 def boxplotb0(df):
    col75  = df[df['num.boost'] == 75]["objval"].reset_index(drop=True)
@@ -85,6 +95,15 @@ def boxplotb0(df):
    # Show the plot
    plt.show()
    return
+
+# annotate boxplots
+def annotate_boxplots(plt,x,min_val,q1,median,q3,max_val,font_size):
+   plt.text(x, min_val,f'{min_val}', verticalalignment='center', fontsize=font_size)
+   plt.text(x, q1,    f'{q1}', verticalalignment='center', fontsize=font_size)
+   plt.text(x, median, f'{median}', verticalalignment='center', fontsize=font_size)
+   plt.text(x, q3,   f'{q3}', verticalalignment='center', fontsize=font_size)
+   plt.text(x, max_val,f'{max_val}', verticalalignment='center', fontsize=font_size)
+   return plt
 
 # boxplot for increasing b values
 def boxplotBmult(df):
@@ -176,8 +195,134 @@ def boxplotBmult(df):
    plt.show()
    return
 
+# boxplot for increasing nboost
+def boxplotmulti(df):
+   col75bs  = df[df['num.boost'] == 75]["SAA"].reset_index(drop=True)
+   col125bs = df[df['num.boost'] == 125]["SAA"].reset_index(drop=True)
+   col175bs = df[df['num.boost'] == 175]["SAA"].reset_index(drop=True)
+   col75es  = df[df['num.boost'] == 75]["ETS-SAA"].reset_index(drop=True)
+   col125es = df[df['num.boost'] == 125]["ETS-SAA"].reset_index(drop=True)
+   col175es = df[df['num.boost'] == 175]["ETS-SAA"].reset_index(drop=True)
+   col75d  = df[df['num.boost'] == 75]["DRO"].reset_index(drop=True)
+   col125d = df[df['num.boost'] == 125]["DRO"].reset_index(drop=True)
+   col175d = df[df['num.boost'] == 175]["DRO"].reset_index(drop=True)
+   col75w  = df[df['num.boost'] == 75]["WEK"].reset_index(drop=True)
+   col125w = df[df['num.boost'] == 125]["WEK"].reset_index(drop=True)
+   col175w = df[df['num.boost'] == 175]["WEK"].reset_index(drop=True)
+   dfData = pd.DataFrame({'bs75': col75bs, 'bs125': col125bs, 'bs175':col175bs})
+   dfData['es75']=col75es
+   dfData['es125']=col125es
+   dfData['es175']=col175es
+   dfData['d75']=col75d
+   dfData['d125']=col125d
+   dfData['d175']=col175d
+   dfData['w75']=col75w
+   dfData['w125']=col125w
+   dfData['w175']=col175w
+
+   fig, ax1 = plt.subplots(figsize=(10, 6))
+   labels = ['SAA75','ETS75','DRO75','WEK75','SAA125','ETS125','DRO125','WEK125','SAA175','ETS175','DRO175','WEK175']
+   box = ax1.boxplot([dfData["bs75"].dropna(),
+                         dfData["es75"].dropna(),
+                         dfData["d75"].dropna(),
+                         dfData["w75"].dropna(),
+                         dfData["bs125"].dropna(),
+                         dfData["es125"].dropna(),
+                         dfData["d125"].dropna(),
+                         dfData["w125"].dropna(),
+                         dfData["bs175"].dropna(),
+                         dfData["es175"].dropna(),
+                         dfData["d175"].dropna(),
+                         dfData["w175"].dropna()],
+                     patch_artist=True, widths=0.25,tick_labels=labels)
+   
+   # Colors: one per process/method
+   method_colors = {
+      'SAA': 'tab:blue',
+      'ETS-SAA': 'tab:orange',
+      'DRO': 'tab:green',
+      'WEK': 'tab:red'
+   }
+   # box colors, same order as the data passed to ax1.boxplot()
+   box_colors = [
+      method_colors['SAA'], method_colors['ETS-SAA'], method_colors['DRO'], method_colors['WEK'],  # 75
+      method_colors['SAA'], method_colors['ETS-SAA'], method_colors['DRO'], method_colors['WEK'],  # 125
+      method_colors['SAA'], method_colors['ETS-SAA'], method_colors['DRO'], method_colors['WEK'],  # 175
+   ]
+   
+   # Customize the boxes
+   for patch, color in zip(box['boxes'], box_colors):
+      patch.set_facecolor(color)
+      patch.set_edgecolor('black')
+      patch.set_linewidth(2)
+
+   # Customize the median line
+   for median in box['medians']:
+      median.set_color('black')  # Set median line color
+      median.set_linewidth(2.5)  # Set median line thickness
+      median.set_linestyle('--')  # Set median line style
+
+   font_size = 10
+   # Calculate quartiles and median
+   min_val, q1, median, q3, max_val = calculate_quartiles(dfData['bs75'])
+   annotate_boxplots(plt,1.15,min_val,q1,median,q3,max_val,font_size)
+
+   min_val, q1, median, q3, max_val = calculate_quartiles(dfData['es75'])
+   annotate_boxplots(plt,2.15,min_val,q1,median,q3,max_val,font_size)
+
+   min_val, q1, median, q3, max_val = calculate_quartiles(dfData['d75'])
+   annotate_boxplots(plt,3.15,min_val,q1,median,q3,max_val,font_size)
+
+   min_val, q1, median, q3, max_val = calculate_quartiles(dfData['w75'])
+   annotate_boxplots(plt,4.15,min_val,q1,median,q3,max_val,font_size)
+
+   min_val, q1, median, q3, max_val = calculate_quartiles(dfData['bs125'])
+   annotate_boxplots(plt,5.15,min_val,q1,median,q3,max_val,font_size)
+
+   min_val, q1, median, q3, max_val = calculate_quartiles(dfData['es125'])
+   annotate_boxplots(plt,6.15,min_val,q1,median,q3,max_val,font_size)
+
+   min_val, q1, median, q3, max_val = calculate_quartiles(dfData['d125'])
+   annotate_boxplots(plt,7.15,min_val,q1,median,q3,max_val,font_size)
+
+   min_val, q1, median, q3, max_val = calculate_quartiles(dfData['w125'])
+   annotate_boxplots(plt,8.15,min_val,q1,median,q3,max_val,font_size)
+
+   min_val, q1, median, q3, max_val = calculate_quartiles(dfData['bs175'])
+   annotate_boxplots(plt,9.15,min_val,q1,median,q3,max_val,font_size)
+
+   min_val, q1, median, q3, max_val = calculate_quartiles(dfData['es175'])
+   annotate_boxplots(plt,10.15,min_val,q1,median,q3,max_val,font_size)
+
+   min_val, q1, median, q3, max_val = calculate_quartiles(dfData['d175'])
+   annotate_boxplots(plt,11.15,min_val,q1,median,q3,max_val,font_size)
+
+   min_val, q1, median, q3, max_val = calculate_quartiles(dfData['w175'])
+   annotate_boxplots(plt,12.15,min_val,q1,median,q3,max_val,font_size)
+
+   ax1.yaxis.grid(True, linestyle='-', which='major', color='lightgrey', alpha=0.3)
+
+   # deterministic cost
+   plt.axhline(y=19682, color='r', xmin = 0, linestyle='-')
+   yticks = plt.gca().get_yticks()
+   # Add 19682 to the list of y-ticks if it's not already there
+   if 19682 not in yticks:
+      yticks = list(yticks) + [19682]
+   #plt.yticks(yticks)
+
+   # Add labels and title
+   plt.title('Objective function values, enlarging boostset', fontsize=font_size)
+   plt.ylabel('Values', fontsize=font_size)
+   plt.ylim(19000, 23000)
+   plt.savefig('figmulti.eps', format='eps')
+   # Show the plot
+   plt.show()
+   return
+
 if __name__ == "__main__":
    import matplotlib
+   df = pd.read_csv("../results/res_multidro.csv")
+   boxplotmulti(df)
    matplotlib.use('TkAgg') # migliora la reattività dei plot
    df = pd.read_csv("../results/res_nboost_b0.csv")
    boxplotb0(df)
