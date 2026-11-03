@@ -1,10 +1,6 @@
 import numpy as np
 import plotly.graph_objects as go
 
-# =====================================================
-# PARAMETERS
-# =====================================================
-
 n_points = 20
 sample_size = 6
 
@@ -14,10 +10,6 @@ mean_height = 8
 height_std = mean_height / 2
 
 np.random.seed(42)
-
-# =====================================================
-# DATA
-# =====================================================
 
 theta = np.random.uniform(0, 2*np.pi, n_points)
 r = np.sqrt(np.random.uniform(0, 1, n_points))
@@ -40,10 +32,6 @@ plane_x = np.linspace(-1.2*a, 1.2*a, 20)
 plane_y = np.linspace(-1.2*b, 1.2*b, 20)
 
 PX, PY = np.meshgrid(plane_x, plane_y)
-
-# =====================================================
-# HELPERS
-# =====================================================
 
 def origin_trace():
     return go.Scatter3d(
@@ -145,10 +133,7 @@ def sample_traces(indices, color, sample_number):
     return traces
 
 
-# =====================================================
 # BUILD ALL TRACES
-# =====================================================
-
 all_traces = []
 
 # Phase 1: Origin
@@ -184,10 +169,7 @@ phase_counts = [
     phase_6
 ]
 
-# =====================================================
 # FRAMES
-# =====================================================
-
 frames = []
 
 for k, count in enumerate(phase_counts, start=1):
@@ -207,10 +189,7 @@ for k, count in enumerate(phase_counts, start=1):
         )
     )
 
-# =====================================================
 # FIGURE
-# =====================================================
-
 fig = go.Figure(
     data=all_traces,
     frames=frames
@@ -220,10 +199,7 @@ fig = go.Figure(
 for i in range(1, len(fig.data)):
     fig.data[i].visible = False
 
-# =====================================================
 # SLIDER
-# =====================================================
-
 steps = []
 
 for k in range(1, 7):
@@ -247,10 +223,7 @@ for k in range(1, 7):
         )
     )
 
-# =====================================================
 # LAYOUT
-# =====================================================
-
 fig.update_layout(
 
     scene=dict(
@@ -315,10 +288,7 @@ fig.update_layout(
     title="Bootstrap samples and their average planes"
 )
 
-# =====================================================
 # OUTPUT
-# =====================================================
-
 for k, indices in enumerate(samples):
     print(
         f"Sample {k+1}: {indices.tolist()} "

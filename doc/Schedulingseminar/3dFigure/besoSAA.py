@@ -3,10 +3,6 @@ import plotly.graph_objects as go
 import matplotlib
 matplotlib.use('TkAgg')
 
-# =====================================================
-# PARAMETERS
-# =====================================================
-
 n_points = 20
 a, b = 10, 6
 
@@ -14,10 +10,6 @@ mean_height = 8
 height_std = mean_height / 2
 
 np.random.seed(42)
-
-# =====================================================
-# DATA
-# =====================================================
 
 theta = np.random.uniform(0, 2*np.pi, n_points)
 r = np.sqrt(np.random.uniform(0, 1, n_points))
@@ -35,10 +27,6 @@ plane_y = np.linspace(-1.2*b, 1.2*b, 20)
 
 PX, PY = np.meshgrid(plane_x, plane_y)
 PZ = np.full_like(PX, avg_height)
-
-# =====================================================
-# HELPERS
-# =====================================================
 
 def origin_trace():
     return go.Scatter3d(
@@ -112,10 +100,8 @@ def vertical_lines():
         )
 
     return traces
-# =====================================================
-# PHASES
-# =====================================================
 
+# PHASES
 all_traces = [
     origin_trace(),
     base_points_trace(),
@@ -164,9 +150,7 @@ for k, count in enumerate(phase_counts, start=1):
         )
     )
 
-# =====================================================
 # FIGURE
-# =====================================================
 fig = go.Figure(
     data=all_traces,
     frames=frames
@@ -176,10 +160,7 @@ fig = go.Figure(
 for i in range(1, len(fig.data)):
     fig.data[i].visible = False
     
-# =====================================================
 # SLIDER
-# =====================================================
-
 steps = []
 
 for k in range(1, 7):
