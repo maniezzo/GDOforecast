@@ -32,7 +32,7 @@ def oa_probabilities(g, gamma, a=None):
 
 def build_beso_dro(
     rho, p_OA, c, d, Q, b,
-    K, L, M=9999999, seed=None, fixed_x=None
+    m, L, M=9999999, seed=None, fixed_x=None
 ):
     """
     Build the BESO-DRO model without solving it.
@@ -44,7 +44,7 @@ def build_beso_dro(
         Q : array (m,)     Fixed DC capacities, including the external DC.
         b : array (n,)     Exact number of DC assignments per store.
         M : float    penalty per pallet of unmet demand.
-        K : integer, Number of resampled distributions.
+        m : integer, Number of resampled distributions.
         L : integer, Number of scenario draws per distribution.
         seed : int, optional, Random seed for reproducibility.
         fixed_x : dict, optional, Prescribed assignments {(i, j): 0 or 1}.
@@ -92,7 +92,7 @@ def build_beso_dro(
     if not np.isfinite(M) or M <= 0:
         raise ValueError("M must be finite and positive.")
 
-    for name, value in (("K", K), ("L", L)):
+    for name, value in (("m", m), ("L", L)):
         if (isinstance(value, (bool, np.bool_))
                 or not isinstance(value, (int, np.integer))
                 or value <= 0):
@@ -110,7 +110,7 @@ def build_beso_dro(
     rng = np.random.default_rng(seed)
 
     # Equivalent to L independent draws with replacement per vertex.
-    counts = rng.multinomial(L, p, size=K)
+    counts = rng.multinomial(L, p, size=m)
     w = counts / float(L)
 
     # ---------- Create model and variables ----------
@@ -170,7 +170,7 @@ def build_beso_dro(
         for s in S
     }
 
-    for k in range(K):
+    for k in range(m):
         support = np.flatnonzero(w[k])
         model.addConstr(
             z >= gp.quicksum(
@@ -221,7 +221,7 @@ def check_test(assgn,cap,test):
       if(loads[i] >= cap[i]): overload[i] = loads[i]-cap[i]
    return loads, overload
 
-def go_dro(req,g_s,d,bind,K,L,numscen,numCustomers, seed, test):
+def go_dro(req,g_s,d,bind,m,L,numscen,numCustomers, seed, test):
     '''
     g_s:  vettore costi trasporto normalizzati
     d:    costi di handling per ogni DC
@@ -248,7 +248,7 @@ def go_dro(req,g_s,d,bind,K,L,numscen,numCustomers, seed, test):
         d=d,
         Q=cap,
         b=b,
-        K=K,
+        m=m,
         L=L,
         seed=seed
     )

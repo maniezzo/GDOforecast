@@ -13,10 +13,10 @@ if __name__ == '__main__':
    numscen = conf["numscen"]
    numCustomers = conf["numCustomers"]
    seed    = conf["seed"]
-   b = conf["b"]
-   d = conf["d"]
-   K = conf["K"]
-   L = conf["L"]
+   b = conf["b"]  # num centri che servono
+   h = conf["h"]  # handling cost
+   m = conf["m"]  # num distribuzioni
+   d = conf["d"]  # num draws per distribuzione
    np.random.seed(seed)
    random.seed(seed)
 
@@ -25,8 +25,8 @@ if __name__ == '__main__':
    test = df.iloc[-1,:].values
    print(f"Boost forecasting {name}")
    
-   gs = np.loadtxt(f"transpCosts{numscen}.csv", delimiter=",")
+   gs  = np.loadtxt(f"transpCosts{numscen}.csv", delimiter=",")
    req = np.loadtxt(f"../boostset/req{numscen}.csv", delimiter=",")
-   go_dro(req,gs,d,b,K,L,numscen, numCustomers, seed, test)
+   go_dro(req,gs,h,b,m,d,numscen, numCustomers, seed, test)
 
    print('Fine')

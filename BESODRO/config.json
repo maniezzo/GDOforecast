@@ -3,7 +3,7 @@
    "numscen" : 75,
    "numCustomers" : 52,
    "b"       : [], "commentB" : "indici client assegnabili a 2 DC, [] per nessuno",
-   "d"       : [0,10,0,0],  "commentD" : "handling cost dei vari DC",
-   "K"       : 100, "commentK" : "see formulation, num distributions",
-   "L"       : 125, "commentL" : "see formulation, num resamples"
+   "h"       : [0,10,0,0],  "commentD" : "handling cost dei vari DC",
+   "m"       : 100, "commentK" : "see formulation, num distributions",
+   "d"       : 125, "commentL" : "see formulation, num resamples"
 }
