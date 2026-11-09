@@ -31,8 +31,8 @@ def oa_probabilities(g, gamma, a=None):
     return p
 
 def build_beso_dro(
-    rho, p_OA, c, d, Q, b,
-    m, L, M=9999999, seed=None, fixed_x=None
+    rho, p_OA, c, h, Q, b,
+    m, d, M=9999999, seed=None, fixed_x=None
 ):
     """
     Build the BESO-DRO model without solving it.
@@ -40,12 +40,12 @@ def build_beso_dro(
         rho : array (N, n) Nonnegative integer demands rho[s, j]. Each row is one joint demand scenario across all stores.
         p_OA : array (N,)  Objective-aware probabilities, in the same order as rho.
         c : array (m, n)   Fixed assignment costs c[i, j].
-        d : array (m,)     Unit storage costs d[i].
+        h : array (m,)     Unit handling and storage costs h[i].
         Q : array (m,)     Fixed DC capacities, including the external DC.
         b : array (n,)     Exact number of DC assignments per store.
         M : float    penalty per pallet of unmet demand.
         m : integer, Number of resampled distributions.
-        L : integer, Number of scenario draws per distribution.
+        d : integer, Number of scenario draws per distribution.
         seed : int, optional, Random seed for reproducibility.
         fixed_x : dict, optional, Prescribed assignments {(i, j): 0 or 1}.
     Returns
@@ -57,9 +57,9 @@ def build_beso_dro(
             w[k,s]   : scenario probabilities in distribution k.
     """
     # ---------- Validate inputs ----------
-    rho, p, c, d, Q, b = [
+    rho, p, c, h, Q, b = [
         np.asarray(v, dtype=float)
-        for v in (rho, p_OA, c, d, Q, b)
+        for v in (rho, p_OA, c, h, Q, b)
     ]
 
     if rho.ndim != 2 or min(rho.shape) == 0:
@@ -70,11 +70,11 @@ def build_beso_dro(
         raise ValueError("c must have shape (m, n), with m > 0.")
     m = c.shape[0]
 
-    if (p.shape != (N,) or d.shape != (m,)
+    if (p.shape != (N,) or h.shape != (m,)
             or Q.shape != (m,) or b.shape != (n,)):
         raise ValueError("Inconsistent dimensions of p_OA, d, Q, or b.")
 
-    if not all(np.all(np.isfinite(v)) for v in (rho, p, c, d, Q, b)):
+    if not all(np.all(np.isfinite(v)) for v in (rho, p, c, h, Q, b)):
         raise ValueError("All input arrays must contain finite values.")
 
     if np.any(rho < 0) or np.any(Q < 0):
@@ -92,7 +92,7 @@ def build_beso_dro(
     if not np.isfinite(M) or M <= 0:
         raise ValueError("M must be finite and positive.")
 
-    for name, value in (("m", m), ("L", L)):
+    for name, value in (("m", m), ("d", d)):
         if (isinstance(value, (bool, np.bool_))
                 or not isinstance(value, (int, np.integer))
                 or value <= 0):
@@ -109,9 +109,9 @@ def build_beso_dro(
     p = p / p.sum()
     rng = np.random.default_rng(seed)
 
-    # Equivalent to L independent draws with replacement per vertex.
-    counts = rng.multinomial(L, p, size=m)
-    w = counts / float(L)
+    # Equivalent to d independent draws with replacement per vertex.
+    counts = rng.multinomial(d, p, size=m)
+    w = counts / float(d)
 
     # ---------- Create model and variables ----------
     model = gp.Model("BESO_DRO")
@@ -163,7 +163,7 @@ def build_beso_dro(
     recourse = {
         s: (
             gp.quicksum(
-                d[i] * q[i, j, s] for i in I for j in J
+                h[i] * q[i, j, s] for i in I for j in J
             )
             + M * gp.quicksum(eps[j, s] for j in J)
         )
@@ -221,16 +221,15 @@ def check_test(assgn,cap,test):
       if(loads[i] >= cap[i]): overload[i] = loads[i]-cap[i]
    return loads, overload
 
-def go_dro(req,g_s,d,bind,m,L,numscen,numCustomers, seed, test):
+def go_dro(req,g_s,h,bind,m,d,numscen,numCustomers, seed, test):
     '''
     g_s:  vettore costi trasporto normalizzati
-    d:    costi di handling per ogni DC
+    h:    costi di handling per ogni DC
     bind: INDICI dei client assegnabili a 2 DC
     '''
-    numCustomers = 52
     # legge i costi
     dfcost = pd.read_csv("costs.csv")
-    cost = np.array(dfcost.values)
+    cost   = np.array(dfcost.values)
     # legge le capacita
     cap = pd.read_csv("capacities.csv", header=None).values.flatten()
     b = np.ones(numCustomers)
@@ -245,11 +244,11 @@ def go_dro(req,g_s,d,bind,m,L,numscen,numCustomers, seed, test):
         rho=np.array(req),
         p_OA=p_OA,
         c=cost,
-        d=d,
+        h=h,
         Q=cap,
         b=b,
         m=m,
-        L=L,
+        d=d,
         seed=seed
     )
     
