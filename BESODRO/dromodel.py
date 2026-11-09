@@ -2,38 +2,7 @@ import numpy as np, pandas as pd
 import gurobipy as gp
 from gurobipy import GRB
 
-def oa_probabilities(g, gamma, a=None):
-    """calcola objective-aware probabilities p^OA_s"""
-    g = np.asarray(g, dtype=float)
-    if g.ndim != 1 or g.size == 0 or not np.all(np.isfinite(g)):
-        raise ValueError("g must be a nonempty vector of finite scores.")
-    if not np.isfinite(gamma):
-        raise ValueError("gamma must be finite.")
-
-    if a is None:
-        a = np.ones(g.size)  # Uniform baseline; normalization cancels
-    else:
-        a = np.asarray(a, dtype=float)
-        if (a.shape != g.shape or not np.all(np.isfinite(a))
-                or np.any(a < 0) or not np.any(a > 0)):
-            raise ValueError("a must match g, be nonnegative, and have positive mass.")
-
-    sd = g.std(ddof=0)
-    g_scaled = (g - g.mean()) / sd if sd > 0 else np.zeros_like(g)
-
-    # Compute in log space to avoid exponential overflow.
-    positive = a > 0
-    log_weights = np.log(a[positive]) + gamma * g_scaled[positive]
-    weights = np.exp(log_weights - log_weights.max())
-
-    p = np.zeros_like(g)
-    p[positive] = weights / weights.sum()
-    return p
-
-def build_beso_dro(
-    rho, p_OA, c, h, Q, b,
-    m, d, M=9999999, seed=None, fixed_x=None
-):
+def build_beso_dro( rho, p_OA, c, h, Q, b, m, d, M=9999999, seed=None, fixed_x=None ):
     """
     Build the BESO-DRO model without solving it.
     Parameters
@@ -56,6 +25,10 @@ def build_beso_dro(
             z        : worst expected recourse cost.
             w[k,s]   : scenario probabilities in distribution k.
     """
+    # N numero scenari
+    # n numero store (server, 4)
+    # m numero distribuzioni da costruire
+    # d numero draws per distribuzione
     # ---------- Validate inputs ----------
     rho, p, c, h, Q, b = [
         np.asarray(v, dtype=float)
@@ -221,24 +194,15 @@ def check_test(assgn,cap,test):
       if(loads[i] >= cap[i]): overload[i] = loads[i]-cap[i]
    return loads, overload
 
-def go_dro(req,g_s,h,bind,m,d,numscen,numCustomers, seed, test):
+def go_dro(req,p_OA,h,bind,cost,cap,m,d,numscen,numCustomers, seed, test):
     '''
-    g_s:  vettore costi trasporto normalizzati
+    p_OA: vettore probabilita' objective aware
     h:    costi di handling per ogni DC
     bind: INDICI dei client assegnabili a 2 DC
     '''
-    # legge i costi
-    dfcost = pd.read_csv("costs.csv")
-    cost   = np.array(dfcost.values)
-    # legge le capacita
-    cap = pd.read_csv("capacities.csv", header=None).values.flatten()
+    # trasforma indici in array rhs per assegnamento
     b = np.ones(numCustomers)
     for i in range(len(bind)): b[bind[i]] += 1
-    # legge le richieste di ogni scenario
-    req = pd.read_csv(f"../boostset/req{numscen}.csv", header=None)
-    
-    # g_s contains scenario cost scores.
-    p_OA = oa_probabilities(g_s, gamma=1.0)  # objective-aware probabilities
     
     model, x, q, eps, z, w = build_beso_dro(
         rho=np.array(req),

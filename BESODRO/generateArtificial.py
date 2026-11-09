@@ -4,7 +4,7 @@ from statsmodels.tsa.ar_model import AutoReg
 from scipy.optimize import linprog
 from scipy.optimize import minimize, LinearConstraint
 
-def go_artificial(numCustomers,numCenters,numscen):
+def go_artificial(numCustomers,numCenters,numscen,gamma=1):
    name = "dataframe_nocovid_full"
    dfseries = pd.read_csv(f"../data/{name}.csv", usecols=[i for i in range(1, 53)]).iloc[:45,:]
    df2 = add_bootstrap_columns(dfseries, n_new_cols=numCustomers, random_state=995)
@@ -19,11 +19,12 @@ def go_artificial(numCustomers,numCenters,numscen):
    fcast=[]
    req = [] # bagged bootstrap forecasts
    for i in range(numCustomers):
+      print(f"Bootsrapping client {i}")
       b = meboot(df2.iloc[:,i],reps=numscen)
       f = []
       req.append(0)
       # AR(p) forecsts
-      for col in range(b.shape[1]):
+      for col in range(numscen):
          y = b[:,col]
          res = AutoReg(y, lags=5, old_names=False).fit()
          # third-step-ahead point forecast
@@ -32,28 +33,32 @@ def go_artificial(numCustomers,numCenters,numscen):
          f.append(fc)
          req[i] += fc
          
-      req[i] = np.ceil(req[i]/numscen)
-      boots.append(b)
-      fcast.append(np.array(f))
-   
-   for s in range(numscen):
-      req = []
-      sumreq = 0
-      for j in range(numCustomers):
-         req.append(fcast[j][s])
-         sumreq += fcast[j][s]
-   
-      cap = generate_capacities(sumreq, numCenters, factor=1.1, power=1.2)
-      cap = cap[::-1] # reverse values
+      req[i] = np.ceil(req[i]/numscen) # previsione assoluta bootstrap
+      boots.append(b)                  # serie bootstrappate
+      fcast.append(np.array(f))        # previsioni serie bootstrap
       
-      alloc, cost = solve_transportation(dist.T, req, cap)
-      print(f"Total transportation cost: {cost}")
-      break
+   print("Defining servers' capacities and costs ...")
+   # definizione capacità center note le richieste
+   cap = generate_capacities(sum(req), numCenters, factor=1.1, power=1.2)
+   cap = cap[::-1]  # reverse values
    
    # calcolo dei costi h di inventory, base min delle distanze per customer
-   h = solve_h(np.min(dist, axis=1), req).flatten()
+   h = solve_h(np.min(dist, axis=0), cap).flatten()
    
-   return boots,fcast,h
+   # calcolo g_s
+   print("Computing Objective-aware probabilities ...")
+   gs = []
+   sumgs=0
+   for s in range(numscen):
+      req = []
+      for j in range(numCustomers):
+         req.append(fcast[j][s])
+      gs.append(-1)
+      _, gs[s] = solve_transportation(dist.T, req, cap)
+      sumgs += gamma*gs[s]
+      #print(f"Transportation cost: {gs[s]}")
+   pOA = [gamma*gs[s]/sumgs for s in range(numscen)]
+   return boots,fcast,h,pOA,dist,cap
 
 # estrae con replacement n_new_cols serie da df, per creare istanze artificiali
 def add_bootstrap_columns(df, n_new_cols, random_state=None):
