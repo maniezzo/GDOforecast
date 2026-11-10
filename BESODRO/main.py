@@ -1,7 +1,3 @@
-'''
-BESO-DRO: assume di avere già tutti i file dati calcolati da BESO-SAA
-NOTA: quasi tutto il SW e' banalmente duplicato
-'''
 import pandas as pd, numpy as np
 import json, random
 from dromodel import go_dro
@@ -36,6 +32,7 @@ def oa_probabilities(g, gamma=1, a=None):
     p[positive] = weights / weights.sum()
     return p
 
+# BESO-DRO
 if __name__ == '__main__':
    with open('config.json') as jconf:
       conf = json.load(jconf)
@@ -50,6 +47,7 @@ if __name__ == '__main__':
    h = conf["h"]  # handling cost
    m = conf["m"]  # num distribuzioni
    d = conf["d"]  # num draws per distribuzione
+   gamma   = conf["gamma"] # risk-avertness del decisore
    np.random.seed(seed)
    random.seed(seed)
    

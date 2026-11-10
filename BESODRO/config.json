@@ -8,5 +8,6 @@
    "b"        : [], "commentB" : "indici client assegnabili a 2 DC, [] per nessuno",
    "h"        : [0,10,0,0],  "commentD" : "handling cost dei vari DC",
    "m"        : 100, "commentm" : "see formulation, num distributions",
-   "d"        : 50, "commentd" : "see formulation, num draws"
+   "d"        : 50, "commentd" : "see formulation, num draws",
+   "gamma"    : 1, "commentG" : "risk-avertness del decisore"
 }

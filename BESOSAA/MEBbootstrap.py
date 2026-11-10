@@ -3,23 +3,15 @@ import numpy as np
 def meboot(x, reps=999, trim=0.10, expand_sd=True, rng=None):
     """
     Maximum Entropy Bootstrap for a univariate time series.
-
     Parameters
-    ----------
-    x : array-like, shape (n,)
-        Original time series, ordered in time.
-    reps : int
-        Number of bootstrap replicates.
-    trim : float
-        Trimming proportion used to set tail limits.
-    expand_sd : bool
-        Apply the usual variance-expansion adjustment.
+    x : array-like, shape (n,)  Original time series, ordered in time.
+    reps : int        Number of bootstrap replicates.
+    trim : float      Trimming proportion used to set tail limits.
+    expand_sd : bool  Apply the usual variance-expansion adjustment.
     rng : np.random.Generator, optional
 
     Returns
-    -------
-    ensemble : ndarray, shape (n, reps)
-        Each column is one bootstrapped time series.
+    ensemble : ndarray, shape (n, reps)    Each column is one bootstrapped time series.
     """
     x = np.asarray(x, dtype=float)
     n = len(x)
