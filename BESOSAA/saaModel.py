@@ -30,7 +30,7 @@ def oa_probabilities(g, gamma, a=None):
    p[positive] = weights / weights.sum()
    return p
 
-def build_beso_saa(rho, p_OA, c, d, Q, b, M=9999999, fixed_x=None):
+def build_beso_saa(rho, p_OA, c, h, Q, b, M=9999999, fixed_x=None):
    """
    Build the BESO-SAA model without solving it.
    Parameters
@@ -38,7 +38,7 @@ def build_beso_saa(rho, p_OA, c, d, Q, b, M=9999999, fixed_x=None):
            Each row is one joint demand scenario across all stores.
        p_OA : array (N,),  Scenario probabilities, in the same order as rho.
        c : array (m, n),   Fixed assignment costs c[i, j].
-       d : array (m,),     Unit storage costs d[i].
+       h : array (m,)     Unit handling and storage costs h[i]..
        Q : array (m,),     Fixed DC capacities, including the external DC.
        b : array (n,),     Exact number of DC assignments per store.
        M : float,          Positive penalty per pallet of unmet demand.
@@ -46,7 +46,7 @@ def build_beso_saa(rho, p_OA, c, d, Q, b, M=9999999, fixed_x=None):
    Returns
        model, x, q, eps,   Variables indexed as x[i,j], q[i,j,s], eps[j,s].
    """
-   rho, p, c, d, Q, b = [ np.asarray(v, dtype=float) for v in (rho, p_OA, c, d, Q, b) ]
+   rho, p, c, h, Q, b = [ np.asarray(v, dtype=float) for v in (rho, p_OA, c, h, Q, b) ]
 
    if rho.ndim != 2 or min(rho.shape) == 0:
       raise ValueError("rho must have shape (N, n), with N,n > 0.")
@@ -56,10 +56,10 @@ def build_beso_saa(rho, p_OA, c, d, Q, b, M=9999999, fixed_x=None):
       raise ValueError("c must have shape (m, n), with m > 0.")
    m = c.shape[0]
 
-   if (p.shape != (N,) or d.shape != (m,) or Q.shape != (m,) or b.shape != (n,)):
+   if (p.shape != (N,) or h.shape != (m,) or Q.shape != (m,) or b.shape != (n,)):
       raise ValueError("Inconsistent dimensions of p_OA, d, Q, or b.")
 
-   if not all(np.all(np.isfinite(v)) for v in (rho, p, c, d, Q, b)):
+   if not all(np.all(np.isfinite(v)) for v in (rho, p, c, h, Q, b)):
       raise ValueError("All input arrays must contain finite values.")
    if np.any(rho < 0) or np.any(Q < 0):
       raise ValueError("Demands and capacities must be nonnegative.")
@@ -117,7 +117,7 @@ def build_beso_saa(rho, p_OA, c, d, Q, b, M=9999999, fixed_x=None):
    assignment_cost = gp.quicksum( c[i, j] * x[i, j] for i in I for j in J )
 
    expected_recourse = gp.quicksum(
-      p[s] * ( gp.quicksum(d[i] * q[i, j, s] for i in I for j in J)
+      p[s] * ( gp.quicksum(h[i] * q[i, j, s] for i in I for j in J)
                + M * gp.quicksum(eps[j, s] for j in J)
                )
       for s in S
@@ -164,26 +164,17 @@ def check_test(assgn,cap,test):
       if(loads[i] >= cap[i]): overload[i] = loads[i]-cap[i]
    return loads, overload
 
-def go_saa(req, g_s, d, bind, gamma, numscen, numCustomers, seed, test):
+def go_saa(req, cap, p_OA, h, bind, cost, numscen, numCustomers, seed, test):
    '''
    req;  matrice previsioni richieste
-   g_s:  vettore costi trasporto normalizzati
-   d:    costi di handling per ogni DC
+   p_OA:  vettore costi trasporto normalizzati
+   h:    costi di handling per ogni DC
    bind: INDICI dei client assegnabili a 2 DC
    '''
-   # legge i costi
-   dfcost = pd.read_csv("costs.csv")
-   cost = np.array(dfcost.values)
-   # legge le capacita
-   cap = pd.read_csv("capacities.csv", header=None).values.flatten()
    b = np.ones(numCustomers)
    for i in range(len(bind)): b[bind[i]] += 1
-   # legge le richieste di ogni scenario
-   # req = pd.read_csv(f"../boostset/req{numscen}.csv", header=None).values.flatten()
 
-   # g_s contains scenario cost scores.
-   p_OA = oa_probabilities(g_s, gamma=gamma)  # objective-aware probabilities
-   model, x, q, eps = build_beso_saa(req, p_OA, cost, d, cap, b)
+   model, x, q, eps = build_beso_saa(req, p_OA, cost, h, cap, b)
 
    model.Params.MIPGap = 0.0001  # 0.01% relative optimality gap
    model.optimize()

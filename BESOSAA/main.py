@@ -4,6 +4,7 @@ import json,random
 from transportation import compute_transport
 from MEBbootstrap import meboot
 from saaModel import go_saa
+from generateArtificial import go_artificial
 
 def compute_boostset(df,numscen=125):
    for i in range(len(df.columns)):
@@ -73,8 +74,15 @@ if __name__ == '__main__':
    if(isUseCase):
       req, gs = compute_transport(numscen)
       print("transportation costs:", gs)
-      go_saa(req,gs,d,b,gamma,numscen,numCustomers, seed, test)
+      p_OA = oa_probabilities(gs)
+      req = np.loadtxt(f"../boostset/req{numscen}.csv", delimiter=",")
+      cap = pd.read_csv("capacities.csv", header=None).values.flatten()
+      # legge i costi
+      dfcost = pd.read_csv("costs.csv")
+      cost = np.array(dfcost.values)
+      go_saa(req,cap,p_OA,h,b,cost,numscen,numCustomers, seed, test)
    else:
-      boots,req,h,pOA,dist,cap = go_artificial(numCustomers,numCenters,numscen)
+      boots,req,h,p_OA,cost,cap = go_artificial(numCustomers,numCenters,numscen)
+      go_saa(np.array(req).T,cap,p_OA,h,b,cost.T,numscen,numCustomers, seed, test)
 
    print('Fine')

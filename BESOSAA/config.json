@@ -4,7 +4,7 @@
    "numCustomers" : 52, "commentC": "52 for use case",
    "numCenters"   : 4,  "commentCn": "4 in the use case",
    "numRep"   : 5, "commentR": "numero ripetizioni per istanza",
-   "isUseCase": true, "commentU": "true caso d'uso, false istanze artificiali",
+   "isUseCase": false, "commentU": "true caso d'uso, false istanze artificiali",
    "b"        : [], "commentB" : "indici client assegnabili a 2 DC, [] per nessuno",
    "h"        : [0,10,0,0],  "commentD" : "handling cost dei vari DC",
    "m"        : 100, "commentm" : "see formulation, num distributions",
