@@ -1,0 +1,107 @@
+\usepackage[a4paper,margin=2cm]{geometry}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\tcbuselibrary{raster}
+\usepackage{enumitem}
+
+\definecolor{murfyBlue}{HTML}{0081FB}
+\definecolor{murfyBlueDark}{HTML}{004D9F}
+\definecolor{murfyBlueSoft}{HTML}{E6F5FF}
+\definecolor{murfyInk}{HTML}{212528}
+\definecolor{murfyMuted}{HTML}{868D94}
+\definecolor{murfyLine}{HTML}{CDD3D8}
+
+\newcommand{\murfyTitleBlock}[3]{%
+  {\color{murfyInk}\fontsize{25}{29}\selectfont\bfseries #1}\par\vspace{5pt}
+  {\color{murfyMuted}\large #2}\par\vspace{3pt}
+  {\color{murfyMuted}\small #3}\par\vspace{10pt}
+  {\color{murfyBlue}\rule{\linewidth}{1.6pt}}\par
+}
+\newtcolorbox{murfyCard}{
+  colback=white, colframe=murfyLine, arc=3pt, boxrule=0.4pt,
+  left=11pt, right=11pt, top=9pt, bottom=9pt,
+  before upper={\raggedright\hyphenpenalty=10000\relax},
+}
+\newtcolorbox{murfyNote}{
+  colback=murfyBlueSoft, colframe=murfyBlueSoft, arc=3pt,
+  left=13pt, right=13pt, top=10pt, bottom=10pt, boxrule=0pt,
+}
+
+\newcommand{\murfyCardTitle}[1]{{\color{murfyBlueDark}\bfseries #1}\par\vspace{3pt}}
+\newcommand{\murfySectionTitle}[1]{{\color{murfyInk}\large\bfseries #1}\par\vspace{7pt}}
+\newcommand{\murfyBulletLabel}{\textcolor{murfyBlue}{\textbullet}}
+
+% Murfy Guide
+%
+% This file only draws the guide page. It is not needed to write your paper:
+% delete the two guide lines in main.tex and this file to remove it.
+
+\newcommand{\murfyguide}{%
+  \thispagestyle{empty}%
+  \begingroup
+  \setlength{\parindent}{0pt}
+  \sffamily
+  \color{murfyInk}
+
+  \murfyTitleBlock
+    {Murfy Guide}
+    {The LaTeX editor with AI built in}
+    {Delete this page once you start your paper.}
+
+  \vspace{16pt}
+  \murfySectionTitle{Your first PDF in three steps}
+  \begin{enumerate}[leftmargin=22pt, itemsep=5pt, topsep=0pt,
+                    label=\textcolor{murfyBlue}{\bfseries\arabic*.}]
+    \item \textbf{Write.} Add your text under \texttt{\textbackslash section} in
+          \texttt{main.tex}.
+    \item \textbf{Compile.} Your edits are typeset into the PDF. If something breaks, the fix
+          button in the compile log lets AI explain and repair it.
+    \item \textbf{Remove this guide.} Delete the \texttt{\textbackslash murfyguide} line in
+          \texttt{main.tex} and this page is gone.
+  \end{enumerate}
+
+  \vspace{13pt}
+  \murfySectionTitle{What you can do here}
+  \begin{tcbraster}[raster columns=2, raster equal height=rows, raster valign=top,
+                    raster column skip=9pt, raster row skip=9pt]
+    \begin{murfyCard}
+      \murfyCardTitle{AI paper review}
+      Get an AI review before you submit. Murfy reads your paper like a reviewer and reports the
+      summary, strengths and weaknesses.
+    \end{murfyCard}
+    \begin{murfyCard}
+      \murfyCardTitle{AI compile error fix}
+      No need to read the log yourself. Murfy points to the failing line, explains the cause and
+      applies the fix.
+    \end{murfyCard}
+    \begin{murfyCard}
+      \murfyCardTitle{Files and formats}
+      Add \texttt{.tex}, \texttt{.bib} and image files as you go. Need a journal format? Create a
+      project from a template on the dashboard.
+    \end{murfyCard}
+    \begin{murfyCard}
+      \murfyCardTitle{Write together}
+      Invite co-authors and edit the same document in real time. Leave comments on a sentence to
+      discuss it in place.
+    \end{murfyCard}
+  \end{tcbraster}
+
+  \vspace{13pt}
+  \murfySectionTitle{Good to know}
+  \begin{itemize}[leftmargin=18pt, itemsep=5pt, topsep=0pt, label=\murfyBulletLabel]
+    \item Project settings let you pick the TeX Live version and compiler your journal asks for.
+    \item Your edit history is kept, so you can roll back or download an earlier state.
+    \item Invite links come in two kinds: one for editing, one for viewing only.
+  \end{itemize}
+
+  \vspace{13pt}
+  \begin{murfyNote}
+    {\bfseries To remove this guide page}\par\vspace{3pt}
+    Delete the \texttt{\textbackslash input\{murfy-guide.tex\}} and
+    \texttt{\textbackslash murfyguide} lines from \texttt{main.tex}, then delete the
+    \texttt{murfy-guide.tex} file. Your paper is not affected.
+  \end{murfyNote}
+
+  \endgroup
+  \clearpage
+}
