@@ -3,13 +3,17 @@ from MEBbootstrap import meboot
 from statsmodels.tsa.ar_model import AutoReg
 from scipy.optimize import linprog
 from scipy.optimize import minimize, LinearConstraint
+from prewhiten_recolor import prewhiten,recolor
 
 def go_artificial(numCustomers,numCenters,numscen,gamma=1):
    name = "dataframe_nocovid_full"
+   # train series
    dfseries = pd.read_csv(f"../data/{name}.csv", usecols=[i for i in range(1, 53)]).iloc[:45,:]
    df2 = add_bootstrap_columns(dfseries, n_new_cols=numCustomers, random_state=995)
    print(df2.head())
-   
+   # true (unknown) values
+   testVal = pd.read_csv(f"../data/{name}.csv", usecols=[i for i in range(1, 53)]).iloc[-1,:].values
+
    # distanze: prime righe/colunne centri, poi clienti
    dist = pd.read_csv(f"../matrice0.csv",header=None).values
    dist = dist[numCenters:(numCenters+numCustomers),:numCenters]
@@ -25,11 +29,15 @@ def go_artificial(numCustomers,numCenters,numscen,gamma=1):
       req.append(0)
       # AR(p) forecsts
       for col in range(numscen):
-         y = b[:,col]
-         res = AutoReg(y, lags=5, old_names=False).fit()
+         y = b[:,col]  # the col'th bootstrapped series
+         z, model = prewhiten(y) # z is the prewhitened bootstrapped series
+         fit = AutoReg(z, lags=5, trend="c", seasonal=False).fit()
+         z_hat = fit.forecast(steps=3) # next 3, prewhitened
+         y_hat = recolor(z_hat, model, start=len(y)) # next 3, original
          # third-step-ahead point forecast
-         fc = res.forecast(steps=3)[-1]
+         fc = y_hat[-1]
          fc = np.round(fc,0)
+         
          f.append(fc)
          req[i] += fc
          
@@ -41,9 +49,11 @@ def go_artificial(numCustomers,numCenters,numscen,gamma=1):
    # definizione capacità center note le richieste
    cap = generate_capacities(sum(req), numCenters, factor=1.1, power=1.2)
    cap = cap[::-1]  # reverse values
+   print(f"Capacities {cap}")
    
    # calcolo dei costi h di inventory, base min delle distanze per customer
    h = solve_h(np.min(dist, axis=0), cap).flatten()
+   print(f"Inventory costs {h}")
    
    # calcolo g_s
    print("Computing Objective-aware probabilities ...")
