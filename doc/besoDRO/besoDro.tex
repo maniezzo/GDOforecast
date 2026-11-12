@@ -25,10 +25,10 @@
 \usepackage{tikz}           % drawing figures
 \usepackage[utf8]{inputenc} % murphy prefers
 
-\usepackage{caption}
-\usepackage[labelfont=sf]{subcaption}
-\captionsetup{subrefformat=parens,font=footnotesize}
-\subcaptionsetup[figure]{textfont=sf,position=bottom}
+%\usepackage{caption}
+%\usepackage[labelfont=sf]{subcaption}
+%\captionsetup{subrefformat=parens,font=footnotesize}
+%\subcaptionsetup[figure]{textfont=sf,position=bottom}
 
 \allowdisplaybreaks[4]
 \interdisplaylinepenalty=100
@@ -45,12 +45,12 @@
 
 % Natbib setup for author-number style
 \usepackage{natbib}
-% \bibpunct[, ]{(}{)}{,}{a}{}{,}%
-% \def\bibfont{\small}%
-% \def\bibsep{\smallskipamount}%
-% \def\bibhang{24pt}%
-% \def\newblock{\ }%
-% \def\BIBand{and}%
+ \bibpunct[, ]{(}{)}{,}{a}{}{,}%
+ \def\bibfont{\small}%
+ \def\bibsep{\smallskipamount}%
+ \def\bibhang{24pt}%
+ \def\newblock{\ }%
+ \def\BIBand{and}%
 
 % Redefine X column in tabularx to center the content
 \newcolumntype{C}{>{\centering\arraybackslash}X}
@@ -496,20 +496,22 @@ Notice that this formulation requires the amounts represented by variables $q$ t
 %This formulation is consistent with the Wasserstein-DRO dual reformulations in \cite{EK18,GK23}. 
 
 \begin{table}
-\TABLE
+	\TABLE
 	{Theory to application mapping\label{table:Th2App}}
+	%\centering
 	{ \begin{tabular}{ll}
-		Theory & Application\\
-		\hline
-		$\tau^s$ & $\rho^s$\\
-		$h(x)$ & $\sum c_{ij} x_{ij}$\\
-		$R(x, \rho^s)$ & min $\sum h_i q_{ij}^s + M \sum \epsilon_{js}$\\
-		$f_s$ & not used ($\mu$ = 0)\\
-		$g_s$ & transportation LP value\\
-		\hline
-	\end{tabular} }
-   {}
+			Theory    & Application \\
+			\hline
+			$\tau^s$  & $\rho^s$ \\
+			$h(x)$    & $\sum c_{ij} x_{ij}$\\
+			$R(x, \rho^s)$ & min $\sum h_i q_{ij}^s + M \sum \epsilon_{js}$ \\
+			$f_s$     & not used ($\mu$ = 0) \\
+			$g_s$     & transportation LP value\\
+			\hline
+	\end{tabular} } 
+    {}
 \end{table}
+
 
 %----------------------------------------------------------------------------------------------------------------------
 \section{Computational results} \label{Sec:results}
@@ -534,26 +536,24 @@ Figure \ref{fig:distr} shows two examples of forecast distributions obtained for
 
 \begin{figure}
   \FIGURE
-	{Distribution of bootstrap forecasts. \label{fig:distr} }
     {
 	\centering
-	\begin{minipage}{0.48\textwidth}
+	\begin{minipage}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\linewidth]{figs/distr_75_0.png}
+		\includegraphics[width=\linewidth]{figs/distr_75_0.png}\\[-0.45em]
 		\label{fig:dista}%
-		\vspace{0.45em}
 		\textit{(a) 75 bootset, customer 0}
-	\end{minipage}
+	\end{minipage}%
 	\hfill
-	\begin{minipage}{0.48\textwidth}
+	\begin{minipage}[t]{0.48\textwidth}
 		\centering
-		\includegraphics[width=\linewidth]{figs/distr_125_9.png}
+		\includegraphics[width=\linewidth]{figs/distr_125_9.png}\\[-0.45em]
 		\label{fig:distb}%
-		\vspace{0.45em}
-		\textit{(b) 125 boostset, customer 9}
-	\end{minipage}
+		\textit{(b) 125 bootset, customer 9}
+	\end{minipage}%
     }
-    { }
+	{Distribution of bootstrap forecasts. \label{fig:distr} }
+    {}
 \end{figure}
 
 The forecasts were compared using three cost functions: mean absolute error (MAE), mean squared error (MSE) and bias. Appendix \ref{app:errcost} reports the error values, rather than the rank-based values, for all boostset sizes. 
@@ -832,7 +832,7 @@ add one sentence noting the natural extension to aleatoric noise (augmenting eac
 
 % Appendix
 % --- Start Appendices Here ---
-\appendix
+\begin{APPENDICES}
 \vspace*{-10pt}
 \section{Appendix A: Cost function values} \label{app:errcost}
 
@@ -1153,7 +1153,7 @@ If strict dominance is desired, it suffices to add $\widehat P^{\mathrm{OA}}_n$ 
 \begin{remark}[Practical relevance of the limit in $m$]
 The bound in Proposition~\ref{prop:DROrobust} shows that the worst-scenario regime is only of theoretical interest. For instance, with $n=50$ scenarios, uniform $p^{\mathrm{OA}}$ and $d=10$, one has $\mathbb E[m_0]\ge 50^{10}\approx10^{17}$. For realistic $m$, conservativeness is therefore governed by how far the realized generators spread around $\widehat P^{\mathrm{OA}}_n$, which is of order $d^{-1/2}$ in each coordinate by the multinomial central limit theorem.
 \end{remark}
-
+\end{APPENDICES}
 %%%%%%%%%%%%%%%%%
 \end{document}
 %%%%%%%%%%%%%%%%%
