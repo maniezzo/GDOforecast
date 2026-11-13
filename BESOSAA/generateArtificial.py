@@ -8,11 +8,9 @@ from prewhiten_recolor import prewhiten,recolor
 def go_artificial(numCustomers,numCenters,numscen,gamma=1):
    name = "dataframe_nocovid_full"
    # train series
-   dfseries = pd.read_csv(f"../data/{name}.csv", usecols=[i for i in range(1, 53)]).iloc[:45,:]
-   df2 = add_bootstrap_columns(dfseries, n_new_cols=numCustomers, random_state=995)
+   dfseries = pd.read_csv(f"../data/{name}.csv", usecols=[i for i in range(1, 53)])
+   df2, trueval = add_bootstrap_columns(dfseries, n_new_cols=numCustomers, random_state=995)
    print(df2.head())
-   # true (unknown) values
-   testVal = pd.read_csv(f"../data/{name}.csv", usecols=[i for i in range(1, 53)]).iloc[-1,:].values
 
    # distanze: prime righe/colunne centri, poi clienti
    dist = pd.read_csv(f"../matrice0.csv",header=None).values
@@ -22,6 +20,7 @@ def go_artificial(numCustomers,numCenters,numscen,gamma=1):
    boots=[]
    fcast=[]
    req = [] # bagged bootstrap forecasts
+   testVal = [] # valori reali per le serie bootstrappate
    for i in range(numCustomers):
       print(f"Bootsrapping client {i}")
       b = meboot(df2.iloc[:,i],reps=numscen)
@@ -40,6 +39,7 @@ def go_artificial(numCustomers,numCenters,numscen,gamma=1):
          
          f.append(fc)
          req[i] += fc
+         testVal.append(trueVal[i])
          
       req[i] = np.ceil(req[i]/numscen) # previsione assoluta bootstrap
       boots.append(b)                  # serie bootstrappate
@@ -72,19 +72,37 @@ def go_artificial(numCustomers,numCenters,numscen,gamma=1):
 
 # estrae con replacement n_new_cols serie da df, per creare istanze artificiali
 def add_bootstrap_columns(df, n_new_cols, random_state=None):
+   """
+   Parameters
+      df : pd.DataFrame     DataFrame with exactly 48 numerical rows.
+      n_new_cols : int      Number of new columns to generate.
+      random_state : int or None Seed for reproducibility.
+   Returns
+   new_df : pd.DataFrame
+       DataFrame with n_new_cols columns (named boot0, boot1, ...),
+       each containing the first 45 values of the sampled original column.
+   trueval : np.ndarray
+       Array of length n_new_cols containing the 48th value (row index 47)
+       of each sampled original column.
+   """
    rng = np.random.default_rng(random_state)
-   
-   # sample column names with replacement
+
+   # Sample column names with replacement
    sampled_cols = rng.choice(df.columns, size=n_new_cols, replace=True)
-   
-   # create new dataframe with sampled columns
-   new_df = df[sampled_cols].copy()
-   
-   # rename generated columns
+
+   # Select the sampled columns (duplicates allowed)
+   sampled_df = df[sampled_cols]
+
+   # Extract the 48th value (index 47) of each sampled column
+   trueval = sampled_df.iloc[47].values
+
+   # Keep only the first 45 rows (indices 0..44)
+   new_df = sampled_df.iloc[:45].copy()
+
+   # Rename the columns to boot0, boot1, ...
    new_df.columns = [f"boot{i}" for i in range(n_new_cols)]
-   
-   # append to original dataframe
-   return new_df
+
+   return new_df, trueval
 
 # problema del trasporto (per g_s)
 def solve_transportation(costs, requests, capacities):
