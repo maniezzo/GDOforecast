@@ -9,7 +9,7 @@ def go_artificial(numCustomers,numCenters,numscen,gamma=1):
    name = "dataframe_nocovid_full"
    # train series
    dfseries = pd.read_csv(f"../data/{name}.csv", usecols=[i for i in range(1, 53)])
-   df2, trueval = add_bootstrap_columns(dfseries, n_new_cols=numCustomers, random_state=995)
+   df2, trueVal = add_bootstrap_columns(dfseries, n_new_cols=numCustomers, random_state=995)
    print(df2.head())
 
    # distanze: prime righe/colunne centri, poi clienti
@@ -17,14 +17,14 @@ def go_artificial(numCustomers,numCenters,numscen,gamma=1):
    dist = dist[numCenters:(numCenters+numCustomers),:numCenters]
    
    # bootstrapping
-   boots=[]
-   fcast=[]
+   boots=[] # lista (3d) serie bootstrappate
+   fcast=[] # lista (2d) previsioni serie in boots
    req = [] # bagged bootstrap forecasts
    testVal = [] # valori reali per le serie bootstrappate
    for i in range(numCustomers):
       print(f"Bootsrapping client {i}")
-      b = meboot(df2.iloc[:,i],reps=numscen)
-      f = []
+      b = meboot(df2.iloc[:,i],reps=numscen) # MEB bootstrap
+      f = [] # una previsione per ogni serie bootstrappata
       req.append(0)
       # AR(p) forecsts
       for col in range(numscen):
@@ -68,7 +68,7 @@ def go_artificial(numCustomers,numCenters,numscen,gamma=1):
       sumgs += gamma*gs[s]
       #print(f"Transportation cost: {gs[s]}")
    pOA = [gamma*gs[s]/sumgs for s in range(numscen)]
-   return boots,fcast,h,pOA,dist,cap
+   return boots,fcast,h,pOA,dist,cap,testVal
 
 # estrae con replacement n_new_cols serie da df, per creare istanze artificiali
 def add_bootstrap_columns(df, n_new_cols, random_state=None):
