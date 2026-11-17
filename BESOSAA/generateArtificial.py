@@ -17,15 +17,15 @@ def go_artificial(numCustomers,numCenters,numscen,gamma=1):
    dist = dist[numCenters:(numCenters+numCustomers),:numCenters]
    
    # bootstrapping
-   boots=[]
-   fcast=[]
+   boots=[] # lista (3d) serie bootstrappate
+   fcast=[] # lista (2d) previsioni serie in boots
    req = [] # bagged bootstrap forecasts
    testVal = [] # valori reali per le serie bootstrappate
    for i in range(numCustomers):
       print(f"Bootsrapping client {i}")
-      b = meboot(df2.iloc[:,i],reps=numscen)
-      f = []
-      req.append(0) # placeholder, verrà riscritto. bag delle richieste
+      b = meboot(df2.iloc[:,i],reps=numscen) # MEB bootstrap
+      f = [] # una previsione per ogni serie bootstrappata
+      req.append(0)
       # AR(p) forecsts
       for col in range(numscen):
          y = b[:,col]  # the col'th bootstrapped series
@@ -68,7 +68,7 @@ def go_artificial(numCustomers,numCenters,numscen,gamma=1):
       sumgs += gamma*gs[s]
       #print(f"Transportation cost: {gs[s]}")
    pOA = [gamma*gs[s]/sumgs for s in range(numscen)]
-   return boots,fcast,h,pOA,dist,cap
+   return boots,fcast,h,pOA,dist,cap,testVal
 
 # estrae con replacement n_new_cols serie da df, per creare istanze artificiali
 def add_bootstrap_columns(df, n_new_cols, random_state=None):
