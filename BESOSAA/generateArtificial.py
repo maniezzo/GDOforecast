@@ -9,7 +9,7 @@ def go_artificial(numCustomers,numCenters,numscen,gamma=1):
    name = "dataframe_nocovid_full"
    # train series
    dfseries = pd.read_csv(f"../data/{name}.csv", usecols=[i for i in range(1, 53)])
-   df2, trueval = add_bootstrap_columns(dfseries, n_new_cols=numCustomers, random_state=995)
+   df2, trueVal = add_bootstrap_columns(dfseries, n_new_cols=numCustomers, random_state=995)
    print(df2.head())
 
    # distanze: prime righe/colunne centri, poi clienti
@@ -25,7 +25,7 @@ def go_artificial(numCustomers,numCenters,numscen,gamma=1):
       print(f"Bootsrapping client {i}")
       b = meboot(df2.iloc[:,i],reps=numscen)
       f = []
-      req.append(0)
+      req.append(0) # placeholder, verrà riscritto. bag delle richieste
       # AR(p) forecsts
       for col in range(numscen):
          y = b[:,col]  # the col'th bootstrapped series
