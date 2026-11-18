@@ -20,11 +20,13 @@ def go_artificial(numCustomers,numCenters,numscen,gamma=1):
    boots=[] # lista (3d) serie bootstrappate
    fcast=[] # lista (2d) previsioni serie in boots
    req = [] # bagged bootstrap forecasts
-   testVal = [] # valori reali per le serie bootstrappate
+   testValBoost = [] # valori reali per ciascuna delle serie bootstrappate
+   testVal = [] # valori reali per ciascuna serie selezionata
    for i in range(numCustomers):
       print(f"Bootsrapping client {i}")
       b = meboot(df2.iloc[:,i],reps=numscen) # MEB bootstrap
       f = [] # una previsione per ogni serie bootstrappata
+      testVal.append(trueVal[i])
       req.append(0)
       # AR(p) forecsts
       for col in range(numscen):
@@ -39,7 +41,7 @@ def go_artificial(numCustomers,numCenters,numscen,gamma=1):
          
          f.append(fc)
          req[i] += fc
-         testVal.append(trueVal[i])
+         testValBoost.append(trueVal[i])
          
       req[i] = np.ceil(req[i]/numscen) # previsione assoluta bootstrap
       boots.append(b)                  # serie bootstrappate
@@ -47,7 +49,7 @@ def go_artificial(numCustomers,numCenters,numscen,gamma=1):
       
    print("Defining servers' capacities and costs ...")
    # definizione capacità center note le richieste
-   cap = generate_capacities(sum(req), numCenters, factor=1.1, power=1.2)
+   cap = generate_capacities(sum(req), numCenters, factor=1.1, power=1.1)
    cap = cap[::-1]  # reverse values
    print(f"Capacities {cap}")
    
@@ -68,7 +70,7 @@ def go_artificial(numCustomers,numCenters,numscen,gamma=1):
       sumgs += gamma*gs[s]
       #print(f"Transportation cost: {gs[s]}")
    pOA = [gamma*gs[s]/sumgs for s in range(numscen)]
-   return boots,fcast,h,pOA,dist,cap,testVal
+   return boots,fcast,h,pOA,dist,cap,testValBoost,testVal
 
 # estrae con replacement n_new_cols serie da df, per creare istanze artificiali
 def add_bootstrap_columns(df, n_new_cols, random_state=None):
@@ -173,7 +175,7 @@ def solve_transportation(costs, requests, capacities):
     return allocation, total_cost
 
 # genera le capacità dei centri, somma = factor * somma richieste
-def generate_capacities(sumreq, numCenters, factor=1.1, power=1.5):
+def generate_capacities(sumreq, numCenters, factor=1.1, power=1.2):
    """
    Generate integer capacities whose sum is approximately
    factor * sumreq and that grow superlinearly with the index.

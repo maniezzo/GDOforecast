@@ -82,7 +82,7 @@ if __name__ == '__main__':
       cost = np.array(dfcost.values)
       go_saa(req,cap,p_OA,h,b,cost,numscen,numCustomers, seed, test)
    else:
-      boots,req,h,p_OA,cost,cap,test = go_artificial(numCustomers,numCenters,numscen)
+      boots,req,h,p_OA,cost,cap,testBoost,test = go_artificial(numCustomers,numCenters,numscen)
       go_saa(np.array(req).T,cap,p_OA,h,b,cost.T,numscen,numCustomers, seed, test)
 
    print('Fine')

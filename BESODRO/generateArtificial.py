@@ -3,35 +3,45 @@ from MEBbootstrap import meboot
 from statsmodels.tsa.ar_model import AutoReg
 from scipy.optimize import linprog
 from scipy.optimize import minimize, LinearConstraint
+from prewhiten_recolor import prewhiten,recolor
 
 def go_artificial(numCustomers,numCenters,numscen,gamma=1):
    name = "dataframe_nocovid_full"
-   dfseries = pd.read_csv(f"../data/{name}.csv", usecols=[i for i in range(1, 53)]).iloc[:45,:]
-   df2 = add_bootstrap_columns(dfseries, n_new_cols=numCustomers, random_state=995)
+   # train series
+   dfseries = pd.read_csv(f"../data/{name}.csv", usecols=[i for i in range(1, 53)])
+   df2, trueVal = add_bootstrap_columns(dfseries, n_new_cols=numCustomers, random_state=995)
    print(df2.head())
-   
+
    # distanze: prime righe/colunne centri, poi clienti
    dist = pd.read_csv(f"../matrice0.csv",header=None).values
    dist = dist[numCenters:(numCenters+numCustomers),:numCenters]
    
    # bootstrapping
-   boots=[]
-   fcast=[]
+   boots=[] # lista (3d) serie bootstrappate
+   fcast=[] # lista (2d) previsioni serie in boots
    req = [] # bagged bootstrap forecasts
+   testValBoost = [] # valori reali per ciascuna delle serie bootstrappate
+   testVal = [] # valori reali per ciascuna serie selezionata
    for i in range(numCustomers):
       print(f"Bootsrapping client {i}")
-      b = meboot(df2.iloc[:,i],reps=numscen)
-      f = []
+      b = meboot(df2.iloc[:,i],reps=numscen) # MEB bootstrap
+      f = [] # una previsione per ogni serie bootstrappata
+      testVal.append(trueVal[i])
       req.append(0)
       # AR(p) forecsts
       for col in range(numscen):
-         y = b[:,col]
-         res = AutoReg(y, lags=5, old_names=False).fit()
+         y = b[:,col]  # the col'th bootstrapped series
+         z, model = prewhiten(y) # z is the prewhitened bootstrapped series
+         fit = AutoReg(z, lags=5, trend="c", seasonal=False).fit()
+         z_hat = fit.forecast(steps=3) # next 3, prewhitened
+         y_hat = recolor(z_hat, model, start=len(y)) # next 3, original
          # third-step-ahead point forecast
-         fc = res.forecast(steps=3)[-1]
+         fc = y_hat[-1]
          fc = np.round(fc,0)
+         
          f.append(fc)
          req[i] += fc
+         testValBoost.append(trueVal[i])
          
       req[i] = np.ceil(req[i]/numscen) # previsione assoluta bootstrap
       boots.append(b)                  # serie bootstrappate
@@ -39,11 +49,13 @@ def go_artificial(numCustomers,numCenters,numscen,gamma=1):
       
    print("Defining servers' capacities and costs ...")
    # definizione capacità center note le richieste
-   cap = generate_capacities(sum(req), numCenters, factor=1.1, power=1.2)
+   cap = generate_capacities(sum(req), numCenters, factor=1.1, power=1.1)
    cap = cap[::-1]  # reverse values
+   print(f"Capacities {cap}")
    
    # calcolo dei costi h di inventory, base min delle distanze per customer
    h = solve_h(np.min(dist, axis=0), cap).flatten()
+   print(f"Inventory costs {h}")
    
    # calcolo g_s
    print("Computing Objective-aware probabilities ...")
@@ -58,23 +70,41 @@ def go_artificial(numCustomers,numCenters,numscen,gamma=1):
       sumgs += gamma*gs[s]
       #print(f"Transportation cost: {gs[s]}")
    pOA = [gamma*gs[s]/sumgs for s in range(numscen)]
-   return boots,fcast,h,pOA,dist,cap
+   return boots,fcast,h,pOA,dist,cap,testValBoost,testVal
 
 # estrae con replacement n_new_cols serie da df, per creare istanze artificiali
 def add_bootstrap_columns(df, n_new_cols, random_state=None):
+   """
+   Parameters
+      df : pd.DataFrame     DataFrame with exactly 48 numerical rows.
+      n_new_cols : int      Number of new columns to generate.
+      random_state : int or None Seed for reproducibility.
+   Returns
+   new_df : pd.DataFrame
+       DataFrame with n_new_cols columns (named boot0, boot1, ...),
+       each containing the first 45 values of the sampled original column.
+   trueval : np.ndarray
+       Array of length n_new_cols containing the 48th value (row index 47)
+       of each sampled original column.
+   """
    rng = np.random.default_rng(random_state)
-   
-   # sample column names with replacement
+
+   # Sample column names with replacement
    sampled_cols = rng.choice(df.columns, size=n_new_cols, replace=True)
-   
-   # create new dataframe with sampled columns
-   new_df = df[sampled_cols].copy()
-   
-   # rename generated columns
+
+   # Select the sampled columns (duplicates allowed)
+   sampled_df = df[sampled_cols]
+
+   # Extract the 48th value (index 47) of each sampled column
+   trueval = sampled_df.iloc[47].values
+
+   # Keep only the first 45 rows (indices 0..44)
+   new_df = sampled_df.iloc[:45].copy()
+
+   # Rename the columns to boot0, boot1, ...
    new_df.columns = [f"boot{i}" for i in range(n_new_cols)]
-   
-   # append to original dataframe
-   return new_df
+
+   return new_df, trueval
 
 # problema del trasporto (per g_s)
 def solve_transportation(costs, requests, capacities):
@@ -145,7 +175,7 @@ def solve_transportation(costs, requests, capacities):
     return allocation, total_cost
 
 # genera le capacità dei centri, somma = factor * somma richieste
-def generate_capacities(sumreq, numCenters, factor=1.1, power=1.5):
+def generate_capacities(sumreq, numCenters, factor=1.1, power=1.2):
    """
    Generate integer capacities whose sum is approximately
    factor * sumreq and that grow superlinearly with the index.
