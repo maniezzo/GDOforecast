@@ -2,7 +2,7 @@ import numpy as np, pandas as pd
 import matplotlib.pyplot as plt
 import json,random
 from etsmodels import go_ets_saa
-from generateArtificial import go_artificial
+from generateArtificial_ets import go_artificial
 
 if __name__ == '__main__':
    with open('config.json') as jconf:
@@ -30,7 +30,7 @@ if __name__ == '__main__':
       go_ets_saa(req, h, b, numscen, numCustomers, seed, test)
    else:
       print("Non use case")
-      boots,req,h,p_OA,cost,cap,testBoost,test = go_artificial(numCustomers,numCenters,numscen)
+      _,req,h,p_OA,cost,cap,test = go_artificial(numCustomers,numCenters,numscen)
       go_ets_saa(req, h, b, numscen, numCustomers, seed, test)
 
    print('Fine')

@@ -1,6 +1,4 @@
 """Non-bootstrap Gaussian ETS scenarios for the BESO SAA interface.
-
-Dependencies: numpy, scipy, statsmodels.
 Input: ORIGINAL monthly demand levels, time x stores, training data only.
 Output: nonnegative integer demands, scenarios x stores; uniform probabilities.
 The horizon is a single future month, NOT cumulative demand over that horizon.
@@ -19,9 +17,8 @@ def ets_saa_scenarios(
     correlation=None,
 ):
     """
-    Fit additive ETS per store and sample its endpoint predictive law.
+    Fit additive ETS per store and sample its endpoint.
     history : (T, n) array of original monthly demand levels.
-        Do not pass prewhitened/differenced residuals.
     demand_scale : positive scalar or (n,) array.
         Explicit conversion from monthly demand units to the optimization's
         two-week pallet units. Use exactly the same conversion as in BESO.
@@ -32,7 +29,6 @@ def ets_saa_scenarios(
         None assumes independent store forecasts. A supplied matrix must be
         symmetric, positive semidefinite, with unit diagonal. It should describe
         errors at the requested horizon, estimated from training data only.
-
     Returns
     -------
     rho : (n_scenarios, n) int64 array
@@ -57,14 +53,14 @@ def ets_saa_scenarios(
         if (not isinstance(seasonal_periods, (int, np.integer))
                 or seasonal_periods < 2 or y.shape[0] < 2 * seasonal_periods):
             raise ValueError("Seasonality requires at least two complete cycles.")
-    T, n = y.shape
-    scale = np.broadcast_to(np.asarray(demand_scale, dtype=float), (n,))
+    numcli, numscen = y.shape
+    scale = np.broadcast_to(np.asarray(demand_scale, dtype=float), (numcli,))
     if not np.isfinite(scale).all() or (scale <= 0).any():
         raise ValueError("demand_scale must be finite and positive.")
-    mu, sigma, lower, upper = (np.empty(n) for _ in range(4))
+    mu, sigma, lower, upper = (np.empty(numcli) for _ in range(4))
     fits = []
     zcrit = norm.ppf(1 - alpha / 2)
-    for j in range(n):
+    for j in range(numcli):
         print(f"Scenarios for customer {j}")
         series = y[:, j]
         if np.ptp(series) == 0:
@@ -75,7 +71,7 @@ def ets_saa_scenarios(
             warnings.warn(f"Store {j}: constant history; zero forecast variance.")
             continue
         fit = ETSModel(
-            pd.Series(series, index=pd.RangeIndex(T)),
+            pd.Series(series, index=pd.RangeIndex(numcli)),
             error="add", trend=trend,
             damped_trend=bool(damped_trend and trend is not None),
             seasonal="add" if seasonal_periods is not None else None,
@@ -86,7 +82,7 @@ def ets_saa_scenarios(
             raise RuntimeError(f"ETS fit did not converge for store {j}.")
         # end is inclusive: T + horizon - 1 is the horizon-th future month.
         frame = fit.get_prediction(
-            start=T, end=T + horizon - 1, method="exact"
+            start=numscen, end=numscen + horizon - 1, method="exact"
         ).summary_frame(alpha=alpha)
         last = frame.iloc[-1]
         mu[j] = last["mean"]
@@ -98,10 +94,10 @@ def ets_saa_scenarios(
 
     # generazione scenari
     rng = np.random.default_rng(seed)
-    z = rng.standard_normal((n_scenarios, n))
+    z = rng.standard_normal((n_scenarios, numcli))
     if correlation is not None:
         R = np.asarray(correlation, dtype=float)
-        if (R.shape != (n, n) or not np.isfinite(R).all()
+        if (R.shape != (numcli, numcli) or not np.isfinite(R).all()
                 or not np.allclose(R, R.T, atol=1e-8)
                 or not np.allclose(np.diag(R), 1.0, atol=1e-8)):
             raise ValueError("Invalid predictive-error correlation matrix.")

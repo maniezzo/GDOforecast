@@ -10,7 +10,7 @@ def resultsKPI(cap, req, numscen, asgn, q, tol=1e-6):
    loads = np.zeros((numscen, m))
 
    for i in range(m):
-      for j in range(req.shape[1]):
+      for j in range(len(req)):
          for s in range(numscen):
             loads[s, i] += q[i, j, s].X
 
