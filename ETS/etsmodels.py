@@ -2,29 +2,64 @@ from ets_saa_scenarios import ets_saa_scenarios
 import numpy as np, pandas as pd
 import sys,os
 
+import numpy as np
+
+import numpy as np
 
 # un po' di postprocessing sui risultati
-def resultsKPI(cap, req, numscen, asgn, q, tol=1e-6):
-   cap = np.asarray(cap, dtype=float)
-   m = len(cap)
-   loads = np.zeros((numscen, m))
+def resultsKPI(cap, req, numscen, asgn, q, cost, h, trueVal, tol=1e-6):
+    cap = np.asarray(cap, dtype=float)
+    cost = np.asarray(cost, dtype=float)
+    h = np.asarray(h, dtype=float)
+    trueVal = np.asarray(trueVal, dtype=float)
 
-   for i in range(m):
-      for j in range(len(req)):
-         for s in range(numscen):
-            loads[s, i] += q[i, j, s].X
+    m = len(cap)
+    n = len(req)
+    if len(trueVal) != n:
+        raise ValueError("trueVal must contain one request per customer")
 
-   peak_loads = loads.max(axis=0)
-   overloads = np.maximum(peak_loads - cap, 0.0)
+    # Loads in the model's scenarios
+    loads = np.zeros((numscen, m))
+    for i in range(m):
+        for j in range(n):
+            for s in range(numscen):
+                loads[s, i] += q[i, j, s].X
 
-   for i in range(m):
-      print(
-         f"DC {i}: capacity={cap[i]:.2f}, "
-         f"peak delivery={peak_loads[i]:.2f}, "
-         f"overload={overloads[i]:.6f}"
-      )
+    peak_loads = loads.max(axis=0)
+    overloads = np.maximum(peak_loads - cap, 0.0)
 
-   return loads, peak_loads, overloads, bool(np.all(overloads <= tol))
+    for i in range(m):
+        print(
+            f"DC {i}: capacity={cap[i]:.2f}, "
+            f"peak delivery={peak_loads[i]:.2f}, "
+            f"overload={overloads[i]:.6f}"
+        )
+
+    # Cost and loads for the requests that actually occurred
+    assignment_cost = sum(cost[i, j] for i, j in asgn)
+    true_loads = np.zeros(m)
+    for i, j in asgn:
+        true_loads[i] += trueVal[j]
+
+    handling_cost = np.dot(h, true_loads)
+    true_cost = assignment_cost + handling_cost
+    true_overloads = np.maximum(true_loads - cap, 0.0)
+
+    print(
+        f"Realized cost: assignment={assignment_cost:.2f}, "
+        f"handling={handling_cost:.2f}, total={true_cost:.2f}"
+    )
+    for i in range(m):
+        print(
+            f"DC {i}: realized delivery={true_loads[i]:.2f}, "
+            f"realized overload={true_overloads[i]:.6f}"
+        )
+
+    return (
+        loads, peak_loads, overloads,
+        bool(np.all(overloads <= tol)),
+        true_loads, true_overloads, true_cost,
+    )
 
 # controlla overload sui dati veri
 def check_test(assgn,cap,test):
@@ -154,7 +189,7 @@ def go_ets_saa(req, h, bind, numscen, numCustomers, seed, test):
 
    if model.SolCount > 0:
       assignments = [(i, j) for i, j in x if x[i, j].X > 0.5]
-      _, peak_loads, overloads, indover = resultsKPI(cap,req,numscen,assignments,q)
+      _, peak_loads, overloads, indover = resultsKPI(cap,req,numscen,assignments,q,cost,h)
       loads,overloads = check_test(assignments,cap,test)
 
       print(f"n.rows {model.NumConstrs} n.cols {model.NumVars} n.non0 {model.NumNZs}")

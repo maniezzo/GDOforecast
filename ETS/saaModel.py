@@ -129,7 +129,7 @@ def build_beso_saa(rho, p_OA, c, h, Q, b, M=9999999, fixed_x=None):
    return model, x, q, eps
 
 # un po' di postprocessing sui risultati
-def resultsKPI(cap, req, numscen, asgn, q, tol=1e-6):
+def resultsKPI(cap, req, numscen, asgn, q, h, tol=1e-6):
    cap = np.asarray(cap, dtype=float)
    m = len(cap)
    loads = np.zeros((numscen, m))
@@ -182,7 +182,7 @@ def go_saa(req, cap, p_OA, h, bind, cost, numscen, numCustomers, seed, test):
    if model.SolCount > 0:
       assignments = [(i, j) for i, j in x if x[i, j].X > 0.5]
       expected_shortage = sum( p_OA[s] * eps[j, s].X for j, s in eps )
-      _, peak_loads, overloads, indover = resultsKPI(cap,req,numscen,assignments,q)
+      _, peak_loads, overloads, indover = resultsKPI(cap,req,numscen,assignments,q,h)
       loads,overloads = check_test(assignments,cap,test)
 
       print(f"n.rows {model.NumConstrs} n.cols {model.NumVars} n.non0 {model.NumNZs}")
