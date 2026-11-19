@@ -41,7 +41,7 @@ def check_test(assgn,cap,test):
 
 # ETS deterministico
 def deterministic_ets_sap(
-    ets_mean, c, d, Q, b, *,
+    ets_mean, c, h, Q, b, *,
     demand_scale=1.0,
     fixed_x=None,
 ):
@@ -82,7 +82,7 @@ def deterministic_ets_sap(
         rho=req[None, :],       # shape (1, number_of_stores)
         p_OA=np.array([1.0]),
         c=c,
-        d=d,
+        h=h,
         Q=Q,
         b=b,
         M=1.0,                 # irrelevant: shortages fixed to zero
@@ -98,7 +98,7 @@ def deterministic_ets_sap(
 
     return model, x, q, req
 
-def go_ets_saa(req, d, bind, numscen, numCustomers, seed, test):
+def go_ets_saa(req, h, bind, numscen, numCustomers, seed, test):
    # history[t, j]: ORIGINAL monthly demand for store j.
    # For use case: shape (45, 52), excluding the test months.
    # conversion_factor: the same monthly-demand-to-two-week-pallet
@@ -141,7 +141,7 @@ def go_ets_saa(req, d, bind, numscen, numCustomers, seed, test):
       rho=rho,
       p_OA=p,
       c=cost,
-      d=d,
+      h=h,
       Q=cap,
       b=b,
       M=9999999,
@@ -167,7 +167,7 @@ def go_ets_saa(req, d, bind, numscen, numCustomers, seed, test):
 
    # modello deterministico,come SAA ma con un unico scenario
    print("---------------------------- ETS DETERMINISTICO")
-   model, x, q, req_ets = deterministic_ets_sap(info["mean"], cost, d, cap, b)
+   model, x, q, req_ets = deterministic_ets_sap(info["mean"], cost, h, cap, b)
 
    model.optimize()
 

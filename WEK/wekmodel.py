@@ -3,7 +3,7 @@ import gurobipy as gp
 from gurobipy import GRB
 
 def build_wek(
-    rho, c, d, Q, b,
+    rho, c, h, Q, b,
     radius, M=9999999, fixed_x=None
 ):
     """
@@ -14,7 +14,7 @@ def build_wek(
            Each row is one joint demand scenario across all stores.
            The empirical baseline assigns probability 1/N to each row.
        c : array (m, n) Fixed assignment costs c[i, j].
-       d : array (m,) Unit storage costs d[i].
+       h : array (m,) Unit storage costs h[i].
        Q : array (m,) Fixed DC capacities, including the external DC.
        b : array (n,) Exact number of DC assignments per store.
        M : floatPositive penalty per pallet of unmet demand.
@@ -30,7 +30,7 @@ def build_wek(
            D[s,t]   : L1 distance between demand scenarios s and t.
     """
     # Validazione input
-    rho, c, d, Q, b = [ np.asarray(v, dtype=float) for v in (rho, c, d, Q, b) ]
+    rho, c, h, Q, b = [ np.asarray(v, dtype=float) for v in (rho, c, h, Q, b) ]
 
     if rho.ndim != 2 or min(rho.shape) == 0:
         raise ValueError("rho must have shape (N, n), with N,n > 0.")
@@ -40,10 +40,10 @@ def build_wek(
         raise ValueError("c must have shape (m, n), with m > 0.")
     m = c.shape[0]
 
-    if d.shape != (m,) or Q.shape != (m,) or b.shape != (n,):
-        raise ValueError("Inconsistent dimensions of d, Q, or b.")
+    if h.shape != (m,) or Q.shape != (m,) or b.shape != (n,):
+        raise ValueError("Inconsistent dimensions of h, Q, or b.")
 
-    if not all(np.all(np.isfinite(v)) for v in (rho, c, d, Q, b)):
+    if not all(np.all(np.isfinite(v)) for v in (rho, c, h, Q, b)):
         raise ValueError("All input arrays must contain finite values.")
 
     if np.any(rho < 0) or np.any(Q < 0):
@@ -111,7 +111,7 @@ def build_wek(
     # ----------------------------------- Wasserstein dual constraints
 
     recourse = {
-        t: ( gp.quicksum( d[i] * q[i, j, t] for i in I for j in J )
+        t: ( gp.quicksum( h[i] * q[i, j, t] for i in I for j in J )
                           + M * gp.quicksum(eps[j, t] for j in J)
            ) for t in S
     }
@@ -157,9 +157,9 @@ def resultsKPI(cap,req,numscen, asgn):
 
    return peak_loads, overloads
 
-def go_wek(req, d, bind, numscen, numCustomers, seed, test):
+def go_wek(req, h, bind, numscen, numCustomers, seed, test):
    '''
-   d:    costi di handling per ogni DC
+   h:    costi di handling per ogni DC
    bind: INDICI dei client assegnabili a 2 DC
    '''
    # legge i costi
@@ -176,7 +176,7 @@ def go_wek(req, d, bind, numscen, numCustomers, seed, test):
    model, x, q, eps, lam, eta, D = build_wek(
       rho=req,
       c=cost,
-      d=d,
+      h=h,
       Q=cap,
       b=b,
       radius=wasserstein_radius

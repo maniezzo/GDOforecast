@@ -14,7 +14,7 @@ if __name__ == '__main__':
    numCustomers = conf["numCustomers"]
    seed    = conf["seed"]
    b       = conf["b"]
-   d       = conf["d"]
+   h       = conf["h"]
    np.random.seed(seed)
    random.seed(seed)
 
@@ -24,6 +24,6 @@ if __name__ == '__main__':
    print(f"Boost forecasting {name}")
    
    req = np.loadtxt(f"../boostset/req{numscen}.csv", delimiter=",")
-   go_wek(req,d,b,numscen, numCustomers, seed, test)
+   go_wek(req,h,b,numscen, numCustomers, seed, test)
 
    print('Fine')

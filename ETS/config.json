@@ -1,8 +1,11 @@
 {
    "seed"    : 995,
    "numscen" : 75,
-   "numCustomers" : 52,
+   "numCustomers" : 52, "commentC": "52 for use case",
+   "numCenters"   : 4,  "commentCn": "4 in the use case",
+   "numRep"   : 5, "commentR": "numero ripetizioni per istanza",
    "b"       : [], "commentB" : "indici client assegnabili a 2 DC, [] per nessuno",
-   "d"       : [0,10,0,0],  "commentD" : "handling cost dei vari DC",
-   "gamma"   : 1.0, "commentG": "parametro del tilting"
+   "h"       : [0,10,0,0],  "commentH" : "handling cost dei vari DC",
+   "gamma"   : 1.0, "commentG": "parametro del tilting",
+   "isUseCase": false, "commentU": "true caso d'uso, false istanze artificiali"
 }

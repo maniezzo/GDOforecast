@@ -18,7 +18,8 @@ def ets_saa_scenarios(
     seasonal_periods=None, alpha=0.05, seed=12345,
     correlation=None,
 ):
-    """Fit additive ETS per store and sample its endpoint predictive law.
+    """
+    Fit additive ETS per store and sample its endpoint predictive law.
     history : (T, n) array of original monthly demand levels.
         Do not pass prewhitened/differenced residuals.
     demand_scale : positive scalar or (n,) array.
@@ -64,6 +65,7 @@ def ets_saa_scenarios(
     fits = []
     zcrit = norm.ppf(1 - alpha / 2)
     for j in range(n):
+        print(f"Scenarios for customer {j}")
         series = y[:, j]
         if np.ptp(series) == 0:
             # Explicit deterministic convention for constant histories.
@@ -93,6 +95,8 @@ def ets_saa_scenarios(
         fits.append(fit)
     if not np.isfinite([mu, sigma, lower, upper]).all() or (sigma < 0).any():
         raise RuntimeError("ETS returned invalid predictive moments.")
+
+    # generazione scenari
     rng = np.random.default_rng(seed)
     z = rng.standard_normal((n_scenarios, n))
     if correlation is not None:

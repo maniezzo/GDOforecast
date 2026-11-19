@@ -2,7 +2,7 @@ import numpy as np, pandas as pd
 import matplotlib.pyplot as plt
 import json,random
 from etsmodels import go_ets_saa
-
+from generateArtificial import go_artificial
 
 if __name__ == '__main__':
    with open('config.json') as jconf:
@@ -10,9 +10,12 @@ if __name__ == '__main__':
    print(conf)
    numscen = conf["numscen"]
    numCustomers = conf["numCustomers"]
-   seed    = conf["seed"]
-   b       = conf["b"]
-   d       = conf["d"]
+   seed       = conf["seed"]
+   isUseCase  = conf["isUseCase"]
+   numCenters = conf["numCenters"]
+   numRep     = conf["numRep"]
+   b = conf["b"]  # num centri che servono
+   h = conf["h"]  # handling cost
    gamma   = conf["gamma"]
    np.random.seed(seed)
    random.seed(seed)
@@ -21,7 +24,13 @@ if __name__ == '__main__':
    df = pd.read_csv(f"../data/{name}.csv", usecols=[i for i in range(1, 53)])
    test = df.iloc[-1,:].values
    print(f"Non-boost forecasting {name}")
-   req = np.array(df.iloc[:-3,:])
-   go_ets_saa(req, d, b, numscen, numCustomers, seed, test)
+
+   if(isUseCase):
+      req = np.array(df.iloc[:-3,:])
+      go_ets_saa(req, h, b, numscen, numCustomers, seed, test)
+   else:
+      print("Non use case")
+      boots,req,h,p_OA,cost,cap,testBoost,test = go_artificial(numCustomers,numCenters,numscen)
+      go_ets_saa(req, h, b, numscen, numCustomers, seed, test)
 
    print('Fine')

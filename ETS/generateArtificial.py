@@ -1,9 +1,10 @@
+"""
+Generazione istanze artificiali adattata al caso ETS
+"""
 import numpy as np, pandas as pd
-from MEBbootstrap import meboot
 from statsmodels.tsa.ar_model import AutoReg
 from scipy.optimize import linprog
 from scipy.optimize import minimize, LinearConstraint
-from prewhiten_recolor import prewhiten,recolor
 
 def go_artificial(numCustomers,numCenters,numscen,gamma=1):
    name = "dataframe_nocovid_full"
@@ -105,74 +106,6 @@ def add_bootstrap_columns(df, n_new_cols, random_state=None):
    new_df.columns = [f"boot{i}" for i in range(n_new_cols)]
 
    return new_df, trueval
-
-# problema del trasporto (per g_s)
-def solve_transportation(costs, requests, capacities):
-    """
-    Parameters
-    costs : 2D array-like (m x n)    Transportation costs.
-    requests : 1D array-like (n)     Demand of each destination.
-    capacities : 1D array-like (m)   Supply/capacity of each source.
-
-    Returns
-    allocation : ndarray (m x n)   Optimal shipment quantities.
-    total_cost : float             Optimal transportation cost.
-    """
-
-    costs = np.asarray(costs, dtype=float)
-    requests = np.asarray(requests, dtype=float)
-    capacities = np.asarray(capacities, dtype=float)
-
-    m, n = costs.shape
-
-    if len(capacities) != m:
-        raise ValueError("Capacity vector length must equal number of rows in costs")
-
-    if len(requests) != n:
-        raise ValueError("Request vector length must equal number of columns in costs")
-
-    if capacities.sum() < requests.sum():
-        raise ValueError(
-            f"Total capacity ({capacities.sum()}) is smaller than total demand ({requests.sum()})"
-        )
-
-    # Objective vector
-    c = costs.flatten()
-
-    # Demand constraints: sum_i x_ij = request_j
-    A_eq = np.zeros((n, m * n))
-    for j in range(n):
-        for i in range(m):
-            A_eq[j, i * n + j] = 1
-    b_eq = requests
-
-    # Capacity constraints: sum_j x_ij <= capacity_i
-    A_ub = np.zeros((m, m * n))
-    for i in range(m):
-        for j in range(n):
-            A_ub[i, i * n + j] = 1
-    b_ub = capacities
-
-    # Nonnegative variables
-    bounds = [(0, None)] * (m * n)
-
-    result = linprog(
-        c,
-        A_ub=A_ub,
-        b_ub=b_ub,
-        A_eq=A_eq,
-        b_eq=b_eq,
-        bounds=bounds,
-        method="highs"
-    )
-
-    if not result.success:
-        raise RuntimeError(result.message)
-
-    allocation = result.x.reshape((m, n))
-    total_cost = result.fun
-
-    return allocation, total_cost
 
 # genera le capacità dei centri, somma = factor * somma richieste
 def generate_capacities(sumreq, numCenters, factor=1.1, power=1.2):
