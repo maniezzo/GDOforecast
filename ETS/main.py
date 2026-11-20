@@ -26,10 +26,13 @@ if __name__ == '__main__':
 
    if(isUseCase):
       req = np.array(df.iloc[:-3,:])
-      go_ets_saa(req, h, b, numscen, numCustomers, seed, test)
+      # legge i costi
+      dfcost = pd.read_csv("costs.csv")
+      cost = np.array(dfcost.values)
+      go_ets_saa(req, cost, h, b, numscen, numCustomers, seed, test)
    else:
       print("Non use case")
       _,req,h,p_OA,cost,cap,test = go_artificial(numCustomers,numCenters,numscen)
-      go_ets_saa(req, h, b, numscen, numCustomers, seed, test)
+      go_ets_saa(req, cost.T, h, b, numscen, numCustomers, seed, test)
 
    print('Fine')

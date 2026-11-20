@@ -53,7 +53,7 @@ def build_beso_saa(rho, p_OA, c, h, Q, b, M=9999999, fixed_x=None):
    N, n = rho.shape
 
    if c.ndim != 2 or c.shape[1] != n or c.shape[0] == 0:
-      raise ValueError("c must have shape (m, n), with m > 0.")
+      raise ValueError(f"c must have shape (m, n), with m > 0.")
    m = c.shape[0]
 
    if (p.shape != (N,) or h.shape != (m,) or Q.shape != (m,) or b.shape != (n,)):
@@ -176,6 +176,16 @@ def go_saa(req, cap, p_OA, h, bind, cost, numscen, numCustomers, seed, test):
 
    model, x, q, eps = build_beso_saa(req, p_OA, cost, h, cap, b)
 
+   # --- Bias strongly toward finding feasible solutions early ---
+   model.Params.MIPFocus = 1  # Primary feasibility focus
+   model.Params.NoRelHeurTime = 10  # Up to 10 sec for pre-root NoRel heuristic
+   #model.Params.Heuristics = 0.5  # Spend 50% of effort on primal heuristics
+
+   # --- Strengthen neighborhood‑search heuristics ---
+   model.Params.SubMIPNodes = 2000  # Let RINS explore larger neighborhoods
+   model.Params.PumpPasses = 10  # More feasibility‑pump passes
+
+   model.Params.TimeLimit = 900  # or model.setParam('TimeLimit', 900), in seconds
    model.Params.MIPGap = 0.0001  # 0.01% relative optimality gap
    model.optimize()
 

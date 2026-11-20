@@ -128,15 +128,11 @@ def deterministic_ets_sap(
     model.update()
     return model, x, q, req
 
-def go_ets_saa(req, h, bind, numscen, numCustomers, seed, test):
+def go_ets_saa(req, cost, h, bind, numscen, numCustomers, seed, test):
    # history[t, j]: ORIGINAL monthly demand for store j.
    # For use case: shape (45, 52), excluding the test months.
    # conversion_factor: the same monthly-demand-to-two-week-pallet
    # conversion used in BESO; scalar or one factor per store.
-
-   # legge i costi
-   dfcost = pd.read_csv("costs.csv")
-   cost = np.array(dfcost.values)
    # legge le capacita
    cap = pd.read_csv("capacities.csv", header=None).values.flatten()
    b = np.ones(numCustomers)
@@ -182,11 +178,23 @@ def go_ets_saa(req, h, bind, numscen, numCustomers, seed, test):
       b=b,
       M=9999999,
    )
+
+   # --- Bias strongly toward finding feasible solutions early ---
+   model.Params.MIPFocus = 1  # Primary feasibility focus
+   model.Params.NoRelHeurTime = 10  # Up to 10 sec for pre-root NoRel heuristic
+   # model.Params.Heuristics = 0.5  # Spend 50% of effort on primal heuristics
+
+   # --- Strengthen neighborhood‑search heuristics ---
+   model.Params.SubMIPNodes = 2000  # Let RINS explore larger neighborhoods
+   model.Params.PumpPasses = 10  # More feasibility‑pump passes
+
+   model.Params.TimeLimit = 900  # or model.setParam('TimeLimit', 900), in seconds
+   model.Params.MIPGap = 0.0001  # 0.01% relative optimality gap
    model.optimize()
    tetssaa = time.process_time() - tscen
-   print("Scenario matrix:", rho.shape)
-   print("Forecast means:", info["mean"])
-   print("Predictive standard deviations:", info["std"])
+   #print("Scenario matrix:", rho.shape)
+   #print("Forecast means:", info["mean"])
+   #print("Predictive standard deviations:", info["std"])
 
    if model.SolCount > 0:
       assignments = [(i, j) for i, j in x if x[i, j].X > 0.5]
@@ -203,6 +211,7 @@ def go_ets_saa(req, h, bind, numscen, numCustomers, seed, test):
       print(f"n.rows {model.NumConstrs} n.cols {model.NumVars} n.non0 {model.NumNZs}")
       print(f"Objective: {model.ObjVal:.3f} t.cpu {model.Runtime:.3f}")
       print("Peak loads:", peak_loads)
+      print(f"cap {cap}")
       print(f"True loads {loads} Overloads:, {overloads}")
       #print(f"Assignments: {assignments}")
    else:
@@ -211,6 +220,18 @@ def go_ets_saa(req, h, bind, numscen, numCustomers, seed, test):
    # modello deterministico,come SAA ma con un unico scenario
    print("\n---------------------------- ETS DETERMINISTICO")
    model, x, q, req_ets = deterministic_ets_sap(info["mean"], cost, h, cap, b)
+
+   # --- Bias strongly toward finding feasible solutions early ---
+   model.Params.MIPFocus = 1  # Primary feasibility focus
+   model.Params.NoRelHeurTime = 10  # Up to 10 sec for pre-root NoRel heuristic
+   # model.Params.Heuristics = 0.5  # Spend 50% of effort on primal heuristics
+
+   # --- Strengthen neighborhood‑search heuristics ---
+   model.Params.SubMIPNodes = 2000  # Let RINS explore larger neighborhoods
+   model.Params.PumpPasses = 10  # More feasibility‑pump passes
+
+   model.Params.TimeLimit = 900  # or model.setParam('TimeLimit', 900), in seconds
+   model.Params.MIPGap = 0.0001  # 0.01% relative optimality gap
    model.optimize()
    tetsdet = time.process_time() - tetssaa
 
