@@ -6,6 +6,5 @@
    "numRep"   : 5, "commentR": "numero ripetizioni per istanza",
    "b"       : [], "commentB" : "indici client assegnabili a 2 DC, [] per nessuno",
    "h"       : [0,10,0,0],  "commentH" : "handling cost dei vari DC",
-   "gamma"   : 1.0, "commentG": "parametro del tilting",
    "isUseCase": false, "commentU": "true caso d'uso, false istanze artificiali"
 }

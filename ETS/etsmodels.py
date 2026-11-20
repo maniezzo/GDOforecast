@@ -1,13 +1,9 @@
 from ets_saa_scenarios import ets_saa_scenarios
 import numpy as np, pandas as pd
-import sys,os
-
-import numpy as np
-
-import numpy as np
+import sys,os,time
 
 # un po' di postprocessing sui risultati
-def resultsKPI(cap, req, numscen, asgn, q, cost, h, trueVal, tol=1e-6):
+def resultsKPI(name,cap, req, numscen, asgn, q, cost, h, trueVal, tol=1e-6):
     cap = np.asarray(cap, dtype=float)
     cost = np.asarray(cost, dtype=float)
     h = np.asarray(h, dtype=float)
@@ -54,11 +50,11 @@ def resultsKPI(cap, req, numscen, asgn, q, cost, h, trueVal, tol=1e-6):
             f"DC {i}: realized delivery={true_loads[i]:.2f}, "
             f"realized overload={true_overloads[i]:.6f}"
         )
-
     return (
         loads, peak_loads, overloads,
         bool(np.all(overloads <= tol)),
-        true_loads, true_overloads, true_cost,
+        true_loads, true_overloads,
+        assignment_cost, handling_cost, true_cost
     )
 
 # controlla overload sui dati veri
@@ -130,7 +126,6 @@ def deterministic_ets_sap(
 
     model.ModelName = "ETS_SAP"
     model.update()
-
     return model, x, q, req
 
 def go_ets_saa(req, h, bind, numscen, numCustomers, seed, test):
@@ -147,6 +142,10 @@ def go_ets_saa(req, h, bind, numscen, numCustomers, seed, test):
    b = np.ones(numCustomers)
    for i in range(len(bind)): b[bind[i]] += 1
 
+   # these are just shorthands
+   n = numCustomers
+   m = len(cap)
+   ns = numscen
    '''
    Fits one ETS model per store.
    Extracts the predictive mean and standard deviation for month \(T+3\), not the sum of the next three months.
@@ -154,6 +153,7 @@ def go_ets_saa(req, h, bind, numscen, numCustomers, seed, test):
    Converts demand to your optimization units, sets negative draws to zero, and rounds up.
    Returns rho[s, j] and uniform probabilities \(p_s=1/N\).
    '''
+   tstart = time.process_time()
    print("Building ets SCENARIOS ...")
    rho, p, info = ets_saa_scenarios(
       req,
@@ -165,6 +165,7 @@ def go_ets_saa(req, h, bind, numscen, numCustomers, seed, test):
       seasonal_periods=12,   # annual seasonality in monthly data
       seed=seed,
    )
+   tscen = time.process_time() - tstart # time for scenario preparation
 
    besosaa_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../BESOSAA'))
    if besosaa_path not in sys.path:
@@ -182,14 +183,21 @@ def go_ets_saa(req, h, bind, numscen, numCustomers, seed, test):
       M=9999999,
    )
    model.optimize()
-
+   tetssaa = time.process_time() - tscen
    print("Scenario matrix:", rho.shape)
    print("Forecast means:", info["mean"])
    print("Predictive standard deviations:", info["std"])
 
    if model.SolCount > 0:
       assignments = [(i, j) for i, j in x if x[i, j].X > 0.5]
-      _, peak_loads, overloads, indover = resultsKPI(cap,req,numscen,assignments,q,cost,h)
+      _, peak_loads, overloads, indover, true_loads, true_overloads, assignment_cost, handling_cost, true_cost = resultsKPI("ETSSAA",cap,req,numscen,assignments,q,cost,h,test)
+      with open("../results.csv", "a") as f:
+         f.write(f"ETSSAA,n,{n},m,{m},ns,{ns},tscen,{tscen:.2f},tetssaa,{tetssaa:.2f},"
+                 f"assgn,{assignment_cost:.2f},"
+                 f"hndl,{handling_cost:.2f},"
+                 f"tot,{true_cost:.2f},"
+                 f"overloads,{overloads},"
+                 f"true overloads,{true_overloads}\n")
       loads,overloads = check_test(assignments,cap,test)
 
       print(f"n.rows {model.NumConstrs} n.cols {model.NumVars} n.non0 {model.NumNZs}")
@@ -201,10 +209,10 @@ def go_ets_saa(req, h, bind, numscen, numCustomers, seed, test):
       print("No feasible solution found. Gurobi status:", model.Status)
 
    # modello deterministico,come SAA ma con un unico scenario
-   print("---------------------------- ETS DETERMINISTICO")
+   print("\n---------------------------- ETS DETERMINISTICO")
    model, x, q, req_ets = deterministic_ets_sap(info["mean"], cost, h, cap, b)
-
    model.optimize()
+   tetsdet = time.process_time() - tetssaa
 
    if model.SolCount > 0:
       print("ETS-SAP objective:", model.ObjVal)
@@ -217,6 +225,14 @@ def go_ets_saa(req, h, bind, numscen, numCustomers, seed, test):
          for i in range(len(cap))
       ]
       loads,overloads = check_test(assignments,cap,test)
+      _, peak_loads, overloads, indover, true_loads, true_overloads, assignment_cost, handling_cost, true_cost = resultsKPI("ETSDET",cap,req,1,assignments,q,cost,h,test)
+      with open("../results.csv", "a") as f:
+         f.write(f"ETSDET,n,{n},m,{m},tetsdet,{tetsdet:.2f},"
+                 f"assgn,{assignment_cost:.2f},"
+                 f"hndl,{handling_cost:.2f},"
+                 f"tot,{true_cost:.2f},"
+                 f"overloads,{overloads},"
+                 f"true,{true_overloads}\n")
 
       print("Point demands:", req_ets)
       print(f"n.rows {model.NumConstrs} n.cols {model.NumVars} n.non0 {model.NumNZs}")

@@ -16,7 +16,6 @@ if __name__ == '__main__':
    numRep     = conf["numRep"]
    b = conf["b"]  # num centri che servono
    h = conf["h"]  # handling cost
-   gamma   = conf["gamma"]
    np.random.seed(seed)
    random.seed(seed)
 
