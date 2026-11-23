@@ -128,7 +128,7 @@ def deterministic_ets_sap(
     model.update()
     return model, x, q, req
 
-def go_ets_saa(req, cost, h, bind, numscen, numCustomers, seed, test):
+def go_ets_saa(req, cost, h, bind, numscen, numCustomers, seed, test, maxt):
    # history[t, j]: ORIGINAL monthly demand for store j.
    # For use case: shape (45, 52), excluding the test months.
    # conversion_factor: the same monthly-demand-to-two-week-pallet
@@ -188,7 +188,7 @@ def go_ets_saa(req, cost, h, bind, numscen, numCustomers, seed, test):
    model.Params.SubMIPNodes = 2000  # Let RINS explore larger neighborhoods
    model.Params.PumpPasses = 10  # More feasibility‑pump passes
 
-   model.Params.TimeLimit = 900  # or model.setParam('TimeLimit', 900), in seconds
+   model.Params.TimeLimit = maxt  # or model.setParam('TimeLimit', 900), in seconds
    model.Params.MIPGap = 0.0001  # 0.01% relative optimality gap
    model.optimize()
    tetssaa = time.process_time() - tscen
@@ -197,10 +197,11 @@ def go_ets_saa(req, cost, h, bind, numscen, numCustomers, seed, test):
    #print("Predictive standard deviations:", info["std"])
 
    if model.SolCount > 0:
+      status = "opt" if model.Status==2 else "heu"
       assignments = [(i, j) for i, j in x if x[i, j].X > 0.5]
       _, peak_loads, overloads, indover, true_loads, true_overloads, assignment_cost, handling_cost, true_cost = resultsKPI("ETSSAA",cap,req,numscen,assignments,q,cost,h,test)
       with open("../results.csv", "a") as f:
-         f.write(f"ETSSAA,n,{n},m,{m},ns,{ns},tscen,{tscen:.2f},tetssaa,{tetssaa:.2f},"
+         f.write(f"ETSSAA,n,{n},m,{m},ns,{ns}, status {status}, tscen,{tscen:.2f},tetssaa,{tetssaa:.2f},"
                  f"assgn,{assignment_cost:.2f},"
                  f"hndl,{handling_cost:.2f},"
                  f"tot,{true_cost:.2f},"
@@ -230,7 +231,7 @@ def go_ets_saa(req, cost, h, bind, numscen, numCustomers, seed, test):
    model.Params.SubMIPNodes = 2000  # Let RINS explore larger neighborhoods
    model.Params.PumpPasses = 10  # More feasibility‑pump passes
 
-   model.Params.TimeLimit = 900  # or model.setParam('TimeLimit', 900), in seconds
+   model.Params.TimeLimit = maxt  # or model.setParam('TimeLimit', 900), in seconds
    model.Params.MIPGap = 0.0001  # 0.01% relative optimality gap
    model.optimize()
    tetsdet = time.process_time() - tetssaa

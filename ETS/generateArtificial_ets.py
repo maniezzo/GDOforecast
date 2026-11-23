@@ -6,7 +6,6 @@ observations and scenarios are drawn for month 48 (three months ahead).
 
 import numpy as np
 import pandas as pd
-from scipy.optimize import minimize, LinearConstraint
 from statsmodels.tsa.exponential_smoothing.ets import ETSModel
 from scipy.stats import norm
 
@@ -36,7 +35,7 @@ def go_artificial(numCustomers, numCenters, numscen):
     cap = cap[::-1]
     print(f"Capacities {cap}")
 
-    h = solve_h(np.min(dist, axis=0), cap).flatten()
+    h = solve_h(np.min(dist, axis=0), cap, k=0.33).flatten()
     print(f"Inventory costs {h}")
 
     # Equal scenario weights: objective-aware reweighting is not applied here.
@@ -114,7 +113,7 @@ def ets_saa_scenarios(history, n_scenarios, horizon=3, *, demand_scale=1.0,
     probabilities = np.full(n_scenarios, 1.0 / n_scenarios)
     return scenarios, probabilities, {"mean": means, "std": stds}
 
-
+# capacita': esponenziali con somma data (factor*somma richieste)
 def generate_capacities(sumreq, numCenters, factor=1.1, power=1.2):
     target = round(factor * sumreq)
     weights = np.array([(i + 1) ** power for i in range(numCenters)], dtype=float)
@@ -123,55 +122,21 @@ def generate_capacities(sumreq, numCenters, factor=1.1, power=1.2):
     return capacities.tolist()
 
 
-def solve_h(d, req):
-    """Find decreasing inventory costs satisfying the original calibration."""
+def solve_h(d, cap, k=0.33):
+    """Find decreasing inventory costs w.r.t. distances.
+    d: array of distances
+    cap: array of capacities
+    k: control param, the higher the further from mirror linear
+    Returns
+    -------
+    h: array of unit handling costs
+    """
     d = np.asarray(d, dtype=float)
-    req = np.asarray(req, dtype=float)
-    if d.ndim != 1 or d.shape != req.shape:
+    cap = np.asarray(cap, dtype=float)
+    if d.ndim != 1 or d.shape != cap.shape:
         raise ValueError("d and req must be 1-D arrays of equal length.")
-    if np.any(d <= 0) or np.any(req <= 0):
-        raise ValueError("d and req must be positive.")
-    order = np.argsort(d, kind="stable")
-    ds, rs = d[order], req[order]
-    n = len(ds)
-    h_min = ds[0] / rs[0]
-    target_mean = d.mean()
-    if n == 1:
-        return np.array([h_min])
-    w = rs
-    inv_d = 1.0 / ds
-    lower = h_min * w.mean()
-    if target_mean < lower * (1 - 1e-12):
-        raise ValueError(
-            f"Infeasible: mean(d) = {target_mean:.6g} is below "
-            f"h_min * mean(req) = {lower:.6g}."
-        )
-
-    def objective(x):
-        r = x[:n] - x[n] * inv_d
-        return r @ r, np.r_[2 * r, -2 * (r @ inv_d)]
-
-    A_eq = np.zeros((2, n + 1))
-    A_eq[0, :n] = w / n
-    A_eq[1, n - 1] = 1.0
-    b_eq = np.array([target_mean, h_min])
-    A_mono = np.zeros((n - 1, n + 1))
-    idx = np.arange(n - 1)
-    A_mono[idx, idx] = 1.0
-    A_mono[idx, idx + 1] = -1.0
-    constraints = [
-        LinearConstraint(A_eq, b_eq, b_eq),
-        LinearConstraint(A_mono, 0.0, np.inf),
-    ]
-    alpha0 = h_min * ds[-1]
-    x0 = np.r_[alpha0 * inv_d, alpha0]
-    result = minimize(
-        objective, x0, jac=True, method="SLSQP",
-        bounds=[(0.0, None)] * (n + 1), constraints=constraints,
-        options={"ftol": 1e-12, "maxiter": 2000},
-    )
-    if not result.success:
-        raise RuntimeError(f"Optimization failed: {result.message}")
-    h = np.empty(n)
-    h[order] = result.x[:n]
+    if np.any(d <= 0) or np.any(cap <= 0) or (k<=0):
+        raise ValueError("d, k and req must be positive.")
+    D = d.mean()
+    h = (D - k * (d - D)) / cap
     return h
