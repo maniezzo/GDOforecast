@@ -140,6 +140,7 @@ def go_ets_saa(history, cost, cap, h, bind, numscen, numCustomers, seed, test, m
    n  = numCustomers
    m  = len(cap)
    ns = numscen
+   
    '''
    Fits one ETS model per store.
    Extracts the predictive mean and standard deviation for month \(T+3\), not the sum of the next three months.

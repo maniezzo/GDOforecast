@@ -1,7 +1,7 @@
 {
   "seed": 666,
   "numscen": 75,
-  "numCustomers": 100,
+  "numCustomers": 50,
   "commentC": "52 for use case",
   "numCenters": 4,
   "commentCn": "4 in the use case",
@@ -20,6 +20,6 @@
   "commentG": "parametro gamma del BESO",
   "maxt": 900,
   "commentT": "max solver CPU time, in seconds",
-  "isUseCase": true,
+  "isUseCase": false,
   "commentU": "true: caso d'uso, false: istanze artificiali"
 }

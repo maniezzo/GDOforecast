@@ -1,5 +1,4 @@
 """Generate ETS request scenarios rho for the WEK Wasserstein model.
-
 Rows of rho are equally weighted joint scenarios; columns are customers.
 Artificial customers are sampled with replacement from source dataframe
 columns. Each ETS forecast targets month 48, three steps after the 45-month
@@ -8,61 +7,52 @@ training history.
 
 import numpy as np
 import pandas as pd
-from scipy.stats import norm
-from scipy.optimize import minimize, LinearConstraint
 from statsmodels.tsa.exponential_smoothing.ets import ETSModel
-
+from scipy.stats import norm
 
 def generate_artificial(
-    numCustomers, numCenters, numscen, *, demand_scale=1.0, seed=995,
+    numCustomers, numCenters, numscen, demand_scale=1.0, seed=995,
     costs_path="costs.csv", capacities_factor=1.1, capacities_power=1.1,
 ):
-    """Return ``rho, c, h, Q, test_values`` for one generated instance.
-
-    ``rho`` has shape (numscen, numCustomers); ``c`` has shape
-    (numCenters, numCustomers); ``h`` and ``Q`` have shape (numCenters,);
-    ``test_values`` contains each sampled customer's observed row-48 value.
-    Fixed assignment costs ``c`` are read from ``costs_path``. Capacities
-    ``Q`` and unit storage costs ``h`` are recalculated from this generation's
-    point forecasts and distance submatrix.
-    """
     name = "dataframe_nocovid_full"
     dfseries = pd.read_csv(f"../data/{name}.csv", usecols=range(1, 53))
-    history, test_values = sample_customer_series(
+    history, trueVal = sample_customer_series(
         dfseries, n_new_cols=numCustomers, random_state=seed
     )
-    rho, _, ets_info = ets_saa_scenarios(
+
+    # Distances: rows are customers, columns are centers.
+    dist = pd.read_csv("../matrice0.csv", header=None).values
+    dist = dist[numCenters:numCenters + numCustomers, :numCenters]
+
+    # Each column is one customer's ETS predictive scenarios. The point
+    # forecast (ETS predictive mean) is used to size capacities and costs.
+    scenarios, p, ets_info = ets_saa_scenarios(
         history.to_numpy(), n_scenarios=numscen, horizon=3,
-        demand_scale=demand_scale, trend="add", damped_trend=True,
+        demand_scale=1.0, trend="add", damped_trend=True,
         seasonal_periods=12, seed=seed,
     )
+    fcast = [scenarios[:, i].copy() for i in range(numCustomers)]
+    req = np.ceil(ets_info["mean"]).astype(int).tolist()
 
-    c_all = pd.read_csv(costs_path).to_numpy(dtype=float)
-    if (c_all.ndim != 2 or c_all.shape[0] < numCenters
-            or c_all.shape[1] < numCustomers):
-        raise ValueError(
-            f"Cost matrix must have at least {numCenters} center rows and "
-            f"{numCustomers} customer columns."
-        )
-    c = c_all[:numCenters, :numCustomers].copy()
+    print("Defining servers' capacities and costs ...")
+    cap = generate_capacities(sum(req), numCenters, factor=1.1, power=1.1)
+    cap = cap[::-1]
+    print(f"Capacities {cap}")
 
-    # Preserve the original artificial-instance construction: capacities
-    # are based on total point-forecast demand, while h uses nearest-center
-    # distances and those capacities.
-    point_req = np.ceil(ets_info["mean"] * demand_scale).astype(int)
-    Q = np.asarray(generate_capacities(
-        point_req.sum(), numCenters,
-        factor=capacities_factor, power=capacities_power,
-    )[::-1], dtype=float)
-    dist_all = pd.read_csv("../matrice0.csv", header=None).to_numpy(dtype=float)
-    dist = dist_all[numCenters:numCenters + numCustomers, :numCenters]
-    if dist.shape != (numCustomers, numCenters):
-        raise ValueError("Distance matrix dimensions do not match customers and centers.")
-    h = solve_h(np.min(dist, axis=0), Q)
-    return rho, c, h, Q, test_values
+    h = solve_h(np.min(dist, axis=0), cap, k=0.33).flatten()
+    print(f"Inventory costs {h}")
+
+    # Equal scenario weights: objective-aware reweighting is not applied here.
+    pOA = np.full(numscen, 1.0 / numscen)
+    return history, fcast, h, pOA, dist, cap, trueVal
 
 def sample_customer_series(df, n_new_cols, random_state=None):
-    """Sample columns with replacement; return 45 training rows and row-48 truth."""
+    """Sample columns with replacement; return 45 training rows and row-48 truth.
+
+    The first 45 rows are the training histories. Row 48 (index 47) is
+    retained as the observed value for evaluation, matching the source data
+    convention used by the original generator.
+    """
     if df.shape[0] < 48:
         raise ValueError("Expected at least 48 monthly observations in the source dataframe.")
     rng = np.random.default_rng(random_state)
@@ -126,69 +116,29 @@ def ets_saa_scenarios(history, n_scenarios, horizon=3, *, demand_scale=1.0,
     probabilities = np.full(n_scenarios, 1.0 / n_scenarios)
     return scenarios, probabilities, {"mean": means, "std": stds}
 
-
-
-
+# capacita': esponenziali con somma data (factor*somma richieste)
 def generate_capacities(sumreq, numCenters, factor=1.1, power=1.2):
-    """Generate integer capacities with total approximately factor * sumreq."""
-    if numCenters < 1:
-        raise ValueError("numCenters must be positive.")
     target = round(factor * sumreq)
     weights = np.array([(i + 1) ** power for i in range(numCenters)], dtype=float)
     capacities = np.floor(target * weights / weights.sum()).astype(int)
     capacities[-1] += target - capacities.sum()
     return capacities.tolist()
 
-
-def solve_h(d, req):
-    """Reproduce the original decreasing storage-cost calibration."""
+def solve_h(d, cap, k=0.33):
+    """Find decreasing inventory costs w.r.t. distances.
+    d: array of distances
+    cap: array of capacities
+    k: control param, the higher the further from mirror linear
+    Returns
+    -------
+    h: array of unit handling costs
+    """
     d = np.asarray(d, dtype=float)
-    req = np.asarray(req, dtype=float)
-    if d.ndim != 1 or d.shape != req.shape:
+    cap = np.asarray(cap, dtype=float)
+    if d.ndim != 1 or d.shape != cap.shape:
         raise ValueError("d and req must be 1-D arrays of equal length.")
-    if np.any(d <= 0) or np.any(req <= 0):
-        raise ValueError("d and req must be positive.")
-    order = np.argsort(d, kind="stable")
-    ds, rs = d[order], req[order]
-    n = len(ds)
-    h_min = ds[0] / rs[0]
-    target_mean = d.mean()
-    if n == 1:
-        return np.array([h_min])
-    w = rs
-    inv_d = 1.0 / ds
-    lower = h_min * w.mean()
-    if target_mean < lower * (1 - 1e-12):
-        raise ValueError(
-            f"Infeasible: mean(d) = {target_mean:.6g} is below "
-            f"h_min * mean(req) = {lower:.6g}."
-        )
-
-    def objective(x):
-        residual = x[:n] - x[n] * inv_d
-        return residual @ residual, np.r_[2 * residual, -2 * (residual @ inv_d)]
-
-    A_eq = np.zeros((2, n + 1))
-    A_eq[0, :n] = w / n
-    A_eq[1, n - 1] = 1.0
-    b_eq = np.array([target_mean, h_min])
-    A_mono = np.zeros((n - 1, n + 1))
-    idx = np.arange(n - 1)
-    A_mono[idx, idx] = 1.0
-    A_mono[idx, idx + 1] = -1.0
-    constraints = [
-        LinearConstraint(A_eq, b_eq, b_eq),
-        LinearConstraint(A_mono, 0.0, np.inf),
-    ]
-    alpha0 = h_min * ds[-1]
-    x0 = np.r_[alpha0 * inv_d, alpha0]
-    result = minimize(
-        objective, x0, jac=True, method="SLSQP",
-        bounds=[(0.0, None)] * (n + 1), constraints=constraints,
-        options={"ftol": 1e-12, "maxiter": 2000},
-    )
-    if not result.success:
-        raise RuntimeError(f"Storage-cost optimization failed: {result.message}")
-    h = np.empty(n)
-    h[order] = result.x[:n]
+    if np.any(d <= 0) or np.any(cap <= 0) or (k<=0):
+        raise ValueError("d, k and req must be positive.")
+    D = d.mean()
+    h = (D - k * (d - D)) / cap
     return h

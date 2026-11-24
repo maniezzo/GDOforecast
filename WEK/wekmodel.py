@@ -1,6 +1,8 @@
+from ets_saa_scenarios import ets_saa_scenarios
 import numpy as np, pandas as pd
 import gurobipy as gp
 from gurobipy import GRB
+import sys,os,time
 
 def build_wek(
     rho, c, h, Q, b,
@@ -143,54 +145,132 @@ def check_test(assgn,cap,test):
    return loads, overload
 
 # un po' di postprocessing sui risultati
-def resultsKPI(cap,req,numscen, asgn):
-   cap = np.asarray(cap, dtype=float)
-   req = np.asarray(req, dtype=float)
-   # Rows: scenarios; columns: DCs.
-   loads = np.zeros((req.shape[0], len(cap)))
+def resultsKPI(name,cap, req, numscen, asgn, q, cost, h, trueVal, tol=1e-6):
+    cap = np.asarray(cap, dtype=float)
+    cost = np.asarray(cost, dtype=float)
+    h = np.asarray(h, dtype=float)
+    trueVal = np.asarray(trueVal, dtype=float)
 
-   for dc, j in asgn:
-      loads[:, dc] += req[:, j]
+    m = len(cap)
+    n = req.shape[1]
+    if len(trueVal) != n:
+        raise ValueError("trueVal must contain one request per customer")
 
-   peak_loads = loads.max(axis=0)
-   overloads = np.maximum(peak_loads - cap, 0.0)
+    # Loads in the model's scenarios
+    loads = np.zeros((numscen, m))
+    for i in range(m):
+        for j in range(n):
+            for s in range(numscen):
+                loads[s,i] += q[i,j,s].X
 
-   return peak_loads, overloads
+    peak_loads = loads.max(axis=0)
+    overloads = np.maximum(peak_loads - cap, 0.0)
 
-def go_wek(req, h, bind, numscen, numCustomers, seed, test):
+    for i in range(m):
+        print(
+            f"DC {i}: capacity={cap[i]:.2f}, "
+            f"peak delivery={peak_loads[i]:.2f}, "
+            f"overload={overloads[i]:.6f}"
+        )
+
+    # Cost and loads for the requests that actually occurred
+    assignment_cost = sum(cost[i, j] for i, j in asgn)
+    true_loads = np.zeros(m)
+    for i, j in asgn:
+        true_loads[i] += trueVal[j]
+
+    handling_cost = np.dot(h, true_loads)
+    true_cost = assignment_cost + handling_cost
+    true_overloads = np.maximum(true_loads - cap, 0.0)
+
+    print(
+        f"Realized cost: assignment={assignment_cost:.2f}, "
+        f"handling={handling_cost:.2f}, total={true_cost:.2f}"
+    )
+    for i in range(m):
+        print(
+            f"DC {i}: realized delivery={true_loads[i]:.2f}, "
+            f"realized overload={true_overloads[i]:.6f}"
+        )
+    return (
+        loads, peak_loads, overloads,
+        bool(np.all(overloads <= tol)),
+        true_loads, true_overloads,
+        assignment_cost, handling_cost, true_cost
+    )
+
+def go_wek(history, cost, cap, h, bind, numscen, numCustomers, seed, test, maxt):
    '''
+   history[t, j]: ORIGINAL monthly demand for store j.
    h:    costi di handling per ogni DC
    bind: INDICI dei client assegnabili a 2 DC
    '''
-   # legge i costi
-   dfcost = pd.read_csv("costs.csv")
-   cost = np.array(dfcost.values)
-   # legge le capacita
-   cap = pd.read_csv("capacities.csv", header=None).values.flatten()
    b = np.ones(numCustomers)
    for i in range(len(bind)): b[bind[i]] += 1
-   # legge le richieste di ogni scenario
-   # req = pd.read_csv(f"../boostset/req{numscen}.csv", header=None)
+
+   # these are just shorthands
+   n  = numCustomers
+   m  = len(cap)
+   ns = numscen
+
+   '''
+   Fits one ETS model per store.
+   Extracts the predictive mean and standard deviation for month \(T+3\), not the sum of the next three months.
+   Generates normal draws, without resampling historical observations or residuals.
+   Converts demand to your optimization units, sets negative draws to zero, and rounds up.
+   Returns rho[s, j] and uniform probabilities \(p_s=1/N\).
+   '''
+   tstart = time.process_time()
+   print("Building ets SCENARIOS ...")
+   rho, p, info = ets_saa_scenarios(
+      history,
+      n_scenarios=numscen,
+      horizon=3,
+      demand_scale=1,
+      trend="add",
+      damped_trend=True,
+      seasonal_periods=12,   # annual seasonality in monthly data
+      seed=seed,
+   )
+   tscen = time.process_time() - tstart # time for scenario preparation
+
    wasserstein_radius = 1.0
-   
    model, x, q, eps, lam, eta, D = build_wek(
-      rho=req,
-      c=cost,
+      rho=rho,
+      c=cost.T,
       h=h,
       Q=cap,
       b=b,
       radius=wasserstein_radius
    )
-   
-   model.Params.MIPGap = 0.001
+
+   # --- Bias strongly toward finding feasible solutions early ---
+   model.Params.MIPFocus = 1  # Primary feasibility focus
+   model.Params.NoRelHeurTime = 10  # Up to 10 sec for pre-root NoRel heuristic
+   # model.Params.Heuristics = 0.5  # Spend 50% of effort on primal heuristics
+
+   # --- Strengthen neighborhood‑search heuristics ---
+   model.Params.SubMIPNodes = 2000  # Let RINS explore larger neighborhoods
+   model.Params.PumpPasses = 10  # More feasibility‑pump passes
+
+   model.Params.TimeLimit = maxt  # or model.setParam('TimeLimit', 900), in seconds
+   model.Params.MIPGap = 0.0001  # 0.01% relative optimality gap
    model.optimize()
+   twek = time.process_time() - tscen
    
    if model.SolCount > 0:
+      status = "opt" if model.Status==2 else "heu"
       assignments = [(i, j) for i, j in x if x[i, j].X > 0.5]
       worst_recourse_bound = ( wasserstein_radius * lam.X+ sum(eta[s].X for s in eta) / len(eta) )
-      peak_loads, _ = resultsKPI(cap,req,numscen,assignments)
+      _, peak_loads, overloads, indover, true_loads, true_overloads, assignment_cost, handling_cost, true_cost = resultsKPI("WEK",cap,rho,numscen,assignments,q,cost.T,h,test)
+      with open("../results.csv", "a") as f:
+         f.write(f"WEK,n,{n},m,{m},ns,{ns}, status {status}, tscen,{tscen:.2f},tetssaa,{twek:.2f},"
+                 f"assgn,{assignment_cost:.2f},"
+                 f"hndl,{handling_cost:.2f},"
+                 f"tot,{true_cost:.2f},"
+                 f"overloads,{overloads},"
+                 f"true overloads,{true_overloads}\n")
       loads,overloads = check_test(assignments,cap,test)
-
 
       print(f"n.rows {model.NumConstrs} n.cols {model.NumVars} n.non0 {model.NumNZs}")
       print(f"Objective: {model.ObjVal:.3f} t.cpu {model.Runtime:.3f}")

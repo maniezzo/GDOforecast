@@ -43,7 +43,7 @@ if __name__ == '__main__':
          go_ets_saa(history, cost, cap, h, b, numscen, numCustomers, seed, test, maxt)
       else:
          print("Non use case")
-         history,req,h,p_OA,cost,cap,test = go_artificial(numCustomers,numCenters,numscen)
+         history,req,h,p_OA,cost,cap,test = go_artificial(numCustomers,numCenters,numscen,seed)
          go_ets_saa(history, cost.T, cap, h, b, numscen, numCustomers, seed, test, maxt)
       seed += 3
 

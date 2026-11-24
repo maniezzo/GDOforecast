@@ -9,11 +9,11 @@ import pandas as pd
 from statsmodels.tsa.exponential_smoothing.ets import ETSModel
 from scipy.stats import norm
 
-def go_artificial(numCustomers, numCenters, numscen):
+def go_artificial(numCustomers, numCenters, numscen, seed):
     name = "dataframe_nocovid_full"
     dfseries = pd.read_csv(f"../data/{name}.csv", usecols=range(1, 53))
     history, trueVal = sample_customer_series(
-        dfseries, n_new_cols=numCustomers, random_state=995
+        dfseries, n_new_cols=numCustomers, random_state=seed
     )
 
     # Distances: rows are customers, columns are centers.
@@ -25,7 +25,7 @@ def go_artificial(numCustomers, numCenters, numscen):
     scenarios, p, ets_info = ets_saa_scenarios(
         history.to_numpy(), n_scenarios=numscen, horizon=3,
         demand_scale=1.0, trend="add", damped_trend=True,
-        seasonal_periods=12, seed=995,
+        seasonal_periods=12, seed=seed,
     )
     fcast = [scenarios[:, i].copy() for i in range(numCustomers)]
     req = np.ceil(ets_info["mean"]).astype(int).tolist()
@@ -61,7 +61,7 @@ def sample_customer_series(df, n_new_cols, random_state=None):
     return history, trueval
 
 
-def ets_saa_scenarios(history, n_scenarios, horizon=3, *, demand_scale=1.0,
+def ets_saa_scenarios(history, n_scenarios, horizon=3, demand_scale=1.0,
                       trend="add", damped_trend=True, seasonal_periods=12,
                       alpha=0.05, seed=995):
     """Fit one additive ETS model per customer and draw endpoint scenarios.
