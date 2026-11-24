@@ -38,6 +38,8 @@ if __name__ == '__main__':
          # legge i costi
          dfcost = pd.read_csv("costs.csv")
          cost = np.array(dfcost.values)
+         numCustomers = history.shape[1]
+         numCenters   = len(cap)
          go_ets_saa(history, cost, cap, h, b, numscen, numCustomers, seed, test, maxt)
       else:
          print("Non use case")
