@@ -1,5 +1,4 @@
 import numpy as np, pandas as pd
-import matplotlib.pyplot as plt
 import json,random
 from etsmodels import go_ets_saa
 from generateArtificial_ets import go_artificial

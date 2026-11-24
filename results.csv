@@ -50,3 +50,15 @@ ETSSAA,n,100,m,4,ns,75, status opt, tscen,9.34,tetssaa,738.31,assgn,123325.00,hn
 ETSDET,n,100,m,4,tetsdet,85.64,assgn,121849.00,hndl,808.82,tot,122657.82,overloads,[0. 0. 0. 0.],true,[0. 4. 0. 0.]
 ncust,100,ncent,4,nscen,75,b,[],gamma,1,maxt,900--
 ncust,100,ncent,4,nscen,75,b,[],gamma,1,maxt,900--
+ncust,20,ncent,3,nscen,75,b,[],gamma,1,maxt,900--
+ncust,20,ncent,3,nscen,75,b,[],gamma,1,maxt,900--
+ncust,20,ncent,3,nscen,75,b,[],gamma,1,maxt,900--
+ncust,20,ncent,3,nscen,75,b,[],gamma,1,maxt,900--
+ncust,20,ncent,3,nscen,75,b,[],gamma,1,maxt,900--
+ncust,20,ncent,3,nscen,75,b,[],gamma,1,maxt,900--
+WEK,n,20,m,3,ns,75, status opt, tscen,0.23,tetssaa,161.83,assgn,26501.00,hndl,1110.13,tot,27611.13,overloads,[0. 5. 0.],true overloads,[0. 5. 0.]
+ncust,20,ncent,3,nscen,75,b,[],gamma,1,maxt,900--
+ncust,20,ncent,3,nscen,75,b,[],gamma,1,maxt,900--
+ncust,20,ncent,3,nscen,75,b,[],gamma,1,maxt,900--
+ncust,20,ncent,3,nscen,75,b,[],gamma,1,maxt,900--
+WEK,n,52,m,4,ns,75, status opt, tscen,0.75,tetssaa,179.58,assgn,15772.00,hndl,4590.00,tot,20362.00,overloads,[0. 0. 0. 0.],true overloads,[0. 0. 0. 0.]

@@ -174,104 +174,29 @@ def solve_transportation(costs, requests, capacities):
 
     return allocation, total_cost
 
-# genera le capacità dei centri, somma = factor * somma richieste
+# capacita': esponenziali con somma data (factor*somma richieste)
 def generate_capacities(sumreq, numCenters, factor=1.1, power=1.2):
-   """
-   Generate integer capacities whose sum is approximately
-   factor * sumreq and that grow superlinearly with the index.
-   Parameters
-      sumreq : int       Total demand.
-      numCenters : int   Number of stores/centers.
-      factor : float     Desired ratio total_capacity / total_demand.
-      power : float (>1) Controls how fast capacities increase
-   Returns
-      capacities : list[int]
-   """
-   target = round(factor * sumreq)
-   
-   # Superlinear weights
-   weights = np.array([(i + 1) ** power for i in range(numCenters)], dtype=float)
-   
-   # Scale to target total
-   capacities = np.floor(target * weights / weights.sum()).astype(int)
-   
-   # Fix rounding error
-   diff = target - capacities.sum()
-   capacities[-1] += diff
-   
-   return capacities.tolist()
+    target = round(factor * sumreq)
+    weights = np.array([(i + 1) ** power for i in range(numCenters)], dtype=float)
+    capacities = np.floor(target * weights / weights.sum()).astype(int)
+    capacities[-1] += target - capacities.sum()
+    return capacities.tolist()
 
-# calcolo costi h di magazzino
-def solve_h(d, req):
-   """
-   Returns h such that:
-     - h is nonincreasing as d increases
-     - mean(h * req) == mean(d)
-     - min(h) == min(d) / req[argmin(d)]
-     - h is as close as possible (least squares) to alpha / d for some alpha
-   """
-   d = np.asarray(d, dtype=float)
-   req = np.asarray(req, dtype=float)
-   
-   if d.ndim != 1 or d.shape != req.shape:
-      raise ValueError("d and req must be 1-D arrays of equal length.")
-   if np.any(d <= 0) or np.any(req <= 0):
-      raise ValueError("d and req must be positive.")
-   
-   order = np.argsort(d, kind="stable")
-   ds, rs = d[order], req[order]
-   n = len(ds)
-   
-   h_min = ds[0] / rs[0]
-   target_mean = d.mean()
-   
-   if n == 1:
-      return np.array([h_min])
-   
-   w = rs  # weights in mean(h * req)
-   inv_d = 1.0 / ds
-   
-   lower = h_min * w.mean()
-   if target_mean < lower * (1 - 1e-12):
-      raise ValueError(
-         f"Infeasible: mean(d) = {target_mean:.6g} is below "
-         f"h_min * mean(req) = {lower:.6g}."
-      )
-   
-   # Variables x = [h_0, ..., h_{n-1}, alpha]
-   def objective(x):
-      r = x[:n] - x[n] * inv_d
-      return r @ r, np.r_[2 * r, -2 * (r @ inv_d)]
-   
-   # Equalities: mean(h*req) = mean(d), h[n-1] = h_min
-   A_eq = np.zeros((2, n + 1))
-   A_eq[0, :n] = w / n
-   A_eq[1, n - 1] = 1.0
-   b_eq = np.array([target_mean, h_min])
-   
-   # Monotonicity: h[i] - h[i+1] >= 0
-   A_mono = np.zeros((n - 1, n + 1))
-   idx = np.arange(n - 1)
-   A_mono[idx, idx] = 1.0
-   A_mono[idx, idx + 1] = -1.0
-   
-   constraints = [
-      LinearConstraint(A_eq, b_eq, b_eq),
-      LinearConstraint(A_mono, 0.0, np.inf),
-   ]
-   
-   alpha0 = h_min * ds[-1]
-   x0 = np.r_[alpha0 * inv_d, alpha0]
-   
-   result = minimize(
-      objective, x0, jac=True, method="SLSQP",
-      bounds=[(0.0, None)] * (n + 1),
-      constraints=constraints,
-      options={"ftol": 1e-12, "maxiter": 2000},
-   )
-   if not result.success:
-      raise RuntimeError(f"Optimization failed: {result.message}")
-   
-   h = np.empty(n)
-   h[order] = result.x[:n]
-   return h
+def solve_h(d, cap, k=0.33):
+    """Find decreasing inventory costs w.r.t. distances.
+    d: array of distances
+    cap: array of capacities
+    k: control param, the higher the further from mirror linear
+    Returns
+    -------
+    h: array of unit handling costs
+    """
+    d = np.asarray(d, dtype=float)
+    cap = np.asarray(cap, dtype=float)
+    if d.ndim != 1 or d.shape != cap.shape:
+        raise ValueError("d and req must be 1-D arrays of equal length.")
+    if np.any(d <= 0) or np.any(cap <= 0) or (k<=0):
+        raise ValueError("d, k and req must be positive.")
+    D = d.mean()
+    h = (D - k * (d - D)) / cap
+    return h
