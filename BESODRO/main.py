@@ -1,36 +1,19 @@
 import pandas as pd, numpy as np
 import json, random
-from dromodel import go_dro
+from transportation import compute_transport
+from MEBbootstrap import meboot
+from BESOdroModel import go_BESOdro, oa_probabilities
 from generateArtificial import go_artificial
 
-# calcolo oa probabilities per lo use case reale
-def oa_probabilities(g, gamma=1, a=None):
-    """calcola objective-aware probabilities p^OA_s"""
-    g = np.asarray(g, dtype=float)
-    if g.ndim != 1 or g.size == 0 or not np.all(np.isfinite(g)):
-        raise ValueError("g must be a nonempty vector of finite scores.")
-    if not np.isfinite(gamma):
-        raise ValueError("gamma must be finite.")
-
-    if a is None:
-        a = np.ones(g.size)  # Uniform baseline; normalization cancels
-    else:
-        a = np.asarray(a, dtype=float)
-        if (a.shape != g.shape or not np.all(np.isfinite(a))
-                or np.any(a < 0) or not np.any(a > 0)):
-            raise ValueError("a must match g, be nonnegative, and have positive mass.")
-
-    sd = g.std(ddof=0)
-    g_scaled = (g - g.mean()) / sd if sd > 0 else np.zeros_like(g)
-
-    # Compute in log space to avoid exponential overflow.
-    positive = a > 0
-    log_weights = np.log(a[positive]) + gamma * g_scaled[positive]
-    weights = np.exp(log_weights - log_weights.max())
-
-    p = np.zeros_like(g)
-    p[positive] = weights / weights.sum()
-    return p
+# definizione del bootset via MEB bootstrapping
+def compute_boostset(df,numscen=125):
+   for i in range(len(df.columns)):
+      y = df.iloc[:,i].values
+      rng = np.random.default_rng(seed)
+      B = meboot(y, reps=numscen, trim=0.10, rng=rng)
+      B.round(decimals=0, out=B)
+      np.savetxt(f"../boostset/boost{i}.csv", B.T, delimiter=",", fmt="%.0f")
+   return
 
 # BESO-DRO
 if __name__ == '__main__':
@@ -43,6 +26,7 @@ if __name__ == '__main__':
    seed      = conf["seed"]
    isUseCase = conf["isUseCase"]
    numRep    = conf["numRep"]
+   maxt      = conf["maxt"] # max solver CPU time
    b = conf["b"]  # num centri che servono
    h = conf["h"]  # handling cost
    m = conf["m"]  # num distribuzioni
@@ -50,26 +34,39 @@ if __name__ == '__main__':
    gamma   = conf["gamma"] # risk-avertness del decisore
    np.random.seed(seed)
    random.seed(seed)
-   
+
+   with open("../results.csv", "a") as f:
+      f.write(f"ncust,{numCustomers},ncent,{numCenters},nscen,{numscen},"
+              f"b,{b},gamma,{gamma},maxt,{maxt}--\n")
+
    name = "dataframe_nocovid_full"
    df = pd.read_csv(f"../data/{name}.csv", usecols=[i for i in range(1, 53)])
    test = df.iloc[-1, :].values
    print(f"Boost forecasting {name}")
    
-   if(isUseCase):
-      gs  = np.loadtxt(f"transpCosts{numscen}.csv", delimiter=",")
-      pOA = oa_probabilities(gs)
-      req = np.loadtxt(f"../boostset/req{numscen}.csv", delimiter=",")
-      cap = pd.read_csv("capacities.csv", header=None).values.flatten()
-      # legge i costi
-      dfcost = pd.read_csv("costs.csv")
-      dist = np.array(dfcost.values)
-      # legge le richieste di ogni scenario
-      req = pd.read_csv(f"../boostset/req{numscen}.csv", header=None)
-      go_dro(req,pOA,h,b,dist,cap,m,d,numscen, numCustomers, seed, test)
-   else:
-      boots,req,h,pOA,dist,cap = go_artificial(numCustomers,numCenters,numscen)
-      go_dro(np.array(req).T,pOA,h,b,dist.T,cap,m,d,numscen, numCustomers, seed, test)
+   for irep in range(numRep):
+      # inizio costruendomi il boostset (su disco, uguale a parità di seed)
+      compute_boostset(df, numscen=numscen)
+   
+      if(isUseCase):
+         req, gs = compute_transport(numscen)
+         print("transportation costs:", gs)
+         pOA = oa_probabilities(gs,gamma)
+         req = np.loadtxt(f"../boostset/req{numscen}.csv", delimiter=",")
+         # legge le capacita
+         cap = pd.read_csv("capacities.csv", header=None).values.flatten()
+         # legge i costi
+         dfcost = pd.read_csv("costs.csv")
+         dist = np.array(dfcost.values)
+         # legge le richieste di ogni scenario
+         numCustomers = req.shape[1]
+         numCenters   = len(cap)
+         go_BESOdro(req, pOA, h, b, dist, cap, m, d, numscen, numCustomers, seed, test, maxt)
+      else:
+         print("Non use case")
+         boots,history,h,pOA,cost,cap,testBoost,test = go_artificial(numCustomers,numCenters,numscen,seed)
+         go_BESOdro(np.array(history).T, pOA, h, b, cost.T, cap, m, d, numscen, numCustomers, seed, test, maxt)
+      seed += 3
 
    print('Fine')
 

@@ -1,13 +1,14 @@
 {
-   "seed"     : 995,
+   "seed"     : 666,
    "numscen"  : 75,
-   "numCustomers" : 52, "commentC": "52 for use case",
-   "numCenters"   : 4,  "commentCn": "4 in the use case",
-   "numRep"   : 5, "commentR": "numero ripetizioni per istanza",
-   "isUseCase": false, "commentU": "true caso d'uso, false istanze artificiali",
+   "numCustomers" : 20, "commentC": "52 for use case",
+   "numCenters"   : 3,  "commentCn": "4 in the use case",
+   "numRep"   : 1, "commentR": "numero ripetizioni per istanza",
    "b"        : [], "commentB" : "indici client assegnabili a 2 DC, [] per nessuno",
    "h"        : [0,10,0,0],  "commentD" : "handling cost dei vari DC",
-   "m"        : 100, "commentm" : "see formulation, num distributions",
-   "d"        : 50, "commentd" : "see formulation, num draws",
-   "gamma"    : 1, "commentG" : "risk-avertness del decisore"
+   "m"        : 100,   "commentm" : "see formulation, num distributions",
+   "d"        : 25,    "commentd" : "see formulation, num draws",
+   "gamma"    : 1,     "commentG" : "risk-avertness del decisore",
+   "maxt"     : 900,   "commentT": "max solver CPU time, in seconds",
+   "isUseCase": true,  "commentU": "true caso d'uso, false istanze artificiali"
 }

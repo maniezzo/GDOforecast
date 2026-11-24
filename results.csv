@@ -62,3 +62,14 @@ ncust,20,ncent,3,nscen,75,b,[],gamma,1,maxt,900--
 ncust,20,ncent,3,nscen,75,b,[],gamma,1,maxt,900--
 ncust,20,ncent,3,nscen,75,b,[],gamma,1,maxt,900--
 WEK,n,52,m,4,ns,75, status opt, tscen,0.75,tetssaa,179.58,assgn,15772.00,hndl,4590.00,tot,20362.00,overloads,[0. 0. 0. 0.],true overloads,[0. 0. 0. 0.]
+ncust,20,ncent,3,nscen,75,b,[],gamma,1,maxt,900--
+ncust,20,ncent,3,nscen,75,b,[],gamma,1,maxt,900--
+ncust,20,ncent,3,nscen,75,b,[],gamma,1,maxt,900--
+ncust,20,ncent,3,nscen,75,b,[],gamma,1,maxt,900--
+ncust,20,ncent,3,nscen,75,b,[],gamma,1,maxt,900--
+WEK,n,20,m,3,ns,75, status opt, tscen,0.20,tetssaa,112.66,assgn,26793.00,hndl,1108.00,tot,27901.00,overloads,[0. 2. 0.],true overloads,[0. 2. 0.]
+ncust,20,ncent,3,nscen,75,b,[],gamma,1,maxt,900--
+ncust,20,ncent,3,nscen,75,b,[],gamma,1,maxt,900--
+WEK,n,52,m,4,ns,75, status opt, tscen,0.75,tetssaa,142.91,assgn,15724.00,hndl,4590.00,tot,20314.00,overloads,[0. 0. 0. 0.],true overloads,[0. 0. 0. 0.]
+ncust,20,ncent,3,nscen,75,b,[],gamma,1,maxt,900--
+BESO DRO,n,52,m,4,ns,75, status opt, tscen,0.62,tetssaa,137.80,assgn,15724.00,hndl,4590.00,tot,20314.00,overloads,[0. 0. 0. 0.],true overloads,[0. 0. 0. 0.]

@@ -240,7 +240,7 @@ def go_besosaa(req, cap, p_OA, h, bind, cost, numscen, numCustomers, seed, test,
       _, peak_loads, overloads, indover, true_loads, true_overloads, assignment_cost, handling_cost, true_cost = resultsKPI("BESO SAA",cap,req,numscen,assignments,q,cost.T,h,test)
       loads,overloads = check_test(assignments,cap,test)
       with open("../results.csv", "a") as f:
-         f.write(f"WEK,n,{n},m,{m},ns,{ns}, status {status}, tscen,{tscen:.2f},tetssaa,{tbsaa:.2f},"
+         f.write(f"BESO SAA,n,{n},m,{m},ns,{ns}, status {status}, tscen,{tscen:.2f},tetssaa,{tbsaa:.2f},"
                  f"assgn,{assignment_cost:.2f},"
                  f"hndl,{handling_cost:.2f},"
                  f"tot,{true_cost:.2f},"

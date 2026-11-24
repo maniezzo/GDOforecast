@@ -1,6 +1,7 @@
 import numpy as np, pandas as pd
 import gurobipy as gp
 from gurobipy import GRB
+import sys,os,time
 
 def build_beso_dro( rho, p_OA, c, h, Q, b, m, d, M=9999999, seed=None, fixed_x=None ):
     """
@@ -166,20 +167,90 @@ def build_beso_dro( rho, p_OA, c, h, Q, b, m, d, M=9999999, seed=None, fixed_x=N
 
     return model, x, q, eps, z, w
 
+# calcolo objective-aware probs
+def oa_probabilities(g, gamma, a=None):
+   """calcola objective-aware probabilities p^OA_s"""
+   g = np.asarray(g, dtype=float)
+   if g.ndim != 1 or g.size == 0 or not np.all(np.isfinite(g)):
+      raise ValueError("g must be a nonempty vector of finite scores.")
+   if not np.isfinite(gamma):
+      raise ValueError("gamma must be finite.")
+
+   if a is None:
+      a = np.ones(g.size)  # Uniform baseline; normalization cancels
+   else:
+      a = np.asarray(a, dtype=float)
+      if (a.shape != g.shape or not np.all(np.isfinite(a))
+              or np.any(a < 0) or not np.any(a > 0)):
+         raise ValueError("a must match g, be nonnegative, and have positive mass")
+
+   sd = g.std(ddof=0)
+   g_scaled = (g - g.mean()) / sd if sd > 0 else np.zeros_like(g)
+
+   # log space to avoid exponential overflow
+   positive = a > 0
+   log_weights = np.log(a[positive]) + gamma * g_scaled[positive]
+   weights = np.exp(log_weights - log_weights.max())
+
+   p = np.zeros_like(g)
+   p[positive] = weights / weights.sum()
+   return p
+
+
 # un po' di postprocessing sui risultati
-def resultsKPI(cap,req,numscen, asgn):
-   cap = np.asarray(cap, dtype=float)
-   req = np.asarray(req, dtype=float)
-   # Rows: scenarios; columns: DCs.
-   loads = np.zeros((req.shape[0], len(cap)))
+def resultsKPI(name,cap, req, numscen, asgn, q, cost, h, trueVal, tol=1e-6):
+    cap = np.asarray(cap, dtype=float)
+    cost = np.asarray(cost, dtype=float).T
+    h = np.asarray(h, dtype=float)
+    trueVal = np.asarray(trueVal, dtype=float)
 
-   for dc, j in asgn:
-      loads[:, dc] += req[:, j]
+    m = len(cap)
+    n = req.shape[1]
+    if len(trueVal) != n:
+        raise ValueError("trueVal must contain one request per customer")
 
-   peak_loads = loads.max(axis=0)
-   overloads = np.maximum(peak_loads - cap, 0.0)
+    # Loads in the model's scenarios
+    loads = np.zeros((numscen, m))
+    for i in range(m):
+        for j in range(n):
+            for s in range(numscen):
+                loads[s,i] += q[i,j,s].X
 
-   return peak_loads, overloads
+    peak_loads = loads.max(axis=0)
+    overloads = np.maximum(peak_loads - cap, 0.0)
+
+    for i in range(m):
+        print(
+            f"DC {i}: capacity={cap[i]:.2f}, "
+            f"peak delivery={peak_loads[i]:.2f}, "
+            f"overload={overloads[i]:.6f}"
+        )
+
+    # Cost and loads for the requests that actually occurred
+    assignment_cost = sum(cost[i,j] for i, j in asgn)
+    true_loads = np.zeros(m)
+    for i, j in asgn:
+        true_loads[i] += trueVal[j]
+
+    handling_cost = np.dot(h, true_loads)
+    true_cost = assignment_cost + handling_cost
+    true_overloads = np.maximum(true_loads - cap, 0.0)
+
+    print(
+        f"Realized cost: assignment={assignment_cost:.2f}, "
+        f"handling={handling_cost:.2f}, total={true_cost:.2f}"
+    )
+    for i in range(m):
+        print(
+            f"DC {i}: realized delivery={true_loads[i]:.2f}, "
+            f"realized overload={true_overloads[i]:.6f}"
+        )
+    return (
+        loads, peak_loads, overloads,
+        bool(np.all(overloads <= tol)),
+        true_loads, true_overloads,
+        assignment_cost, handling_cost, true_cost
+    )
 
 # controlla overload sui dati veri
 def check_test(assgn,cap,test):
@@ -194,7 +265,7 @@ def check_test(assgn,cap,test):
       if(loads[i] >= cap[i]): overload[i] = loads[i]-cap[i]
    return loads, overload
 
-def go_dro(req,p_OA,h,bind,cost,cap,m,d,numscen,numCustomers, seed, test):
+def go_BESOdro(req, p_OA, h, bind, cost, cap, m, d, numscen, numCustomers, seed, test, maxt):
     '''
     p_OA: vettore probabilita' objective aware
     h:    costi di handling per ogni DC
@@ -204,6 +275,12 @@ def go_dro(req,p_OA,h,bind,cost,cap,m,d,numscen,numCustomers, seed, test):
     b = np.ones(numCustomers)
     for i in range(len(bind)): b[bind[i]] += 1
     
+    # these are just shorthands
+    n = numCustomers
+    m = len(cap)
+    ns = numscen
+    
+    tstart = time.process_time()
     model, x, q, eps, z, w = build_beso_dro(
         rho=np.array(req),
         p_OA=p_OA,
@@ -215,21 +292,43 @@ def go_dro(req,p_OA,h,bind,cost,cap,m,d,numscen,numCustomers, seed, test):
         d=d,
         seed=seed
     )
+    tscen = time.process_time() - tstart  # time for scenario preparation
     
-    model.Params.MIPGap = 0.001
+    # --- Bias strongly toward finding feasible solutions early ---
+    model.Params.MIPFocus = 1  # Primary feasibility focus
+    model.Params.NoRelHeurTime = 10  # Up to 10 sec for pre-root NoRel heuristic
+    # model.Params.Heuristics = 0.5  # Spend 50% of effort on primal heuristics
+    
+    # --- Strengthen neighborhood‑search heuristics ---
+    model.Params.SubMIPNodes = 2000  # Let RINS explore larger neighborhoods
+    model.Params.PumpPasses = 10  # More feasibility‑pump passes
+    
+    model.Params.TimeLimit = 900  # or model.setParam('TimeLimit', 900), in seconds
+    model.Params.MIPGap = 0.0001  # 0.01% relative optimality gap
     model.optimize()
+    tbdro = time.process_time() - tscen
     
     if model.SolCount > 0:
-        assignments = [(i, j) for i, j in x if x[i, j].X > 0.5]
+        status = "opt" if model.Status == 2 else "heu"
+        assignments = [(i,j) for i,j in x if x[i,j].X > 0.5]
         print(f"n.rows {model.NumConstrs} n.cols {model.NumVars} n.non0 {model.NumNZs}")
         print(f"Objective: {model.ObjVal:.3f} t.cpu {model.Runtime:.3f}")
         print("Worst expected recourse bound:", z.X)
-        peak_loads, _ = resultsKPI(cap,req,numscen,assignments)
+        _, peak_loads, overloads, indover, true_loads, true_overloads, assignment_cost, handling_cost, true_cost = resultsKPI(
+            "BESO DRO", cap, req, numscen, assignments, q, cost.T, h, test)
         loads, overloads = check_test(assignments, cap, test)
-
+        with open("../results.csv", "a") as f:
+            f.write(f"BESO DRO,n,{n},m,{m},ns,{ns}, status {status}, tscen,{tscen:.2f},tetssaa,{tbdro:.2f},"
+                    f"assgn,{assignment_cost:.2f},"
+                    f"hndl,{handling_cost:.2f},"
+                    f"tot,{true_cost:.2f},"
+                    f"overloads,{overloads},"
+                    f"true overloads,{true_overloads}\n")
+        
+        print(f"n.rows {model.NumConstrs} n.cols {model.NumVars} n.non0 {model.NumNZs}")
+        print(f"Objective: {model.ObjVal:.3f} t.cpu {model.Runtime:.3f}")
         print("Peak loads:", peak_loads)
         print(f"True loads {loads} Overloads:, {overloads}")
-        #print(f"Assignments: {assignments}")
     else:
         print("No feasible solution found. Gurobi status:", model.Status)
     return
