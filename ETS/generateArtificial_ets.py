@@ -40,7 +40,7 @@ def go_artificial(numCustomers, numCenters, numscen):
 
     # Equal scenario weights: objective-aware reweighting is not applied here.
     pOA = np.full(numscen, 1.0 / numscen)
-    return scenarios, fcast, h, pOA, dist, cap, trueVal
+    return history, fcast, h, pOA, dist, cap, trueVal
 
 
 def sample_customer_series(df, n_new_cols, random_state=None):
@@ -76,15 +76,15 @@ def ets_saa_scenarios(history, n_scenarios, horizon=3, *, demand_scale=1.0,
         raise ValueError("history must be a finite, nonnegative (time x customer) array.")
     if n_scenarios < 1 or horizon < 1:
         raise ValueError("n_scenarios and horizon must be positive.")
-    T, n = y.shape
-    scale = np.broadcast_to(np.asarray(demand_scale, dtype=float), (n,))
+    tmax, numcli = y.shape # ultimo tempo disponibile nelle serie, numero di scenari
+    scale = np.broadcast_to(np.asarray(demand_scale, dtype=float), (numcli,))
     if not np.isfinite(scale).all() or (scale <= 0).any():
         raise ValueError("demand_scale must be finite and positive.")
 
-    means = np.empty(n)
-    stds = np.empty(n)
+    means = np.empty(numcli)
+    stds  = np.empty(numcli)
     zcrit = norm.ppf(1 - alpha / 2)
-    for j in range(n):
+    for j in range(numcli):
         print(f"ETS forecast for customer {j}")
         series = y[:, j]
         if np.ptp(series) == 0:
@@ -101,14 +101,14 @@ def ets_saa_scenarios(history, n_scenarios, horizon=3, *, demand_scale=1.0,
         if not fit.mle_retvals.get("converged", True):
             raise RuntimeError(f"ETS fit did not converge for customer {j}.")
         frame = fit.get_prediction(
-            start=T, end=T + horizon - 1, method="exact"
+            start=tmax, end=tmax + horizon - 1, method="exact"
         ).summary_frame(alpha=alpha)
         endpoint = frame.iloc[-1]
         means[j] = endpoint["mean"]
         stds[j] = (endpoint["pi_upper"] - endpoint["pi_lower"]) / (2 * zcrit)
 
     rng = np.random.default_rng(seed)
-    monthly = means + stds * rng.standard_normal((n_scenarios, n))
+    monthly = means + stds * rng.standard_normal((n_scenarios, numcli))
     scenarios = np.ceil(np.maximum(monthly, 0.0) * scale).astype(np.int64)
     probabilities = np.full(n_scenarios, 1.0 / n_scenarios)
     return scenarios, probabilities, {"mean": means, "std": stds}

@@ -20,6 +20,6 @@
   "commentG": "parametro gamma del BESO",
   "maxt": 900,
   "commentT": "max solver CPU time, in seconds",
-  "isUseCase": false,
+  "isUseCase": true,
   "commentU": "true: caso d'uso, false: istanze artificiali"
 }

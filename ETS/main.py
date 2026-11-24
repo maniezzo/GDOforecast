@@ -22,7 +22,7 @@ if __name__ == '__main__':
    random.seed(seed)
 
    with open("../results.csv", "a") as f:
-      f.write(f"ncust,{numCustomers},ncent,{numCenters},nscen,{numscen}"
+      f.write(f"ncust,{numCustomers},ncent,{numCenters},nscen,{numscen},"
               f"b,{b},gamma,{gamma},maxt,{maxt}--\n")
 
    name = "dataframe_nocovid_full"
@@ -32,15 +32,17 @@ if __name__ == '__main__':
 
    for irep in range(numRep):
       if(isUseCase):
-         req = np.array(df.iloc[:-3,:])
+         history = np.array(df.iloc[:-3,:])
+         # legge le capacita
+         cap = pd.read_csv("capacities.csv", header=None).values.flatten()
          # legge i costi
          dfcost = pd.read_csv("costs.csv")
          cost = np.array(dfcost.values)
-         go_ets_saa(req, cost, h, b, numscen, numCustomers, seed, test, maxt)
+         go_ets_saa(history, cost, cap, h, b, numscen, numCustomers, seed, test, maxt)
       else:
          print("Non use case")
-         _,req,h,p_OA,cost,cap,test = go_artificial(numCustomers,numCenters,numscen)
-         go_ets_saa(req, cost.T, h, b, numscen, numCustomers, seed, test, maxt)
+         history,req,h,p_OA,cost,cap,test = go_artificial(numCustomers,numCenters,numscen)
+         go_ets_saa(history, cost.T, cap, h, b, numscen, numCustomers, seed, test, maxt)
       seed += 3
 
    print('Fine')

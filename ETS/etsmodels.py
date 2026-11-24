@@ -10,7 +10,7 @@ def resultsKPI(name,cap, req, numscen, asgn, q, cost, h, trueVal, tol=1e-6):
     trueVal = np.asarray(trueVal, dtype=float)
 
     m = len(cap)
-    n = len(req)
+    n = req.shape[1]
     if len(trueVal) != n:
         raise ValueError("trueVal must contain one request per customer")
 
@@ -128,19 +128,17 @@ def deterministic_ets_sap(
     model.update()
     return model, x, q, req
 
-def go_ets_saa(req, cost, h, bind, numscen, numCustomers, seed, test, maxt):
+def go_ets_saa(history, cost, cap, h, bind, numscen, numCustomers, seed, test, maxt):
    # history[t, j]: ORIGINAL monthly demand for store j.
    # For use case: shape (45, 52), excluding the test months.
    # conversion_factor: the same monthly-demand-to-two-week-pallet
    # conversion used in BESO; scalar or one factor per store.
-   # legge le capacita
-   cap = pd.read_csv("capacities.csv", header=None).values.flatten()
    b = np.ones(numCustomers)
    for i in range(len(bind)): b[bind[i]] += 1
 
    # these are just shorthands
-   n = numCustomers
-   m = len(cap)
+   n  = numCustomers
+   m  = len(cap)
    ns = numscen
    '''
    Fits one ETS model per store.
@@ -152,7 +150,7 @@ def go_ets_saa(req, cost, h, bind, numscen, numCustomers, seed, test, maxt):
    tstart = time.process_time()
    print("Building ets SCENARIOS ...")
    rho, p, info = ets_saa_scenarios(
-      req,
+      history,
       n_scenarios=numscen,
       horizon=3,
       demand_scale=1,
@@ -199,7 +197,7 @@ def go_ets_saa(req, cost, h, bind, numscen, numCustomers, seed, test, maxt):
    if model.SolCount > 0:
       status = "opt" if model.Status==2 else "heu"
       assignments = [(i, j) for i, j in x if x[i, j].X > 0.5]
-      _, peak_loads, overloads, indover, true_loads, true_overloads, assignment_cost, handling_cost, true_cost = resultsKPI("ETSSAA",cap,req,numscen,assignments,q,cost,h,test)
+      _, peak_loads, overloads, indover, true_loads, true_overloads, assignment_cost, handling_cost, true_cost = resultsKPI("ETSSAA",cap,rho,numscen,assignments,q,cost,h,test)
       with open("../results.csv", "a") as f:
          f.write(f"ETSSAA,n,{n},m,{m},ns,{ns}, status {status}, tscen,{tscen:.2f},tetssaa,{tetssaa:.2f},"
                  f"assgn,{assignment_cost:.2f},"
@@ -243,11 +241,11 @@ def go_ets_saa(req, cost, h, bind, numscen, numCustomers, seed, test, maxt):
       # quantity = q[i, j, 0].X
       assignments = [(i, j) for i, j in x if x[i, j].X > 0.5]
       dc_loads = [
-         sum(q[i,j,0].X for j in range(len(req)))
+         sum(q[i,j,0].X for j in range(rho.shape[1]))
          for i in range(len(cap))
       ]
       loads,overloads = check_test(assignments,cap,test)
-      _, peak_loads, overloads, indover, true_loads, true_overloads, assignment_cost, handling_cost, true_cost = resultsKPI("ETSDET",cap,req,1,assignments,q,cost,h,test)
+      _, peak_loads, overloads, indover, true_loads, true_overloads, assignment_cost, handling_cost, true_cost = resultsKPI("ETSDET",cap,rho,1,assignments,q,cost,h,test)
       with open("../results.csv", "a") as f:
          f.write(f"ETSDET,n,{n},m,{m},tetsdet,{tetsdet:.2f},"
                  f"assgn,{assignment_cost:.2f},"

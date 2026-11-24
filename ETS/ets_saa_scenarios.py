@@ -39,7 +39,7 @@ def ets_saa_scenarios(
     """
     y = np.asarray(history, dtype=float)
     if y.ndim != 2 or y.shape[0] < 10 or y.shape[1] < 1:
-        raise ValueError("history must have shape (T, n), T >= 10, n >= 1.")
+        raise ValueError("history must have shape (maxt, numscen), maxt >= 10, numscen >= 1.")
     if not np.isfinite(y).all() or (y < 0).any():
         raise ValueError("history must contain finite nonnegative demand levels.")
     for name, value in [("n_scenarios", n_scenarios), ("horizon", horizon)]:
@@ -53,7 +53,7 @@ def ets_saa_scenarios(
         if (not isinstance(seasonal_periods, (int, np.integer))
                 or seasonal_periods < 2 or y.shape[0] < 2 * seasonal_periods):
             raise ValueError("Seasonality requires at least two complete cycles.")
-    numcli, numscen = y.shape
+    maxt, numcli = y.shape
     scale = np.broadcast_to(np.asarray(demand_scale, dtype=float), (numcli,))
     if not np.isfinite(scale).all() or (scale <= 0).any():
         raise ValueError("demand_scale must be finite and positive.")
@@ -61,8 +61,8 @@ def ets_saa_scenarios(
     fits = []
     zcrit = norm.ppf(1 - alpha / 2)
     for j in range(numcli):
-        print(f"Scenarios for customer {j}")
-        series = y[:, j]
+        print(f"Computing scenarios for customer {j}")
+        series = y[:,j]
         if np.ptp(series) == 0:
             # Explicit deterministic convention for constant histories.
             mu[j] = lower[j] = upper[j] = series[0]
@@ -71,7 +71,7 @@ def ets_saa_scenarios(
             warnings.warn(f"Store {j}: constant history; zero forecast variance.")
             continue
         fit = ETSModel(
-            pd.Series(series, index=pd.RangeIndex(numcli)),
+            pd.Series(series, index=pd.RangeIndex(maxt)),
             error="add", trend=trend,
             damped_trend=bool(damped_trend and trend is not None),
             seasonal="add" if seasonal_periods is not None else None,
@@ -82,7 +82,7 @@ def ets_saa_scenarios(
             raise RuntimeError(f"ETS fit did not converge for store {j}.")
         # end is inclusive: T + horizon - 1 is the horizon-th future month.
         frame = fit.get_prediction(
-            start=numscen, end=numscen + horizon - 1, method="exact"
+            start=maxt, end=maxt + horizon - 1, method="exact"
         ).summary_frame(alpha=alpha)
         last = frame.iloc[-1]
         mu[j] = last["mean"]
