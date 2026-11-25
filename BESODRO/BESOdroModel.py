@@ -9,12 +9,12 @@ def build_beso_dro( rho, p_OA, c, h, Q, b, m, d, M=9999999, seed=None, fixed_x=N
     Parameters
         rho : array (N, n) Nonnegative integer demands rho[s, j]. Each row is one joint demand scenario across all stores.
         p_OA : array (N,)  Objective-aware probabilities, in the same order as rho.
-        c : array (m, n)   Fixed assignment costs c[i, j].
-        h : array (m,)     Unit handling and storage costs h[i].
-        Q : array (m,)     Fixed DC capacities, including the external DC.
+        c : array (num_dcs, n) Fixed assignment costs c[i, j].
+        h : array (num_dcs,)   Unit handling and storage costs h[i].
+        Q : array (num_dcs,)   Fixed DC capacities, including the external DC.
         b : array (n,)     Exact number of DC assignments per store.
         M : float    penalty per pallet of unmet demand.
-        m : integer, Number of resampled distributions.
+        m : integer, Number of resampled distributions (ambiguity-set vertices).
         d : integer, Number of scenario draws per distribution.
         seed : int, optional, Random seed for reproducibility.
         fixed_x : dict, optional, Prescribed assignments {(i, j): 0 or 1}.
@@ -28,7 +28,7 @@ def build_beso_dro( rho, p_OA, c, h, Q, b, m, d, M=9999999, seed=None, fixed_x=N
     """
     # N numero scenari
     # n numero store (server, 4)
-    # m numero distribuzioni da costruire
+    # m numero distribuzioni da costruire; num_dcs comes from c, h, and Q.
     # d numero draws per distribuzione
     # ---------- Validate inputs ----------
     rho, p, c, h, Q, b = [
@@ -41,11 +41,18 @@ def build_beso_dro( rho, p_OA, c, h, Q, b, m, d, M=9999999, seed=None, fixed_x=N
     N, n = rho.shape
 
     if c.ndim != 2 or c.shape[1] != n or c.shape[0] == 0:
-        raise ValueError("c must have shape (m, n), with m > 0.")
-    m = c.shape[0]
+        raise ValueError("c must have shape (num_dcs, n), with num_dcs > 0.")
+    num_dcs = c.shape[0]
+    num_distributions = m
+    for name, value in (("m (number of distributions)", num_distributions),
+                        ("d (draws per distribution)", d)):
+        if (isinstance(value, (bool, np.bool_))
+                or not isinstance(value, (int, np.integer))
+                or value <= 0):
+            raise ValueError(f"{name} must be a positive integer.")
 
-    if (p.shape != (N,) or h.shape != (m,)
-            or Q.shape != (m,) or b.shape != (n,)):
+    if (p.shape != (N,) or h.shape != (num_dcs,)
+            or Q.shape != (num_dcs,) or b.shape != (n,)):
         raise ValueError("Inconsistent dimensions of p_OA, d, Q, or b.")
 
     if not all(np.all(np.isfinite(v)) for v in (rho, p, c, h, Q, b)):
@@ -57,8 +64,8 @@ def build_beso_dro( rho, p_OA, c, h, Q, b, m, d, M=9999999, seed=None, fixed_x=N
     if np.any(rho != np.floor(rho)):
         raise ValueError("rho must contain integer pallet demands.")
 
-    if np.any(b != np.floor(b)) or np.any((b < 1) | (b > m)):
-        raise ValueError("b must contain integers between 1 and m.")
+    if np.any(b != np.floor(b)) or np.any((b < 1) | (b > num_dcs)):
+        raise ValueError("b must contain integers between 1 and the number of DCs.")
 
     if np.any(p < 0) or not np.isclose(p.sum(), 1.0):
         raise ValueError("p_OA must be nonnegative and sum to one.")
@@ -66,13 +73,7 @@ def build_beso_dro( rho, p_OA, c, h, Q, b, m, d, M=9999999, seed=None, fixed_x=N
     if not np.isfinite(M) or M <= 0:
         raise ValueError("M must be finite and positive.")
 
-    for name, value in (("m", m), ("d", d)):
-        if (isinstance(value, (bool, np.bool_))
-                or not isinstance(value, (int, np.integer))
-                or value <= 0):
-            raise ValueError(f"{name} must be a positive integer.")
-
-    I, J, S = range(m), range(n), range(N)
+    I, J, S = range(num_dcs), range(n), range(N)
 
     if fixed_x is not None:
         for (i, j), value in fixed_x.items():
@@ -84,7 +85,7 @@ def build_beso_dro( rho, p_OA, c, h, Q, b, m, d, M=9999999, seed=None, fixed_x=N
     rng = np.random.default_rng(seed)
 
     # Equivalent to d independent draws with replacement per vertex.
-    counts = rng.multinomial(d, p, size=m)
+    counts = rng.multinomial(d, p, size=num_distributions)
     w = counts / float(d)
 
     # ---------- Create model and variables ----------
@@ -144,7 +145,7 @@ def build_beso_dro( rho, p_OA, c, h, Q, b, m, d, M=9999999, seed=None, fixed_x=N
         for s in S
     }
 
-    for k in range(m):
+    for k in range(num_distributions):
         support = np.flatnonzero(w[k])
         model.addConstr(
             z >= gp.quicksum(
@@ -275,9 +276,10 @@ def go_BESOdro(req, p_OA, h, bind, cost, cap, m, d, numscen, numCustomers, seed,
     b = np.ones(numCustomers)
     for i in range(len(bind)): b[bind[i]] += 1
     
-    # these are just shorthands
+    # Keep the requested number of distributions separate from the number of DCs.
     n = numCustomers
-    m = len(cap)
+    num_distributions = m
+    num_dcs = len(cap)
     ns = numscen
     
     tstart = time.process_time()
@@ -288,7 +290,7 @@ def go_BESOdro(req, p_OA, h, bind, cost, cap, m, d, numscen, numCustomers, seed,
         h=h,
         Q=cap,
         b=b,
-        m=m,
+        m=num_distributions,
         d=d,
         seed=seed
     )
@@ -318,7 +320,7 @@ def go_BESOdro(req, p_OA, h, bind, cost, cap, m, d, numscen, numCustomers, seed,
             "BESO DRO", cap, req, numscen, assignments, q, cost.T, h, test)
         loads, overloads = check_test(assignments, cap, test)
         with open("../results.csv", "a") as f:
-            f.write(f"BESO DRO,n,{n},m,{m},ns,{ns}, status {status}, tscen,{tscen:.2f},tetssaa,{tbdro:.2f},"
+            f.write(f"BESO DRO,n,{n},m,{m},ns,{ns}, status {status}, tscen,{tscen:.2f},tbdro,{tbdro:.2f},"
                     f"assgn,{assignment_cost:.2f},"
                     f"hndl,{handling_cost:.2f},"
                     f"tot,{true_cost:.2f},"

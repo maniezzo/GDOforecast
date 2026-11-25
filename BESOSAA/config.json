@@ -3,7 +3,7 @@
    "numscen"  : 75,
    "numCustomers" : 20, "commentC": "52 for use case",
    "numCenters"   : 3,  "commentCn": "4 in the use case",
-   "numRep"   : 1, "commentR": "numero ripetizioni per istanza",
+   "numRep"   : 3, "commentR": "numero ripetizioni per istanza",
    "b"        : [], "commentB" : "indici client assegnabili a 2 DC, [] per nessuno",
    "h"        : [0,10,0,0],  "commentD" : "handling cost dei vari DC",
    "m"        : 100,   "commentm" : "see formulation, num distributions",

@@ -264,7 +264,7 @@ def go_wek(history, cost, cap, h, bind, numscen, numCustomers, seed, test, maxt)
       worst_recourse_bound = ( wasserstein_radius * lam.X+ sum(eta[s].X for s in eta) / len(eta) )
       _, peak_loads, overloads, indover, true_loads, true_overloads, assignment_cost, handling_cost, true_cost = resultsKPI("WEK",cap,rho,numscen,assignments,q,cost.T,h,test)
       with open("../results.csv", "a") as f:
-         f.write(f"WEK,n,{n},m,{m},ns,{ns}, status {status}, tscen,{tscen:.2f},tetssaa,{twek:.2f},"
+         f.write(f"WEK,n,{n},m,{m},ns,{ns}, status {status}, tscen,{tscen:.2f},twek,{twek:.2f},"
                  f"assgn,{assignment_cost:.2f},"
                  f"hndl,{handling_cost:.2f},"
                  f"tot,{true_cost:.2f},"
