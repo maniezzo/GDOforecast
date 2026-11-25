@@ -652,42 +652,46 @@ You could report something like cost, unmet demand, leased capacity, and out-of-
 Table \ref{table:compETS} presents a comparison of solutions in the first two columns when no rental cost was added for the use of leased floor space and in the last two columns when the rental cost was included in the objective function. As expected, given that the constraints were less restrictive, the ETS solution is less expensive in both cases. However, in both cases, the solution was infeasible as it did not provide all the goods requested by one of the retailers. This result was obtained in a single instance; therefore, it may not have happened. However, it is significant that, even in the first instance in which we tested our model, its robustness proved important in dealing with a limit case.
 
 \begingroup
-\renewcommand{\arraystretch}{1.0}
+\renewcommand{\arraystretch}{0.8}
 \begin{table}
 	\centering
 	\begin{tabular}{l|cccccc|}
-		                  & ETS  & SAP   & BESO-SAA & ETS-SAA & BESO-DRO & WEK  \\
+		                  &  ETS  &    SAP   & BESO-SAA &  ETS-SAA & BESO-DRO & WEK  \\
 		\hline
-		Assign. Cost      &19682 & 20604 & 20529.77 &19918.27 & 20535.44 & 20516.42\\
-		Optimality gap\%  &   0  & 0     & 0        & 0       & 0        & 0\\
-		Infeasibilities   &   0  & 0     & 0        & 0       & 0        & 0\\
-        num.variables   &  416 & 416   & 19708    &  19708  & 19709    & 19784\\
-        num.constraints &  316 & 316   & 19852    &  19852  & 19952    & 25477\\
-        num.non zeros   & 1040 & 1040  & 66508    &  66508  & 252872   & 662683\\
-		t.Cpu             & 0.17 & 0.05  & 10.72    &   4.14  & 21.79    & 55.26\\
+		Assign. Cost      & 19769 & 19861.14 &  19989.0 & 19918.27 &  20362.0 & 19990.33\\
+		Optimality gap\%  &    0  &    0     & 0        &  0       & 0        & 0\\
+		Infeasibilities   &    0  &    0     & 0        &  0       & 0        & 0\\
+        num.variables     &   468 &    468   & 19708    &   19708  & 19709    & 19784\\
+        num.constraints   &   316 &    316   & 19852    &   19852  & 19952    & 25477\\
+        num.non zeros     &  1040 &    1040  & 66508    &   66508  & 252872   & 662683\\
+		t.Cpu             & 49.47 &    49.53 &  101.97  &   255.87 &  114.08  & 883.46\\
 		\hline
 	\end{tabular}
-	\caption{Solution and model data on the use case instance and 75 boostrap set}
+	\caption{Solution and model data on the use case instance and 75 bootsrap set}
 	\label{table:compETS}
 \end{table}
 \endgroup
 
 Table \ref{table:resETS} details the proposed usage of the  DCs in the different cases. It appears that DC 2, the biggest owned one, is the overloaded one in both cases, even though by small amounts. 
 
+exp: expected peak delivery from the DC
+act: actual delivery applying the optimized solution to the actual end-of-year data
+ovr: overload induced by actual data
+
 \begingroup
-\renewcommand{\arraystretch}{1.0}
+\renewcommand{\arraystretch}{0.9}
 \setlength{\tabcolsep}{3pt}
 \small
 \begin{table}
 	\centering
 	\begin{tabular}{l|ccc|ccc|ccc|ccc|ccc|ccc|}
 		\multicolumn{1}{c|}{} & \multicolumn{3}{c|}{ETS} & \multicolumn{3}{c|}{SAP} & \multicolumn{3}{c|}{ETS-SAA} & \multicolumn{3}{c|}{BESO-SAA} & \multicolumn{3}{c|}{WEK} & \multicolumn{3}{c|}{BESO-DRO} \\ 
-		& exp & true & ovr & exp & true & ovr & peak & true & ovr & peak & true & ovr & peak & true & ovr & peak & true & ovr \\
+		& exp & act & ovr & exp & act & ovr & peak & act & ovr & peak & act & ovr & peak & act & ovr & peak & act & ovr \\
 		\hline
-		DC 0 & 119 & 115 & 0 & 120 & 111 & 0 & 120 & 118 & 0 & 120 & 111 & 0 & 120 & 111 & 0 & 120 & 111 & 0 \\
-		DC 1 & 339 & 431 & 0 & 482 & 459 & 0 & 481 & 436 & 0 & 483 & 462 & 0 & 481 & 459 & 0 & 481 & 459 & 0 \\
-		DC 2 & 277 & 304 & 4 & 300 & 288 & 0 & 298 & 299 & 0 & 300 & 289 & 0 & 298 & 288 & 0 & 298 & 288 & 0 \\
-		DC 3 & 166 & 173 & 0 & 180 & 180 & 0 & 165 & 170 & 0 & 180 & 161 & 0 & 180 & 165 & 0 & 180 & 165 & 0 \\
+		DC 0 & 120 & 120 & 0 & 120 & 111 & 0 & 119.8 & 117.8 & 0 & 120 & 111 & 0 & 120 & 111 & 0 & 120 & 111 & 0 \\
+		DC 1 & 423 & 430 & 0 & 482 & 459 & 0 & 441.0 & 438.6 & 0 & 483 & 462 & 0 & 481 & 459 & 0 & 481 & 459 & 0 \\
+		DC 2 & 300 & 306 & 6 & 300 & 288 & 0 & 298.8 & 299.8 & 0.8 & 300 & 289 & 0 & 298 & 288 & 0 & 298 & 288 & 0 \\
+		DC 3 & 180 & 167 & 0 & 180 & 180 & 0 & 179.6 & 166.8 & 0 & 180 & 161 & 0 & 180 & 165 & 0 & 180 & 165 & 0 \\
 		\hline
 	\end{tabular}
 	\caption{DC usage (expected, realized demand, realized overload per method)}

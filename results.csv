@@ -1,75 +1,26 @@
-ETSSAA,n,52,m,4,ns,75,tscen,6.33,tetssaa,53.75assgn,18902.00,hndl,2634.14,tot,21536.14,overloads,[0. 0. 0. 0.],true overloads,[0. 0. 0. 0.]
-ETSDET,n,52,m,4,tetsdet,6.44,assgn,17794.00,hndl,2733.02,tot,20527.02,overloads,[0. 0. 0. 0.][0. 0. 0. 0.]
-ETSSAA,n,52,m,4,ns,75,tscen,6.31,tetssaa,53.17assgn,18902.00,hndl,2634.14,tot,21536.14,overloads,[0. 0. 0. 0.],true overloads,[0. 0. 0. 0.]
-ETSDET,n,52,m,4,tetsdet,6.44,assgn,17794.00,hndl,2733.02,tot,20527.02,overloads,[0. 0. 0. 0.],true,[0. 0. 0. 0.]
-ETSSAA,n,52,m,4,ns,75,tscen,7.02,tetssaa,54.30,assgn,18902.00,hndl,2634.14,tot,21536.14,overloads,[0. 0. 0. 0.],true overloads,[0. 0. 0. 0.]
-ETSDET,n,52,m,4,tetsdet,7.14,assgn,17794.00,hndl,2733.02,tot,20527.02,overloads,[0. 0. 0. 0.],true,[0. 0. 0. 0.]
-ETSSAA,n,60,m,4,ns,75,tscen,15.19,tetssaa,4345.30,assgn,83459.00,hndl,2382.98,tot,85841.98,overloads,[0. 0. 0. 0.],true overloads,[0. 0. 0. 0.]
-ETSDET,n,60,m,4,tetsdet,15.44,assgn,67042.00,hndl,2569.36,tot,69611.36,overloads,[0. 0. 0. 0.],true,[0. 0. 0. 0.]
-ETSSAA,n,60,m,4,ns,75,tscen,9.11,tetssaa,1257.05,assgn,78526.00,hndl,2282.03,tot,80808.03,overloads,[0. 0. 0. 0.],true overloads,[0. 0. 0. 0.]
-ETSDET,n,60,m,4,tetsdet,9.23,assgn,67042.00,hndl,2569.36,tot,69611.36,overloads,[0. 0. 0. 0.],true,[0. 0. 0. 0.]
-ETSSAA,n,60,m,4,ns,75,tscen,9.31,tetssaa,1618.45,assgn,85548.00,hndl,2281.68,tot,87829.68,overloads,[0. 0. 0. 0.],true overloads,[0. 0. 0. 0.]
-ETSDET,n,60,m,4,tetsdet,9.44,assgn,67042.00,hndl,2569.36,tot,69611.36,overloads,[0. 0. 0. 0.],true,[0. 0. 0. 0.]
-ETSSAA,n,60,m,4,ns,75,tscen,9.25,tetssaa,4717.16,assgn,83459.00,hndl,2382.98,tot,85841.98,overloads,[0. 0. 0. 0.],true overloads,[0. 0. 0. 0.]
-ETSDET,n,60,m,4,tetsdet,9.48,assgn,67042.00,hndl,2569.36,tot,69611.36,overloads,[0. 0. 0. 0.],true,[0. 0. 0. 0.]
-ETSSAA,n,60,m,4,ns,75,tscen,9.52,tetssaa,3508.86,assgn,75700.00,hndl,2359.69,tot,78059.69,overloads,[0.00000000e+00 0.00000000e+00 8.45301031e-07 0.00000000e+00],true overloads,[0. 0. 0. 0.]
-ETSSAA,n,60,m,4,ns,75,tscen,9.73,tetssaa,4065.81,assgn,75700.00,hndl,2359.69,tot,78059.69,overloads,[0. 0. 0. 0.],true overloads,[0. 0. 0. 0.]
-ETSSAA,n,60,m,4,ns,75,tscen,9.47,tetssaa,3260.72,assgn,75700.00,hndl,2359.69,tot,78059.69,overloads,[0. 0. 0. 0.],true overloads,[0. 0. 0. 0.]
-ETSDET,n,60,m,4,tetsdet,53.91,assgn,67042.00,hndl,2569.36,tot,69611.36,overloads,[0. 0. 0. 0.],true,[0. 0. 0. 0.]
-ETSSAA,n,60,m,4,ns,75,tscen,10.77,tetssaa,3141.41,assgn,77538.00,hndl,2397.96,tot,79935.96,overloads,[0. 0. 0. 0.],true overloads,[0. 0. 0. 0.]
-ETSDET,n,60,m,4,tetsdet,66.38,assgn,67042.00,hndl,2569.36,tot,69611.36,overloads,[0. 0. 0. 0.],true,[0. 0. 0. 0.]
-ncust,100,ncent,4,nscen,75b,[],gamma,1,maxt,900--
-ncust,100,ncent,4,nscen,75b,[],gamma,1,maxt,900--
-ncust,100,ncent,4,nscen,75b,[],gamma,1,maxt,900--
-ncust,100,ncent,4,nscen,75b,[],gamma,1,maxt,900--
-ncust,100,ncent,4,nscen,75b,[],gamma,1,maxt,900--
-ncust,100,ncent,4,nscen,75b,[],gamma,1,maxt,900--
-ncust,100,ncent,4,nscen,75b,[],gamma,1,maxt,900--
-ncust,100,ncent,4,nscen,75b,[],gamma,1,maxt,900--
-ncust,100,ncent,4,nscen,75b,[],gamma,1,maxt,900--
-ncust,100,ncent,4,nscen,75b,[],gamma,1,maxt,900--
-ncust,100,ncent,4,nscen,75b,[],gamma,1,maxt,900--
-ncust,100,ncent,4,nscen,75b,[],gamma,1,maxt,900--
-ncust,100,ncent,4,nscen,75b,[],gamma,1,maxt,900--
-ncust,100,ncent,4,nscen,75b,[],gamma,1,maxt,900--
-ncust,100,ncent,4,nscen,75b,[],gamma,1,maxt,900--
-ncust,100,ncent,4,nscen,75b,[],gamma,1,maxt,900--
-ncust,100,ncent,4,nscen,75b,[],gamma,1,maxt,900--
-ncust,100,ncent,4,nscen,75b,[],gamma,1,maxt,900--
-ETSSAA,n,100,m,4,ns,75, status opt, tscen,13.48,tetssaa,190.16,assgn,123129.00,hndl,804.22,tot,123933.22,overloads,[0. 0. 0. 0.],true overloads,[0. 0. 0. 0.]
-ncust,100,ncent,4,nscen,75b,[],gamma,1,maxt,900--
-ETSSAA,n,100,m,4,ns,75, status opt, tscen,7.97,tetssaa,180.16,assgn,123129.00,hndl,804.22,tot,123933.22,overloads,[0. 0. 0. 0.],true overloads,[0. 0. 0. 0.]
-ncust,100,ncent,4,nscen,75b,[],gamma,1,maxt,900--
-ETSSAA,n,100,m,4,ns,75, status opt, tscen,7.92,tetssaa,185.02,assgn,123129.00,hndl,804.22,tot,123933.22,overloads,[0. 0. 0. 0.],true overloads,[0. 0. 0. 0.]
-ncust,100,ncent,4,nscen,75b,[],gamma,1,maxt,900--
-ETSSAA,n,100,m,4,ns,75, status opt, tscen,8.67,tetssaa,180.97,assgn,123129.00,hndl,804.22,tot,123933.22,overloads,[0. 0. 0. 0.],true overloads,[0. 0. 0. 0.]
-ETSDET,n,100,m,4,tetsdet,165.95,assgn,121849.00,hndl,808.82,tot,122657.82,overloads,[0. 0. 0. 0.],true,[0. 4. 0. 0.]
-ETSSAA,n,100,m,4,ns,75, status opt, tscen,8.38,tetssaa,514.03,assgn,123242.00,hndl,801.73,tot,124043.73,overloads,[0. 0. 0. 0.],true overloads,[0. 0. 0. 0.]
-ETSDET,n,100,m,4,tetsdet,90.58,assgn,121849.00,hndl,808.82,tot,122657.82,overloads,[0. 0. 0. 0.],true,[0. 4. 0. 0.]
-ETSSAA,n,100,m,4,ns,75, status opt, tscen,9.34,tetssaa,738.31,assgn,123325.00,hndl,804.00,tot,124129.00,overloads,[0. 0. 0. 0.],true overloads,[0. 0. 0. 0.]
-ETSDET,n,100,m,4,tetsdet,85.64,assgn,121849.00,hndl,808.82,tot,122657.82,overloads,[0. 0. 0. 0.],true,[0. 4. 0. 0.]
-ncust,100,ncent,4,nscen,75,b,[],gamma,1,maxt,900--
-ncust,100,ncent,4,nscen,75,b,[],gamma,1,maxt,900--
-ncust,20,ncent,3,nscen,75,b,[],gamma,1,maxt,900--
-ncust,20,ncent,3,nscen,75,b,[],gamma,1,maxt,900--
-ncust,20,ncent,3,nscen,75,b,[],gamma,1,maxt,900--
-ncust,20,ncent,3,nscen,75,b,[],gamma,1,maxt,900--
-ncust,20,ncent,3,nscen,75,b,[],gamma,1,maxt,900--
-ncust,20,ncent,3,nscen,75,b,[],gamma,1,maxt,900--
-WEK,n,20,m,3,ns,75, status opt, tscen,0.23,tetssaa,161.83,assgn,26501.00,hndl,1110.13,tot,27611.13,overloads,[0. 5. 0.],true overloads,[0. 5. 0.]
-ncust,20,ncent,3,nscen,75,b,[],gamma,1,maxt,900--
-ncust,20,ncent,3,nscen,75,b,[],gamma,1,maxt,900--
-ncust,20,ncent,3,nscen,75,b,[],gamma,1,maxt,900--
-ncust,20,ncent,3,nscen,75,b,[],gamma,1,maxt,900--
-WEK,n,52,m,4,ns,75, status opt, tscen,0.75,tetssaa,179.58,assgn,15772.00,hndl,4590.00,tot,20362.00,overloads,[0. 0. 0. 0.],true overloads,[0. 0. 0. 0.]
-ncust,20,ncent,3,nscen,75,b,[],gamma,1,maxt,900--
-ncust,20,ncent,3,nscen,75,b,[],gamma,1,maxt,900--
-ncust,20,ncent,3,nscen,75,b,[],gamma,1,maxt,900--
-ncust,20,ncent,3,nscen,75,b,[],gamma,1,maxt,900--
-ncust,20,ncent,3,nscen,75,b,[],gamma,1,maxt,900--
-WEK,n,20,m,3,ns,75, status opt, tscen,0.20,tetssaa,112.66,assgn,26793.00,hndl,1108.00,tot,27901.00,overloads,[0. 2. 0.],true overloads,[0. 2. 0.]
-ncust,20,ncent,3,nscen,75,b,[],gamma,1,maxt,900--
-ncust,20,ncent,3,nscen,75,b,[],gamma,1,maxt,900--
-WEK,n,52,m,4,ns,75, status opt, tscen,0.75,tetssaa,142.91,assgn,15724.00,hndl,4590.00,tot,20314.00,overloads,[0. 0. 0. 0.],true overloads,[0. 0. 0. 0.]
-ncust,20,ncent,3,nscen,75,b,[],gamma,1,maxt,900--
-BESO DRO,n,52,m,4,ns,75, status opt, tscen,0.62,tetssaa,137.80,assgn,15724.00,hndl,4590.00,tot,20314.00,overloads,[0. 0. 0. 0.],true overloads,[0. 0. 0. 0.]
+Optimize a model with 19852 rows, 19708 columns and 66508 nonzeros
+ETSSAA,n,52,m,4,ns,75, status opt, tscen,7.97,tetssaa,55.95,assgn,15615.00,hndl,4380.00,tot,19995.00,overloads,[0. 0. 0. 0.],true overloads,[0. 0. 0. 0.]
+ETSDET,n,52,m,4,tetsdet,49.27,assgn,15469.00,hndl,4300.00,tot,19769.00,overloads,[0. 0. 0. 0.],true,[0. 0. 6. 0.]
+ETSSAA,n,52,m,4,ns,75, status opt, tscen,8.05,tetssaa,155.47,assgn,15624.00,hndl,4390.00,tot,20014.00,overloads,[0. 0. 0. 0.],true overloads,[0. 0. 2. 0.]
+ETSDET,n,52,m,4,tetsdet,49.53,assgn,15469.00,hndl,4300.00,tot,19769.00,overloads,[0. 0. 0. 0.],true,[0. 0. 6. 0.]
+ETSSAA,n,52,m,4,ns,75, status opt, tscen,7.98,tetssaa,255.92,assgn,15602.00,hndl,4360.00,tot,19962.00,overloads,[0. 0. 0. 0.],true overloads,[0. 0. 1. 0.]
+ETSDET,n,52,m,4,tetsdet,49.69,assgn,15469.00,hndl,4300.00,tot,19769.00,overloads,[0. 0. 0. 0.],true,[0. 0. 6. 0.]
+ETSSAA,n,52,m,4,ns,75, status opt, tscen,8.03,tetssaa,357.11,assgn,15572.00,hndl,4440.00,tot,20012.00,overloads,[0. 0. 0. 0.],true overloads,[0. 0. 0. 0.]
+ETSDET,n,52,m,4,tetsdet,49.44,assgn,15469.00,hndl,4300.00,tot,19769.00,overloads,[0. 0. 0. 0.],true,[0. 0. 6. 0.]
+ETSSAA,n,52,m,4,ns,75, status opt, tscen,8.00,tetssaa,454.92,assgn,15602.00,hndl,4360.00,tot,19962.00,overloads,[0. 0. 0. 0.],true overloads,[0. 0. 1. 0.]
+ETSDET,n,52,m,4,tetsdet,49.44,assgn,15469.00,hndl,4300.00,tot,19769.00,overloads,[0. 0. 0. 0.],true,[0. 0. 6. 0.]
+
+Optimize a model with 25477 rows, 19784 columns and 662683 nonzeros
+WEK,n,52,m,4,ns,75, status opt, tscen,7.66,twek,526.59,assgn,15615.00,hndl,4380.00,tot,19995.00,overloads,[0. 0. 0. 0.],true overloads,[0. 0. 0. 0.]
+WEK,n,52,m,4,ns,75, status opt, tscen,7.64,twek,925.98,assgn,15624.00,hndl,4390.00,tot,20014.00,overloads,[0. 0. 0. 0.],true overloads,[0. 0. 2. 0.]
+WEK,n,52,m,4,ns,75, status opt, tscen,7.66,twek,1197.80,assgn,15602.00,hndl,4360.00,tot,19962.00,overloads,[0. 0. 0. 0.],true overloads,[0. 0. 1. 0.]
+
+Optimize a model with 19852 rows, 19708 columns and 66508 nonzeros
+BESO SAA,n,52,m,4,ns,75, status opt, tscen,1.14,tbsaa,51.89,assgn,15772.00,hndl,4590.00,tot,20362.00,overloads,[0. 0. 0. 0.],true overloads,[0. 0. 0. 0.]
+BESO SAA,n,52,m,4,ns,75, status opt, tscen,1.12,tbsaa,101.69,assgn,15772.00,hndl,4590.00,tot,20362.00,overloads,[0. 0. 0. 0.],true overloads,[0. 0. 0. 0.]
+BESO SAA,n,52,m,4,ns,75, status opt, tscen,1.14,tbsaa,152.33,assgn,15772.00,hndl,4590.00,tot,20362.00,overloads,[0. 0. 0. 0.],true overloads,[0. 0. 0. 0.]
+
+Optimize a model with 19952 rows, 19709 columns and 252872 nonzeros
+BESO DRO,n,52,m,100,ns,75, status opt, tscen,1.38,tbdro,57.64,assgn,15772.00,hndl,4590.00,tot,20362.00,overloads,[0. 0. 0. 0.],true overloads,[0. 0. 0. 0.]
+BESO DRO,n,52,m,100,ns,75, status opt, tscen,1.41,tbdro,114.45,assgn,15772.00,hndl,4590.00,tot,20362.00,overloads,[0. 0. 0. 0.],true overloads,[0. 0. 0. 0.]
+BESO DRO,n,52,m,100,ns,75, status opt, tscen,1.42,tbdro,170.16,assgn,15772.00,hndl,4590.00,tot,20362.00,overloads,[0. 0. 0. 0.],true overloads,[0. 0. 0. 0.]
