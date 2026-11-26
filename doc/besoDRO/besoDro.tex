@@ -658,19 +658,23 @@ Table \ref{table:compETS} presents a comparison of solutions in the first two co
 	\begin{tabular}{l|cccccc|}
 		                  &  ETS  &    SAP   & BESO-SAA &  ETS-SAA & BESO-DRO & WEK  \\
 		\hline
-		Assign. Cost      & 19769 & 19861.14 &  19989.0 & 19918.27 &  20362.0 & 19990.33\\
+		Assign. Cost      & 19769 & 20604 &  20529.78 & 19918.27 &  20543.12 & 19990.33\\
 		Optimality gap\%  &    0  &    0     & 0        &  0       & 0        & 0\\
 		Infeasibilities   &    0  &    0     & 0        &  0       & 0        & 0\\
         num.variables     &   468 &    468   & 19708    &   19708  & 19709    & 19784\\
         num.constraints   &   316 &    316   & 19852    &   19852  & 19952    & 25477\\
-        num.non zeros     &  1040 &    1040  & 66508    &   66508  & 252872   & 662683\\
-		t.Cpu             & 49.47 &    49.53 &  101.97  &   255.87 &  114.08  & 883.46\\
+        num.non zeros     &  1040 &    1092  & 66508    &   66508  & 255451.2   & 662683\\
+		t.Cpu             & 49.47 &    10.17 &  101.97  &   255.87 &  114.08  & 883.46\\
 		\hline
 	\end{tabular}
 	\caption{Solution and model data on the use case instance and 75 bootsrap set}
 	\label{table:compETS}
 \end{table}
 \endgroup
+
+BESO SAA has always the same number of non zeros and BESO DRO different numbers Because BESO-SAA has no resampling step: every run uses the same fixed scenarios and the same constraints. A different random seed therefore doesn’t change its constraint matrix or nonzero count.
+In BESO-DRO, the seed changes the sampled distributions and which scenario terms appear in each worst-case constraint. That changes the nonzero count, while the number of rows and columns stays fixed.
+
 
 Table \ref{table:resETS} details the proposed usage of the  DCs in the different cases. It appears that DC 2, the biggest owned one, is the overloaded one in both cases, even though by small amounts. 
 
@@ -686,12 +690,12 @@ ovr: overload induced by actual data
 	\centering
 	\begin{tabular}{l|ccc|ccc|ccc|ccc|ccc|ccc|}
 		\multicolumn{1}{c|}{} & \multicolumn{3}{c|}{ETS} & \multicolumn{3}{c|}{SAP} & \multicolumn{3}{c|}{ETS-SAA} & \multicolumn{3}{c|}{BESO-SAA} & \multicolumn{3}{c|}{WEK} & \multicolumn{3}{c|}{BESO-DRO} \\ 
-		& exp & act & ovr & exp & act & ovr & peak & act & ovr & peak & act & ovr & peak & act & ovr & peak & act & ovr \\
+		     & peak & act & ovr & peak & act & ovr & peak & act & ovr & peak & act & ovr & peak & act & ovr & peak & act & ovr \\
 		\hline
-		DC 0 & 120 & 120 & 0 & 120 & 111 & 0 & 119.8 & 117.8 & 0 & 120 & 111 & 0 & 120 & 111 & 0 & 120 & 111 & 0 \\
-		DC 1 & 423 & 430 & 0 & 482 & 459 & 0 & 441.0 & 438.6 & 0 & 483 & 462 & 0 & 481 & 459 & 0 & 481 & 459 & 0 \\
-		DC 2 & 300 & 306 & 6 & 300 & 288 & 0 & 298.8 & 299.8 & 0.8 & 300 & 289 & 0 & 298 & 288 & 0 & 298 & 288 & 0 \\
-		DC 3 & 180 & 167 & 0 & 180 & 180 & 0 & 179.6 & 166.8 & 0 & 180 & 161 & 0 & 180 & 165 & 0 & 180 & 165 & 0 \\
+		DC 0 & 120 & 120 & 0 & 120 & 111 & 0 & 119.8 & 117.8 & 0   & 120 & 111 & 0 & 119.8 & 117.8 & 0 & 120 & 111 & 0 \\
+		DC 1 & 423 & 430 & 0 & 482 & 459 & 0 & 441.0 & 438.6 & 0   & 481 & 459 & 0 & 441 & 438.6 & 0 & 481 & 459 & 0 \\
+		DC 2 & 300 & 306 & 6 & 300 & 288 & 0 & 298.8 & 299.8 & 0.8 & 298 & 288 & 0 & 298.8 & 299.8 & 0.8 & 298 & 288 & 0 \\
+		DC 3 & 180 & 167 & 0 & 180 & 165 & 0 & 179.6 & 166.8 & 0   & 165 & 165 & 0 & 179.6 & 166.8 & 0 & 180 & 165 & 0 \\
 		\hline
 	\end{tabular}
 	\caption{DC usage (expected, realized demand, realized overload per method)}

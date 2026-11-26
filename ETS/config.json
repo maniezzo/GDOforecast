@@ -5,13 +5,13 @@
   "commentC": "52 for use case",
   "numCenters": 4,
   "commentCn": "4 in the use case",
-  "numRep": 3,
+  "numRep": 5,
   "commentR": "numero ripetizioni per istanza",
   "b": [],
   "commentB": "indici client assegnabili a 2 DC, [] per nessuno",
   "h": [
     0,
-    1,
+    10,
     0,
     0
   ],
@@ -20,6 +20,6 @@
   "commentG": "parametro gamma del BESO",
   "maxt": 900,
   "commentT": "max solver CPU time, in seconds",
-  "isUseCase": false,
+  "isUseCase": true,
   "commentU": "true: caso d'uso, false: istanze artificiali"
 }

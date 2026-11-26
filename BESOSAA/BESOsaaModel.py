@@ -131,6 +131,29 @@ def build_beso_saa(rho, p_OA, c, h, Q, b, M=9999999, fixed_x=None):
 
    return model, x, q, eps
 
+#Return the SAP demand vector ceil(mean(req[:, j])) for each customer j
+def deterministic_sap_demand(req):
+   req = np.asarray(req, dtype=float)
+   if req.ndim != 2 or min(req.shape) == 0:
+      raise ValueError("req must have shape (num_scenarios, num_customers), with both dimensions positive.")
+   if not np.all(np.isfinite(req)) or np.any(req < 0):
+      raise ValueError("req must contain finite, nonnegative forecasts.")
+   return np.ceil(req.mean(axis=0)).astype(int)
+
+# Build the deterministic SAP model using ceil(mean(req[:, j])) demand.
+def build_sap(req, c, h, Q, b, M=9999999, fixed_x=None):
+   """This is the one-scenario deterministic counterpart of BESO-SAA. It uses
+   the same assignment, capacity, delivery, and shortage-cost formulation.
+   Returns model, x, q, eps, and the deterministic demand vector.
+   """
+   demand = deterministic_sap_demand(req)
+   model, x, q, eps = build_beso_saa(
+      demand.reshape(1, -1), np.array([1.0]), c, h, Q, b, M=M,
+      fixed_x=fixed_x
+   )
+   model.ModelName = "SAP"
+   return model, x, q, eps, demand
+
 # un po' di postprocessing sui risultati
 def resultsKPI(name,cap, req, numscen, asgn, q, cost, h, trueVal, tol=1e-6):
     cap = np.asarray(cap, dtype=float)
@@ -199,6 +222,64 @@ def check_test(assgn,cap,test):
       if(loads[i] >= cap[i]): overload[i] = loads[i]-cap[i]
    return loads, overload
 
+# Solve SAP with customer demands ceil(mean(req[:, j]))
+def go_sap(req, cap, h, bind, cost, test, numCustomers=None, maxt=900,
+           M=9999999, fixed_x=None):
+   """ Returns model, x, q, eps, demand, and the selected (DC, customer)
+   assignments. If no feasible solution is found, assignments is None.
+   """
+   req = np.asarray(req, dtype=float)
+   demand = deterministic_sap_demand(req)
+   n  = numCustomers
+   m  = len(cap)
+   ns = 1 # unico scenario
+   if numCustomers is not None and numCustomers != n:
+      raise ValueError("numCustomers must equal the number of columns in req.")
+
+   b = np.ones(n, dtype=int)
+   bind = np.asarray(bind, dtype=int)
+   if bind.ndim != 1 or np.any((bind < 0) | (bind >= n)):
+      raise ValueError("bind must contain valid zero-based customer indices.")
+   for j in bind:
+      b[j] += 1
+
+   tstart = time.process_time()
+   model, x, q, eps, demand = build_sap(
+      req, cost, h, cap, b, M=M, fixed_x=fixed_x
+   )
+   model.Params.MIPFocus = 1
+   model.Params.NoRelHeurTime = 10
+   model.Params.SubMIPNodes = 2000
+   model.Params.PumpPasses = 10
+   model.Params.TimeLimit = maxt
+   model.Params.MIPGap = 0.0001
+   model.optimize()
+   tsap = time.process_time() - tstart
+
+   assignments = None
+   if model.SolCount > 0:
+      status = "opt" if model.Status==2 else "heu"
+      assignments = [(i, j) for i, j in x if x[i, j].X > 0.5]
+      shortage = sum(eps[j, 0].X for j in range(n))
+      print(f"SAP demand: {demand}")
+      print(f"Objective: {model.ObjVal:.3f} t.cpu {model.Runtime:.3f}")
+      print(f"Assignments: {assignments}")
+      print(f"Total shortage: {shortage:.2f}")
+      print(f"n.rows {model.NumConstrs} n.cols {model.NumVars} n.non0 {model.NumNZs}")
+      _, peak_loads, overloads, indover, true_loads, true_overloads, assignment_cost, handling_cost, true_cost = resultsKPI("BESO SAA",cap,req,ns,assignments,q,cost.T,h,test)
+      loads,overloads = check_test(assignments,cap,test)
+      with open("../results.csv", "a") as f:
+         f.write(f"SAP DET,n,{n},m,{m},ns,{ns}, status {status}, tsap,{tsap:.2f},"
+                 f"assgn,{assignment_cost:.2f},"
+                 f"hndl,{handling_cost:.2f},"
+                 f"tot,{true_cost:.2f},"
+                 f"overloads,{overloads},"
+                 f"true overloads,{true_overloads}\n")
+   else:
+      print("No feasible solution found. Gurobi status:", model.Status)
+
+   return model, x, q, eps, demand, assignments
+
 # modello BESO SAA
 def go_besosaa(req, cap, p_OA, h, bind, cost, numscen, numCustomers, seed, test, maxt):
    '''
@@ -240,7 +321,7 @@ def go_besosaa(req, cap, p_OA, h, bind, cost, numscen, numCustomers, seed, test,
       _, peak_loads, overloads, indover, true_loads, true_overloads, assignment_cost, handling_cost, true_cost = resultsKPI("BESO SAA",cap,req,numscen,assignments,q,cost.T,h,test)
       loads,overloads = check_test(assignments,cap,test)
       with open("../results.csv", "a") as f:
-         f.write(f"BESO SAA,n,{n},m,{m},ns,{ns}, status {status}, tscen,{tscen:.2f},tbsaa,{tbsaa:.2f},"
+         f.write(f"BESO SAA,n,{n},m,{m},ns,{ns}, status {status}, tscen,{tscen:.2f},tetssaa,{tbsaa:.2f},"
                  f"assgn,{assignment_cost:.2f},"
                  f"hndl,{handling_cost:.2f},"
                  f"tot,{true_cost:.2f},"
