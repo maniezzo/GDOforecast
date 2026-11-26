@@ -2,7 +2,7 @@ import numpy as np, pandas as pd
 import json,random
 from transportation import compute_transport
 from MEBbootstrap import meboot
-from BESOsaaModel import go_besosaa, oa_probabilities
+from BESOsaaModel import go_besosaa, oa_probabilities, go_sap
 from generateArtificial import go_artificial
 
 # definizione del bootset via MEB bootstrapping
@@ -23,12 +23,13 @@ if __name__ == '__main__':
    numscen   = conf["numscen"]
    numCustomers = conf["numCustomers"]
    numCenters   = conf["numCenters"]
+   totdisp   = conf["totdisp"]
    seed      = conf["seed"]
    isUseCase = conf["isUseCase"]
    numRep    = conf["numRep"]
    maxt      = conf["maxt"] # max solver CPU time
    b = conf["b"]  # num centri che servono
-   h = conf["h"]  # handling cost
+   h = conf["h"]  # handling cost, for the use case
    m = conf["m"]  # num distribuzioni
    d = conf["d"]  # num draws per distribuzione
    gamma   = conf["gamma"] # risk-avertness del decisore
@@ -61,10 +62,12 @@ if __name__ == '__main__':
          numCustomers = req.shape[1]
          numCenters   = len(cap)
          go_besosaa(req, cap, p_OA, h, b, cost, numscen, numCustomers, seed, test, maxt)
+         go_sap(req, cap, h, b, cost, test, numCustomers=numCustomers, maxt=maxt)
       else:
          print("Non use case")
-         boots,history,h,p_OA,cost,cap,testBoost,test = go_artificial(numCustomers,numCenters,numscen,seed)
+         boots,history,h,p_OA,cost,cap,testBoost,test = go_artificial(numCustomers,numCenters,numscen,seed,totdisp=totdisp)
          go_besosaa(np.array(history).T, cap, p_OA, h, b, cost.T, numscen, numCustomers, seed, test, maxt)
+         go_sap(np.array(history).T, cap, h, b, cost.T, test, numCustomers=numCustomers, maxt=maxt)
       seed += 3
 
    print('Fine')

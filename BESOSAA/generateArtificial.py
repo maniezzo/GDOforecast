@@ -5,7 +5,10 @@ from scipy.optimize import linprog
 from scipy.optimize import minimize, LinearConstraint
 from prewhiten_recolor import prewhiten,recolor
 
-def go_artificial(numCustomers,numCenters,numscen,gamma=1):
+def go_artificial(numCustomers,numCenters,numscen,gamma=1,totdisp=1.1):
+   """
+   totdisp: somma delle disponibilità dei DC rispetto a richiesta totale
+   """
    name = "dataframe_nocovid_full"
    # train series
    dfseries = pd.read_csv(f"../data/{name}.csv", usecols=[i for i in range(1, 53)])
@@ -49,7 +52,7 @@ def go_artificial(numCustomers,numCenters,numscen,gamma=1):
       
    print("Defining servers' capacities and costs ...")
    # definizione capacità center note le richieste
-   cap = generate_capacities(sum(req), numCenters, factor=1.1, power=1.1)
+   cap = generate_capacities(sum(req), numCenters, factor=totdisp, power=1.1)
    cap = cap[::-1]  # reverse values
    print(f"Capacities {cap}")
    
