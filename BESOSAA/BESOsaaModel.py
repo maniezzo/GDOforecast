@@ -155,7 +155,7 @@ def build_sap(req, c, h, Q, b, M=9999999, fixed_x=None):
    return model, x, q, eps, demand
 
 # un po' di postprocessing sui risultati
-def resultsKPI(name,cap, req, numscen, asgn, q, cost, h, trueVal, tol=1e-6):
+def resultsKPI(name,cap, req, numscen, asgn, q, cost, h, trueVal, tol=1e-6, M=1e6):
     cap = np.asarray(cap, dtype=float)
     cost = np.asarray(cost, dtype=float).T
     h = np.asarray(h, dtype=float)
@@ -190,8 +190,9 @@ def resultsKPI(name,cap, req, numscen, asgn, q, cost, h, trueVal, tol=1e-6):
         true_loads[i] += trueVal[j]
 
     handling_cost = np.dot(h, true_loads)
-    true_cost = assignment_cost + handling_cost
     true_overloads = np.maximum(true_loads - cap, 0.0)
+    num_overloads = np.count_nonzero(true_overloads)
+    true_cost = assignment_cost + handling_cost + M*num_overloads
 
     print(
         f"Realized cost: assignment={assignment_cost:.2f}, "
@@ -336,4 +337,4 @@ def go_besosaa(req, cap, p_OA, h, bind, cost, numscen, numCustomers, seed, test,
       #print(f"Assignments: {assignments}")
    else:
       print("No feasible solution found. Gurobi status:", model.Status)
-   return
+   return true_cost

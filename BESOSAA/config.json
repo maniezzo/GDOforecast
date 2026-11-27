@@ -1,11 +1,11 @@
 {
   "seed": 666,
   "numscen": 75,
-  "numCustomers": 100,
+  "numCustomers": 50,
   "commentC": "52 for use case",
-  "numCenters": 5,
+  "numCenters": 4,
   "commentCn": "4 in the use case",
-  "numRep": 3,
+  "numRep": 1,
   "commentR": "numero ripetizioni per istanza",
   "b": [],
   "commentB": "indici client assegnabili a 2 DC, [] per nessuno",
@@ -16,7 +16,7 @@
     0
   ],
   "commentH": "handling cost dei vari DC",
-  "totdisp": 1.1,
+  "totdisp": 1.2,
   "commentD": "capacita' totale DC rispetto a somma domande",
   "m": 100,
   "commentm": "see formulation, num distributions",

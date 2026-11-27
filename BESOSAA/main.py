@@ -38,7 +38,7 @@ if __name__ == '__main__':
 
    with open("../results.csv", "a") as f:
       f.write(f"ncust,{numCustomers},ncent,{numCenters},nscen,{numscen},"
-              f"b,{b},gamma,{gamma},maxt,{maxt}--\n")
+              f"b,{b},gamma,{gamma},totdisp,{totdisp},maxt,{maxt}--\n")
 
    name = "dataframe_nocovid_full"
    df = pd.read_csv(f"../data/{name}.csv", usecols=[i for i in range(1, 53)])
@@ -66,8 +66,11 @@ if __name__ == '__main__':
       else:
          print("Non use case")
          boots,history,h,p_OA,cost,cap,testBoost,test = go_artificial(numCustomers,numCenters,numscen,seed,totdisp=totdisp)
-         go_besosaa(np.array(history).T, cap, p_OA, h, b, cost.T, numscen, numCustomers, seed, test, maxt)
-         go_sap(np.array(history).T, cap, h, b, cost.T, test, numCustomers=numCustomers, maxt=maxt)
+         true_cost = go_besosaa(np.array(history).T, cap, p_OA, h, b, cost.T, numscen, numCustomers, seed, test, maxt)
+         print(f"True cost={true_cost}")
+         fDeterninistic = False
+         if(fDeterninistic):
+            go_sap(np.array(history).T, cap, h, b, cost.T, test, numCustomers=numCustomers, maxt=maxt)
       seed += 3
 
    print('Fine')
